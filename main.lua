@@ -6,9 +6,11 @@ local symbols = {
 	floor = ".",
 	wall = "#",
 	player = "@",
-	stair = ">",
+	stair = "<",
 	dark = " "
 }
+
+math.randomseed(os.time())
 
 function getIdx(x, y)
 	return (y*MAX_X) + x
@@ -53,6 +55,7 @@ end
 
 function make_big_room(lvl)
 	local terrain = {}
+
 	for y=1,MAX_Y do
 		for x=1,MAX_X do
 			local s
@@ -61,13 +64,65 @@ function make_big_room(lvl)
 			else
 				s = symbols.floor
 			end
-			if terrain[getIdx(x, y)] then
-				s = "!"
-			end
 			terrain[getIdx(x, y)] = {symbol = s, x = x, y = y}
 		end
 	end
+
+	local stair_x = math.random(2, MAX_X - 1)
+	local stair_y = math.random(2, MAX_Y - 1)
+	terrain[getIdx(stair_x, stair_y)] = {symbol = symbols.stair, x = stair_x, y = stair_y}
+
+	local player_x = math.random(2, MAX_X - 1)
+	local player_y = math.random(2, MAX_Y - 1)
 	lvl.terrain = terrain
+	return player_x, player_y
+end
+
+function boolean_walker(max_steps)
+	local floors = {}
+	local x = math.random(2, MAX_X - 1)
+	local y = math.random(2, MAX_Y - 1)
+	local start_x, start_y = x, y
+	local possible_steps = {{dx=0,dy=1},{dx=0,dy=-1},{dx=1,dy=0},{dx=-1,dy=0}}
+	local steps = 0
+	while steps < max_steps do
+		local direction = possible_steps[math.random(1,#possible_steps)]
+		local new_x = x + direction.dx
+		local new_y = y + direction.dy
+		if new_x < 2 or new_x > (MAX_X - 1) then new_x = x end
+		if new_y < 2 or new_y > (MAX_Y - 1) then new_y = y end
+		x = new_x
+		y = new_y
+		local id = getIdx(x, y)
+		if not floors[id] then
+			floors[id] = true
+			steps = steps + 1
+		end
+	end
+	local end_x, end_y = x, y
+	return floors, start_x, start_y, end_x, end_y
+end
+
+function make_cave(lvl)
+	local max_steps = math.floor((MAX_X * MAX_Y * 3) / 4)
+	local floors, start_x, start_y, end_x, end_y = boolean_walker(max_steps)
+	local terrain = {}
+	for y=1,MAX_Y do
+		for x=1,MAX_X do
+			local s
+			local id = getIdx(x, y)
+			if x == start_x and y == start_y then
+				s = symbols.stair
+			elseif floors[id] then
+				s = symbols.floor
+			else
+				s = symbols.wall
+			end
+			terrain[id] = {symbol = s, x = x, y = y}
+		end
+	end
+	lvl.terrain = terrain
+	return end_x, end_y
 end
 
 function make_lvl()
@@ -77,7 +132,8 @@ function make_lvl()
 		denizens = {}
 	}
 
-	local init_x, init_y = 10, 10
+	--local init_x, init_y = make_big_room(res)
+	local init_x, init_y = make_cave(res)
 	res.player_id = getIdx(init_x, init_y)
 	res.denizens[res.player_id] = {
 		symbol = symbols.player,
@@ -86,7 +142,6 @@ function make_lvl()
 		light_radius = 2
 	}
 
-	make_big_room(res)
 	reset_light(res)
 	return res
 end
