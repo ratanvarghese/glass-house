@@ -2,10 +2,6 @@ local termfx = require("termfx")
 
 local MAX_X, MAX_Y = 70, 20
 
-function getIdx(x, y)
-	return (y*MAX_X) + x
-end
-
 local symbols = {
 	floor = ".",
 	wall = "#",
@@ -14,31 +10,32 @@ local symbols = {
 	dark = " "
 }
 
-local denizens = {}
-local terrain = {}
-local light = {}
+function getIdx(x, y)
+	return (y*MAX_X) + x
+end
 
-function move(old_x, old_y, new_x, new_y)
+function move(lvl, old_x, old_y, new_x, new_y)
 	local new_id = getIdx(new_x, new_y)
 
-	if terrain[new_id] and terrain[new_id].symbol == symbols.wall then
+	if lvl.terrain[new_id] and lvl.terrain[new_id].symbol == symbols.wall then
 		return false
-	elseif denizens[new_id] then
+	elseif lvl.denizens[new_id] then
 		return false
 	end
 
 	local old_id = getIdx(old_x, old_y)
-	local d = denizens[old_id]
+	local d = lvl.denizens[old_id]
 	d.x = new_x
 	d.y = new_y
-	denizens[new_id] = d
-	denizens[old_id] = nil
+	lvl.denizens[new_id] = d
+	lvl.denizens[old_id] = nil
+	reset_light(lvl)
 	return true
 end
 
-function reset_light()
-	light = {}
-	for _,denizen in pairs(denizens) do
+function reset_light(lvl)
+	local light = {}
+	for _,denizen in pairs(lvl.denizens) do
 		if denizen.light_radius then
 			local min_x = math.max(denizen.x - denizen.light_radius, 1)
 			local max_x = math.min(denizen.x + denizen.light_radius, MAX_X)
@@ -51,50 +48,59 @@ function reset_light()
 			end
 		end
 	end
+	lvl.light = light
 end
 
-for y=1,MAX_Y do
-	for x=1,MAX_X do
-		local s
-		if x == 1 or x == MAX_X or y == 1 or y == MAX_Y then
-			s = symbols.wall
-		else
-			s = symbols.floor
+function make_big_room(lvl)
+	local terrain = {}
+	for y=1,MAX_Y do
+		for x=1,MAX_X do
+			local s
+			if x == 1 or x == MAX_X or y == 1 or y == MAX_Y then
+				s = symbols.wall
+			else
+				s = symbols.floor
+			end
+			if terrain[getIdx(x, y)] then
+				s = "!"
+			end
+			terrain[getIdx(x, y)] = {symbol = s, x = x, y = y}
 		end
-		if terrain[getIdx(x, y)] then
-			s = "!"
-		end
-		terrain[getIdx(x, y)] = {symbol = s, x = x, y = y}
 	end
+	lvl.terrain = terrain
 end
 
-local init_x, init_y = 10, 10
-local player_id = getIdx(init_x, init_y)
-denizens[player_id] = {
-	symbol = symbols.player,
-	x = init_x,
-	y = init_y,
-	light_radius = 2
-}
+function make_lvl()
+	local res = {
+		light = {},
+		terrain = {},
+		denizens = {}
+	}
 
-termfx.init()
+	local init_x, init_y = 10, 10
+	res.player_id = getIdx(init_x, init_y)
+	res.denizens[res.player_id] = {
+		symbol = symbols.player,
+		x = init_x,
+		y = init_y,
+		light_radius = 2
+	}
 
-local keepGoing = true
-local ok, err = pcall(function()
+	make_big_room(res)
+	reset_light(res)
+	return res
+end
 
-while keepGoing do
-	termfx.clear()
-	reset_light()
-
+function print_lvl(lvl)
 	for y=1,MAX_Y do
 		for x=1,MAX_X do
 			local i = getIdx(x, y)
-			if light[i] then
-				local denizen = denizens[i]
+			if lvl.light[i] then
+				local denizen = lvl.denizens[i]
 				if denizen then
 					termfx.printat(denizen.x, denizen.y, denizen.symbol)
 				else
-					local tile = terrain[i]
+					local tile = lvl.terrain[i]
 					termfx.printat(tile.x, tile.y, tile.symbol)
 				end
 			else
@@ -102,28 +108,41 @@ while keepGoing do
 			end
 		end
 	end
+end
 
-	termfx.present()
-
-	local evt = termfx.pollevent()
-	local dy, dx = 0, 0
-	if evt.char == "q" then
-		keepGoing = false
-	elseif evt.char == "w" then
-		dy = -1
-	elseif evt.char == "s" then
-		dy = 1
-	elseif evt.char == "a" then
-		dx = -1
-	elseif evt.char == "d" then
-		dx = 1
-	end
-
-	local p = denizens[player_id]
-	if move(p.x, p.y, p.x + dx, p.y + dy) then
-		player_id = getIdx(p.x, p.y)
+function move_player(lvl, dx, dy)
+	local p = lvl.denizens[lvl.player_id]
+	if move(lvl, p.x, p.y, p.x + dx, p.y + dy) then
+		lvl.player_id = getIdx(p.x, p.y)
 	end
 end
+
+local current_lvl = make_lvl()
+
+termfx.init()
+	local ok, err = pcall(function()
+
+	while true do
+		termfx.clear()
+
+		print_lvl(current_lvl)
+		termfx.present()
+
+		local evt = termfx.pollevent()
+		local dy, dx = 0, 0
+		if evt.char == "q" then
+			break
+		elseif evt.char == "w" then
+			dy = -1
+		elseif evt.char == "s" then
+			dy = 1
+		elseif evt.char == "a" then
+			dx = -1
+		elseif evt.char == "d" then
+			dx = 1
+		end
+		move_player(current_lvl, dx, dy)
+	end
 
 end)
 
