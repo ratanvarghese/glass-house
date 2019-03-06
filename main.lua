@@ -10,11 +10,13 @@ local symbols = {
 	floor = ".",
 	wall = "#",
 	player = "@",
-	stair = ">"
+	stair = ">",
+	dark = " "
 }
 
 local denizens = {}
 local terrain = {}
+local light = {}
 
 function move(old_x, old_y, new_x, new_y)
 	local new_id = getIdx(new_x, new_y)
@@ -34,6 +36,23 @@ function move(old_x, old_y, new_x, new_y)
 	return true
 end
 
+function reset_light()
+	light = {}
+	for _,denizen in pairs(denizens) do
+		if denizen.light_radius then
+			local min_x = math.max(denizen.x - denizen.light_radius, 1)
+			local max_x = math.min(denizen.x + denizen.light_radius, MAX_X)
+			local min_y = math.max(denizen.y - denizen.light_radius, 1)
+			local max_y = math.min(denizen.y + denizen.light_radius, MAX_Y)
+			for x = min_x,max_x do
+				for y = min_y,max_y do
+					light[getIdx(x, y)] = true
+				end
+			end
+		end
+	end
+end
+
 for y=1,MAX_Y do
 	for x=1,MAX_X do
 		local s
@@ -51,7 +70,12 @@ end
 
 local init_x, init_y = 10, 10
 local player_id = getIdx(init_x, init_y)
-denizens[player_id] = {symbol = symbols.player, x = init_x, y = init_y}
+denizens[player_id] = {
+	symbol = symbols.player,
+	x = init_x,
+	y = init_y,
+	light_radius = 2
+}
 
 termfx.init()
 
@@ -60,12 +84,23 @@ local ok, err = pcall(function()
 
 while keepGoing do
 	termfx.clear()
+	reset_light()
 
-	for _,tile in pairs(terrain) do
-		termfx.printat(tile.x, tile.y, tile.symbol)
-	end
-	for _,denizen in pairs(denizens) do
-		termfx.printat(denizen.x, denizen.y, denizen.symbol)
+	for y=1,MAX_Y do
+		for x=1,MAX_X do
+			local i = getIdx(x, y)
+			if light[i] then
+				local denizen = denizens[i]
+				if denizen then
+					termfx.printat(denizen.x, denizen.y, denizen.symbol)
+				else
+					local tile = terrain[i]
+					termfx.printat(tile.x, tile.y, tile.symbol)
+				end
+			else
+				termfx.printat(x, y, symbols.dark)
+			end
+		end
 	end
 
 	termfx.present()
