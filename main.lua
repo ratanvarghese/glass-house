@@ -1,6 +1,8 @@
 local termfx = require("termfx")
+local serpent = require("serpent")
 
 local MAX_X, MAX_Y = 70, 20
+local savefile = "save.glass"
 
 local symbols = {
 	floor = ".",
@@ -104,7 +106,7 @@ function boolean_walker(max_steps)
 end
 
 function make_cave(lvl)
-	local max_steps = math.floor((MAX_X * MAX_Y * 3) / 4)
+	local max_steps = math.floor((MAX_X * MAX_Y * 2) / 4)
 	local floors, start_x, start_y, end_x, end_y = boolean_walker(max_steps)
 	local terrain = {}
 	for y=1,MAX_Y do
@@ -172,7 +174,25 @@ function move_player(lvl, dx, dy)
 	end
 end
 
-local current_lvl = make_lvl()
+local current_lvl
+local f, ferr = io.open(savefile, "r")
+if f then
+	local s = f:read("*a")
+	f:close()
+	local dumpfunc = loadstring(s)
+	if not dumpfunc then
+		print("Bad savefile. Press 's' to start new game, 'q' to quit, then 'Enter'")
+		local choice = io.read()
+		if choice == "s" then
+			current_lvl = make_lvl()
+		else
+			return
+		end
+	end
+	current_lvl = dumpfunc()
+else
+	current_lvl = make_lvl()
+end
 
 termfx.init()
 	local ok, err = pcall(function()
@@ -202,6 +222,12 @@ termfx.init()
 end)
 
 termfx.shutdown()
+
+if ok then
+	local end_f, end_ferr = io.open(savefile, "w")
+	if not end_f then error(end_ferr) end
+	end_f:write(serpent.dump(current_lvl))
+end
 
 if not ok then
 	print(err)
