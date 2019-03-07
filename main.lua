@@ -3,6 +3,7 @@ local serpent = require("serpent")
 
 local MAX_X, MAX_Y = 70, 20
 local savefile = "save.glass"
+local current_lvl
 
 local symbols = {
 	floor = ".",
@@ -20,11 +21,16 @@ end
 
 function move(lvl, old_x, old_y, new_x, new_y)
 	local new_id = getIdx(new_x, new_y)
-
-	if lvl.terrain[new_id] and lvl.terrain[new_id].symbol == symbols.wall then
+	local target = lvl.terrain[new_id]
+	if target.symbol == symbols.wall then
 		return false
 	elseif lvl.denizens[new_id] then
 		return false
+	end
+
+	if target.symbol == symbols.stair then
+		current_lvl = make_lvl(lvl.lvl_num + 1)
+		return true
 	end
 
 	local old_id = getIdx(old_x, old_y)
@@ -127,11 +133,12 @@ function make_cave(lvl)
 	return end_x, end_y
 end
 
-function make_lvl()
+function make_lvl(lvl_num)
 	local res = {
 		light = {},
 		terrain = {},
-		denizens = {}
+		denizens = {},
+		lvl_num = lvl_num
 	}
 
 	--local init_x, init_y = make_big_room(res)
@@ -174,7 +181,6 @@ function move_player(lvl, dx, dy)
 	end
 end
 
-local current_lvl
 local f, ferr = io.open(savefile, "r")
 if f then
 	local s = f:read("*a")
@@ -184,14 +190,14 @@ if f then
 		print("Bad savefile. Press 's' to start new game, 'q' to quit, then 'Enter'")
 		local choice = io.read()
 		if choice == "s" then
-			current_lvl = make_lvl()
+			current_lvl = make_lvl(0)
 		else
 			return
 		end
 	end
 	current_lvl = dumpfunc()
 else
-	current_lvl = make_lvl()
+	current_lvl = make_lvl(0)
 end
 
 termfx.init()
