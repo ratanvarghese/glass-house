@@ -138,6 +138,7 @@ function make_lvl(lvl_num)
 		light = {},
 		terrain = {},
 		denizens = {},
+		memory = {},
 		lvl_num = lvl_num
 	}
 
@@ -166,7 +167,13 @@ function print_lvl(lvl)
 				else
 					local tile = lvl.terrain[i]
 					termfx.printat(tile.x, tile.y, tile.symbol)
+					if tile.symbol ~= symbols.floor then
+						lvl.memory[i] = true
+					end
 				end
+			elseif lvl.memory[i] then
+				local tile = lvl.terrain[i]
+				termfx.printat(tile.x, tile.y, tile.symbol)
 			else
 				termfx.printat(x, y, symbols.dark)
 			end
