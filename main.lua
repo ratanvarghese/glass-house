@@ -181,24 +181,28 @@ function move_player(lvl, dx, dy)
 	end
 end
 
-local f, ferr = io.open(savefile, "r")
-if f then
-	local s = f:read("*a")
-	f:close()
-	local dumpfunc = loadstring(s)
-	if not dumpfunc then
-		print("Bad savefile. Press 's' to start new game, 'q' to quit, then 'Enter'")
-		local choice = io.read()
-		if choice == "s" then
-			current_lvl = make_lvl(0)
-		else
-			return
+function starting_level(filename)
+	local f, ferr = io.open(filename, "r")
+	if f then
+		local s = f:read("*a")
+		f:close()
+		local dumpfunc = loadstring(s)
+		if not dumpfunc then
+			print("Bad savefile. Press 's' to start new game, 'q' to quit, then 'Enter'")
+			local choice = io.read()
+			if choice == "s" then
+				return make_lvl(1)
+			else
+				os.exit()
+			end
 		end
+		return dumpfunc()
+	else
+		return make_lvl(1)
 	end
-	current_lvl = dumpfunc()
-else
-	current_lvl = make_lvl(0)
 end
+
+current_lvl = starting_level(savefile)
 
 termfx.init()
 	local ok, err = pcall(function()
