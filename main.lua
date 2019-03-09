@@ -2,7 +2,6 @@ local termfx = require("termfx")
 
 local base = require("src.base")
 local file = require("src.file")
-local action = require("src.action")
 local level = require("src.level")
 
 local ui
@@ -15,7 +14,9 @@ end
 math.randomseed(os.time())
 
 level.current = file.load()
-if not level.current then
+if level.current then
+	level.register(level.current)
+else	
 	level.current = level.make(1)
 end
 
@@ -37,8 +38,8 @@ local ok, err = pcall(function()
 		elseif c == "d" then
 			dx = 1
 		end
-		action.move_player(level.current, dx, dy)
-		if level.denizen_on_terrain(level.current, level.current.player_id, base.symbols.stair) then
+		level.current:move_player(dx, dy)
+		if level.current:denizen_on_terrain(level.current.player_id, base.symbols.stair) then
 			level.current = level.make(level.current.num + 1)
 		end
 	end
