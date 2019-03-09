@@ -4,24 +4,30 @@ local action = require("src.action")
 
 local level = {}
 
+local function add_denizen(lvl, dz)
+	lvl.denizens[base.getIdx(dz.x, dz.y)] = dz
+	table.insert(lvl.denizens_in_order, dz)
+end
+
 function level.make(num)
 	local res = {
 		light = {},
 		terrain = {},
 		denizens = {},
+		denizens_in_order = {},
 		memory = {},
 		num = num
 	}
 
 	local init_x, init_y = gen.cave(res)
 	res.player_id = base.getIdx(init_x, init_y)
-	res.denizens[res.player_id] = {
+	local player = {
 		symbol = base.symbols.player,
 		x = init_x,
 		y = init_y,
 		light_radius = 2
 	}
-
+	add_denizen(res, player)
 	action.reset_light(res)
 	return res
 end
