@@ -1,110 +1,15 @@
 local termfx = require("termfx")
 
 local base = require("base")
-local gen = require("gen")
 local file = require("file")
+local action = require("action")
+local level = require("level")
 
 math.randomseed(os.time())
 
-function move(lvl, old_x, old_y, new_x, new_y)
-	local new_id = base.getIdx(new_x, new_y)
-	local target = lvl.terrain[new_id]
-	if target.symbol == base.symbols.wall then
-		return false
-	elseif lvl.denizens[new_id] then
-		return false
-	end
-
-	if target.symbol == base.symbols.stair then
-		current_lvl = make_lvl(lvl.lvl_num + 1)
-		return true
-	end
-
-	local old_id = base.getIdx(old_x, old_y)
-	local d = lvl.denizens[old_id]
-	d.x = new_x
-	d.y = new_y
-	lvl.denizens[new_id] = d
-	lvl.denizens[old_id] = nil
-	reset_light(lvl)
-	return true
-end
-
-function reset_light(lvl)
-	local light = {}
-	for _,denizen in pairs(lvl.denizens) do
-		if denizen.light_radius then
-			local min_x = math.max(denizen.x - denizen.light_radius, 1)
-			local max_x = math.min(denizen.x + denizen.light_radius, base.MAX_X)
-			local min_y = math.max(denizen.y - denizen.light_radius, 1)
-			local max_y = math.min(denizen.y + denizen.light_radius, base.MAX_Y)
-			for x = min_x,max_x do
-				for y = min_y,max_y do
-					light[base.getIdx(x, y)] = true
-				end
-			end
-		end
-	end
-	lvl.light = light
-end
-
-function make_lvl(lvl_num)
-	local res = {
-		light = {},
-		terrain = {},
-		denizens = {},
-		memory = {},
-		lvl_num = lvl_num
-	}
-
-	local init_x, init_y = gen.cave(res)
-	res.player_id = base.getIdx(init_x, init_y)
-	res.denizens[res.player_id] = {
-		symbol = base.symbols.player,
-		x = init_x,
-		y = init_y,
-		light_radius = 2
-	}
-
-	reset_light(res)
-	return res
-end
-
-function print_lvl(lvl)
-	for y=1,base.MAX_Y do
-		for x=1,base.MAX_X do
-			local i = base.getIdx(x, y)
-			if lvl.light[i] then
-				local denizen = lvl.denizens[i]
-				if denizen then
-					termfx.printat(denizen.x, denizen.y, denizen.symbol)
-				else
-					local tile = lvl.terrain[i]
-					termfx.printat(tile.x, tile.y, tile.symbol)
-					if tile.symbol ~= base.symbols.floor then
-						lvl.memory[i] = true
-					end
-				end
-			elseif lvl.memory[i] then
-				local tile = lvl.terrain[i]
-				termfx.printat(tile.x, tile.y, tile.symbol)
-			else
-				termfx.printat(x, y, base.symbols.dark)
-			end
-		end
-	end
-end
-
-function move_player(lvl, dx, dy)
-	local p = lvl.denizens[lvl.player_id]
-	if move(lvl, p.x, p.y, p.x + dx, p.y + dy) then
-		lvl.player_id = base.getIdx(p.x, p.y)
-	end
-end
-
-current_lvl = file.load()
-if not current_lvl then
-	current_lvl = make_lvl(1)
+level.current = file.load()
+if not level.current then
+	level.current = level.make(1)
 end
 
 termfx.init()
@@ -113,7 +18,11 @@ local ok, err = pcall(function()
 	while true do
 		termfx.clear()
 
-		print_lvl(current_lvl)
+		for y=1,base.MAX_Y do
+			for x=1,base.MAX_X do
+				termfx.printat(x, y, level.symbol_at(level.current, x, y))
+			end
+		end
 		termfx.present()
 
 		local evt = termfx.pollevent()
@@ -129,7 +38,10 @@ local ok, err = pcall(function()
 		elseif evt.char == "d" then
 			dx = 1
 		end
-		move_player(current_lvl, dx, dy)
+
+		if action.move_player(level.current, dx, dy) then
+			level.current = level.make(level.current.num + 1)
+		end
 	end
 
 end)
@@ -137,7 +49,7 @@ end)
 termfx.shutdown()
 
 if ok then
-	ok, err = pcall(function() file.save(current_lvl) end)
+	ok, err = pcall(function() file.save(level.current) end)
 end
 
 if not ok then
