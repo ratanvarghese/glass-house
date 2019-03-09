@@ -1,8 +1,8 @@
-local termfx = require("termfx")
-
 local base = require("src.base")
 local file = require("src.file")
 local level = require("src.level")
+local player = require("src.player")
+local mon = require("src.mon")
 
 local ui
 if arg[1] == "--stdio" or arg[1] == "-s" then
@@ -22,29 +22,20 @@ end
 
 ui.init()
 local ok, err = pcall(function()
-	while true do
+	local keep_going = true
+	while keep_going do
 		ui.drawlevel()
 
-		local c = ui.getinput()
-		local dy, dx = 0, 0
-		if c == "q" then
-			break
-		elseif c == "w" then
-			dy = -1
-		elseif c == "s" then
-			dy = 1
-		elseif c == "a" then
-			dx = -1
-		elseif c == "d" then
-			dx = 1
-		end
-		level.current:move_player(dx, dy)
-		if level.current:denizen_on_terrain(level.current.player_id, base.symbols.stair) then
-			level.current = level.make(level.current.num + 1)
+		for _, denizen in ipairs(level.current.denizens_in_order) do
+			if denizen.symbol == base.symbols.player then
+				local c = ui.getinput()
+				keep_going = player.handle_input(c)
+			else
+				mon.act(denizen)
+			end
 		end
 	end
 end)
-
 ui.shutdown()
 
 if ok then

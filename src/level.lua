@@ -22,7 +22,7 @@ function level:reset_light()
 	end
 end
 
-function level:move(old_x, old_y, new_x, new_y)
+function level:move(denizen, new_x, new_y)
 	local new_id = base.getIdx(new_x, new_y)
 	local target = self.terrain[new_id]
 	if target.symbol == base.symbols.wall then
@@ -31,11 +31,10 @@ function level:move(old_x, old_y, new_x, new_y)
 		return false
 	end
 
-	local old_id = base.getIdx(old_x, old_y)
-	local d = self.denizens[old_id]
-	d.x = new_x
-	d.y = new_y
-	self.denizens[new_id] = d
+	local old_id = base.getIdx(denizen.x, denizen.y)
+	denizen.x = new_x
+	denizen.y = new_y
+	self.denizens[new_id] = denizen
 	self.denizens[old_id] = nil
 	self:reset_light()
 	return true
@@ -43,7 +42,7 @@ end
 
 function level:move_player(dx, dy)
 	local p = self.denizens[self.player_id]
-	local res = self:move(p.x, p.y, p.x + dx, p.y + dy)
+	local res = self:move(p, p.x + dx, p.y + dy)
 	if res then
 		self.player_id = base.getIdx(p.x, p.y)
 	end
@@ -73,6 +72,7 @@ function level.make(num)
 	level.register(res)
 
 	local init_x, init_y = gen.cave(res)
+
 	res.player_id = base.getIdx(init_x, init_y)
 	local player = {
 		symbol = base.symbols.player,
@@ -81,6 +81,22 @@ function level.make(num)
 		light_radius = 2
 	}
 	res:add_denizen(player)
+
+	local angel = {
+		symbol = base.symbols.angel,
+		x = 40,
+		y = 10,
+		light_radius = 2
+	}
+	res:add_denizen(angel)
+
+	local dragon = {
+		symbol = base.symbols.dragon,
+		x = 10,
+		y = 10
+	}
+	res:add_denizen(dragon)
+
 	res:reset_light()
 	return res
 end

@@ -14,7 +14,7 @@ function ui.drawlevel()
 
 	for y=1,base.MAX_Y do
 		for x=1,base.MAX_X do
-			termfx.printat(x, y, level.symbol_at(level.current, x, y))
+			termfx.printat(x, y, level.current:symbol_at(x, y))
 		end
 	end
 	termfx.present()
