@@ -1,8 +1,8 @@
 local termfx = require("termfx")
-local serpent = require("serpent")
 
 local base = require("base")
 local gen = require("gen")
+local file = require("file")
 
 math.randomseed(os.time())
 
@@ -102,31 +102,13 @@ function move_player(lvl, dx, dy)
 	end
 end
 
-function starting_level(filename)
-	local f, ferr = io.open(filename, "r")
-	if f then
-		local s = f:read("*a")
-		f:close()
-		local dumpfunc = loadstring(s)
-		if not dumpfunc then
-			print("Bad savefile. Press 's' to start new game, 'q' to quit, then 'Enter'")
-			local choice = io.read()
-			if choice == "s" then
-				return make_lvl(1)
-			else
-				os.exit()
-			end
-		end
-		return dumpfunc()
-	else
-		return make_lvl(1)
-	end
+current_lvl = file.load()
+if not current_lvl then
+	current_lvl = make_lvl(1)
 end
 
-current_lvl = starting_level(base.savefile)
-
 termfx.init()
-	local ok, err = pcall(function()
+local ok, err = pcall(function()
 
 	while true do
 		termfx.clear()
@@ -155,9 +137,7 @@ end)
 termfx.shutdown()
 
 if ok then
-	local end_f, end_ferr = io.open(base.savefile, "w")
-	if not end_f then error(end_ferr) end
-	end_f:write(serpent.dump(current_lvl))
+	ok, err = pcall(function() file.save(current_lvl) end)
 end
 
 if not ok then
