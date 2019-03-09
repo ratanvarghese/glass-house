@@ -2,7 +2,7 @@ local base = {}
 
 base.MAX_X = 70
 base.MAX_Y = 20
-base.savefile = "save.glass"
+base.savefile = ".save.glass"
 base.symbols = {
 	floor = ".",
 	wall = "#",
