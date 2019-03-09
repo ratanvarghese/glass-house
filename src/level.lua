@@ -1,6 +1,6 @@
-local base = require("base")
-local gen = require("gen")
-local action = require("action")
+local base = require("src.base")
+local gen = require("src.gen")
+local action = require("src.action")
 
 local level = {}
 

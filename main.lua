@@ -1,9 +1,16 @@
 local termfx = require("termfx")
 
-local base = require("base")
-local file = require("file")
-local action = require("action")
-local level = require("level")
+local base = require("src.base")
+local file = require("src.file")
+local action = require("src.action")
+local level = require("src.level")
+
+local ui
+if arg[1] == "--stdio" or arg[1] == "-s" then
+	ui = require("ui.std")
+else
+	ui = require("ui.rogue")
+end
 
 math.randomseed(os.time())
 
@@ -12,30 +19,22 @@ if not level.current then
 	level.current = level.make(1)
 end
 
-termfx.init()
+ui.init()
 local ok, err = pcall(function()
-
 	while true do
-		termfx.clear()
+		ui.drawlevel()
 
-		for y=1,base.MAX_Y do
-			for x=1,base.MAX_X do
-				termfx.printat(x, y, level.symbol_at(level.current, x, y))
-			end
-		end
-		termfx.present()
-
-		local evt = termfx.pollevent()
+		local c = ui.getinput()
 		local dy, dx = 0, 0
-		if evt.char == "q" then
+		if c == "q" then
 			break
-		elseif evt.char == "w" then
+		elseif c == "w" then
 			dy = -1
-		elseif evt.char == "s" then
+		elseif c == "s" then
 			dy = 1
-		elseif evt.char == "a" then
+		elseif c == "a" then
 			dx = -1
-		elseif evt.char == "d" then
+		elseif c == "d" then
 			dx = 1
 		end
 
@@ -43,10 +42,9 @@ local ok, err = pcall(function()
 			level.current = level.make(level.current.num + 1)
 		end
 	end
-
 end)
 
-termfx.shutdown()
+ui.shutdown()
 
 if ok then
 	ok, err = pcall(function() file.save(level.current) end)

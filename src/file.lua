@@ -1,6 +1,6 @@
 local serpent = require("serpent")
 
-local base = require("base")
+local base = require("src.base")
 
 local file = {}
 

@@ -1,0 +1,28 @@
+local base = require("src.base")
+local level = require("src.level")
+
+local ui = {}
+
+function ui.init()
+	print("Welcome to GLASS TOWER")
+end
+
+function ui.shutdown()
+	print("Bye!")
+end
+
+function ui.drawlevel()
+	for y=1,base.MAX_Y do
+		for x=1,base.MAX_X do
+			io.write(level.symbol_at(level.current, x, y))
+		end
+		io.write("\n")
+	end
+end
+
+function ui.getinput()
+	io.write("> ")
+	return io.read()
+end
+
+return ui

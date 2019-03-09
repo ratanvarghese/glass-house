@@ -1,4 +1,4 @@
-local base = require("base")
+local base = require("src.base")
 
 local action = {}
 
