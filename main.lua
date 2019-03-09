@@ -37,8 +37,8 @@ local ok, err = pcall(function()
 		elseif c == "d" then
 			dx = 1
 		end
-
-		if action.move_player(level.current, dx, dy) then
+		action.move_player(level.current, dx, dy)
+		if level.denizen_on_terrain(level.current, level.current.player_id, base.symbols.stair) then
 			level.current = level.make(level.current.num + 1)
 		end
 	end

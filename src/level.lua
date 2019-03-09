@@ -51,4 +51,8 @@ function level.symbol_at(lvl, x, y)
 	end
 end
 
+function level.denizen_on_terrain(lvl, denizen_id, terrain_symbol)
+	return (lvl.terrain[denizen_id].symbol == terrain_symbol)
+end
+
 return level

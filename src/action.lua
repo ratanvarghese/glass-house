@@ -42,11 +42,13 @@ end
 
 function action.move_player(lvl, dx, dy)
 	local p = lvl.denizens[lvl.player_id]
-	if action.move(lvl, p.x, p.y, p.x + dx, p.y + dy) then
+	local res = action.move(lvl, p.x, p.y, p.x + dx, p.y + dy)
+	if res then
 		lvl.player_id = base.getIdx(p.x, p.y)
 	end
 
-	return (lvl.terrain[lvl.player_id].symbol == base.symbols.stair)
+	return res
 end
+
 
 return action
