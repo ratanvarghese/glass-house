@@ -32,6 +32,7 @@ function level:move(denizen, new_x, new_y)
 	end
 
 	local old_id = base.getIdx(denizen.x, denizen.y)
+	assert(denizen == self.denizens[old_id], "ID error for denizen\n" .. debug.traceback())
 	denizen.x = new_x
 	denizen.y = new_y
 	self.denizens[new_id] = denizen

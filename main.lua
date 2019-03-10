@@ -26,12 +26,17 @@ local ok, err = pcall(function()
 	while keep_going do
 		ui.drawlevel()
 
+		local old_level = level.current
 		for _, denizen in ipairs(level.current.denizens_in_order) do
 			if denizen.symbol == base.symbols.player then
 				local c = ui.getinput()
 				keep_going = player.handle_input(c)
 			else
 				mon.act(denizen)
+			end
+
+			if level.current ~= old_level then
+				break
 			end
 		end
 	end
