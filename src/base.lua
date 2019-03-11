@@ -14,6 +14,8 @@ base.symbols = {
 }
 	
 function base.getIdx(x, y)
+	assert(type(x)=="number", "invalid x:\n"..debug.traceback())
+	assert(type(y)=="number", "invalid y:\n"..debug.traceback())
 	return (y*base.MAX_X) + x
 end
 

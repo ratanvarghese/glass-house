@@ -28,6 +28,9 @@ local ok, err = pcall(function()
 
 		local old_level = level.current
 		for _, denizen in ipairs(level.current.denizens_in_order) do
+			local dz_idx = level.current.denizens[base.getIdx(denizen.x, denizen.y)]
+			assert(dz_idx == denizen, "ID error for denizen\n"..debug.traceback())
+
 			if denizen.symbol == base.symbols.player then
 				local c = ui.getinput()
 				keep_going = player.handle_input(c)

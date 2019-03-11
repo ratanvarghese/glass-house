@@ -32,7 +32,7 @@ function level:move(denizen, new_x, new_y)
 	end
 
 	local old_id = base.getIdx(denizen.x, denizen.y)
-	assert(denizen == self.denizens[old_id], "ID error for denizen\n" .. debug.traceback())
+	assert(denizen == self.denizens[old_id], "ID error for denizen\n"..debug.traceback())
 	denizen.x = new_x
 	denizen.y = new_y
 	self.denizens[new_id] = denizen
@@ -43,6 +43,7 @@ end
 
 function level:move_player(dx, dy)
 	local p = self.denizens[self.player_id]
+	assert(p, "ID error for player\n"..debug.traceback())
 	local res = self:move(p, p.x + dx, p.y + dy)
 	if res then
 		self.player_id = base.getIdx(p.x, p.y)
@@ -108,6 +109,8 @@ function level:symbol_at(x, y)
 	local tile = self.terrain[i]
 	local light = self.light[i]
 	local memory = self.memory[i]
+	assert(type(tile)=="table", "Invalid tile at x="..x.." y="..y)
+
 	if light then
 		if denizen then
 			return denizen.symbol
