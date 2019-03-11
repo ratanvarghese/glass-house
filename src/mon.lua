@@ -4,10 +4,8 @@ local level = require("src.level")
 local mon = {}
 
 function mon.act(denizen)
-	local d = {1, 0, -1}
-	local dx = d[math.random(#d)]
-	local dy = d[math.random(#d)]
-	level.current:move(denizen, denizen.x + dx, denizen.y + dy)
+	local d = base.rn_direction()
+	level.current:move(denizen, denizen.x + d.x, denizen.y + d.y)
 end
 
 return mon

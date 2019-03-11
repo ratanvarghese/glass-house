@@ -3,22 +3,28 @@ local gen = require("src.gen")
 
 local level = {}
 
+function level:light_area(radius, x, y)
+	if not radius then
+		return
+	end
+
+	local min_x = math.max(x - radius, 1)
+	local max_x = math.min(x + radius, base.MAX_X)
+	local min_y = math.max(y - radius, 1)
+	local max_y = math.min(y + radius, base.MAX_Y)
+	for x = min_x,max_x do
+		for y = min_y,max_y do
+			local id = base.getIdx(x, y)
+			self.light[id] = true
+			self.memory[id] = true
+		end
+	end
+end
+
 function level:reset_light()
 	self.light = {}
 	for _,denizen in pairs(self.denizens) do
-		if denizen.light_radius then
-			local min_x = math.max(denizen.x - denizen.light_radius, 1)
-			local max_x = math.min(denizen.x + denizen.light_radius, base.MAX_X)
-			local min_y = math.max(denizen.y - denizen.light_radius, 1)
-			local max_y = math.min(denizen.y + denizen.light_radius, base.MAX_Y)
-			for x = min_x,max_x do
-				for y = min_y,max_y do
-					local id = base.getIdx(x, y)
-					self.light[id] = true
-					self.memory[id] = true
-				end
-			end
-		end
+		self:light_area(denizen.light_radius, denizen.x, denizen.y)
 	end
 end
 
@@ -73,7 +79,8 @@ function level.make(num)
 	}
 	level.register(res)
 
-	local init_x, init_y = gen.cave(res)
+	local terrain, init_x, init_y = gen.cave(res)
+	res.terrain = terrain
 
 	res.player_id = base.getIdx(init_x, init_y)
 	local player = {
