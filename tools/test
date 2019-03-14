@@ -5,13 +5,13 @@ luajit tools/rn_in.lua 28000 > tools/.in.txt
 luajit main.lua -s < tools/.in.txt > tools/.out.txt
 
 echo "Level num:"
-luajit tools/inspect.lua .save.glass num
+luajit tools/inspect.lua .save.glass current num
 
 echo "Denizens:"
-luajit tools/inspect.lua .save.glass denizens
+luajit tools/inspect.lua .save.glass current denizens
 
 echo "Denizens in order:"
-luajit tools/inspect.lua .save.glass denizens_in_order
+luajit tools/inspect.lua .save.glass current denizens_in_order
 
 mv .save.glass tools/.save.glass.tst
 mv .save.glass.old .save.glass 

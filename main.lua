@@ -13,8 +13,9 @@ end
 
 math.randomseed(os.time())
 
-level.current = file.load()
-if level.current then
+local state = file.load()
+if state then
+	level.current = state.current
 	level.register(level.current)
 else	
 	level.current = level.make(1)
@@ -47,7 +48,12 @@ end)
 ui.shutdown()
 
 if ok then
-	ok, err = pcall(function() file.save(level.current) end)
+	state = {
+		current = level.current
+	}
+	ok, err = pcall(function()
+		file.save(state)
+	end)
 end
 
 if not ok then
