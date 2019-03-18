@@ -9,6 +9,10 @@ function player.climb_stairs()
 	end
 end
 
+function player.move(x, y)
+	return 
+end
+
 function player.handle_input(c)
 	local d
 	if c == base.conf.keys.quit then
@@ -23,9 +27,16 @@ function player.handle_input(c)
 		d = base.direction.east
 	end
 
+	local p = level.current.denizens[level.current.player_id]
+	assert(p, "ID error for player")
 	if d then
-		level.current:move_player(d.x, d.y)
-		player.climb_stairs()
+		local nx = p.x + d.x
+		local ny = p.y + d.y
+		if level.current:move(p, nx, ny) then
+			player.climb_stairs()
+		else
+			level.current:bump_hit(p, nx, ny, 1)
+		end
 	end
 	return true
 end

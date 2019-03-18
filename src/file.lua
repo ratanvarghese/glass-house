@@ -24,4 +24,8 @@ function file.save(lvl)
 	f:close()
 end
 
+function file.remove_save()
+	os.remove(base.savefile)
+end
+
 return file

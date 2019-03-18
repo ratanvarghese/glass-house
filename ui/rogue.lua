@@ -10,8 +10,6 @@ ui.init = termfx.init
 ui.shutdown = termfx.shutdown
 
 function ui.drawlevel()
-	termfx.clear()
-
 	for y=1,base.MAX_Y do
 		for x=1,base.MAX_X do
 			termfx.printat(x, y, level.current:symbol_at(x, y))
@@ -42,6 +40,21 @@ function ui.drawpaths()
 		end
 	end
 	termfx.present()
+end
+
+function ui.drawstats()
+	local p = level.current.denizens[level.current.player_id]
+	local hp_line = string.format("HP: %2d", p.hp)
+	termfx.printat(base.MAX_X + 2, 1, hp_line)
+	termfx.present()
+end
+
+function ui.game_over(t)
+	termfx.clear()
+	termfx.printat(10, 10, t.msg)
+	termfx.printat(10, 12, "Press any key to exit.")
+	termfx.present()
+	ui.getinput()
 end
 
 return ui

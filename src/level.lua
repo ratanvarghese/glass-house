@@ -89,6 +89,43 @@ function level:set_light(b)
 	end
 end
 
+function level:kill_denizen(id)
+	if id == self.player_id then
+		self.game_over = {
+			msg = "You died!"
+		}
+	else
+		local victim = self.denizens[id]
+		self.kill_set[victim] = true --Remove from denizens_in_order later
+		self.denizens[id] = nil
+	end
+end
+
+function level:check_kills()
+	local start = #self.denizens_in_order
+	local finish = 1
+	for i=start,1,-1 do
+		local d = self.denizens_in_order[i]
+		if self.kill_set[d] then
+			table.remove(self.denizens_in_order, i)
+		end
+	end
+	self.kill_set = {}
+end
+
+function level:bump_hit(source, targ_x, targ_y, damage)
+	local targ_id = base.getIdx(targ_x, targ_y)
+	local targ = self.denizens[targ_id]
+	if not targ then
+		return false
+	end
+	targ.hp = targ.hp - damage
+	if targ.hp <= 0 then
+		self:kill_denizen(targ_id)
+	end
+	return true
+end
+
 function level:move(denizen, new_x, new_y)
 	local new_id = base.getIdx(new_x, new_y)
 	local target = self.terrain[new_id]
@@ -113,12 +150,6 @@ function level:move(denizen, new_x, new_y)
 	return true
 end
 
-function level:move_player(dx, dy)
-	local p = self.denizens[self.player_id]
-	assert(p, "ID error for player")
-	return self:move(p, p.x + dx, p.y + dy)
-end
-
 function level:add_denizen(dz)
 	self.denizens[base.getIdx(dz.x, dz.y)] = dz
 	table.insert(self.denizens_in_order, dz)
@@ -134,10 +165,12 @@ function level.make(num)
 		light = {},
 		terrain = {},
 		denizens = {},
-		denizens_in_order = {},
+		denizens_in_order = {}, --Safe to iterate over while adding/removing, check kill_set
 		memory = {},
 		paths = {},
-		num = num
+		kill_set = {},
+		num = num,
+		game_over = false
 	}
 	level.register(res)
 
@@ -149,7 +182,8 @@ function level.make(num)
 		symbol = base.symbols.player,
 		x = init_x,
 		y = init_y,
-		light_radius = 2
+		light_radius = 2,
+		hp = 10
 	}
 	res:add_denizen(player)
 
@@ -157,14 +191,16 @@ function level.make(num)
 		symbol = base.symbols.angel,
 		x = 40,
 		y = 10,
-		light_radius = 2
+		light_radius = 2,
+		hp = 10
 	}
 	res:add_denizen(angel)
 
 	local dragon = {
 		symbol = base.symbols.dragon,
 		x = 10,
-		y = 10
+		y = 10,
+		hp = 20
 	}
 	res:add_denizen(dragon)
 

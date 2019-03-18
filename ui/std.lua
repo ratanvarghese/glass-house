@@ -42,4 +42,14 @@ function ui.drawpaths()
 	end
 end
 
+function ui.drawstats()
+	local p = level.current.denizens[level.current.player_id]
+	local hp_line = string.format("HP: %2d", p.hp)
+	io.write(hp_line, "\n")
+end
+
+function ui.game_over(t)
+	io.write(t.msg, "\n")
+end
+
 return ui

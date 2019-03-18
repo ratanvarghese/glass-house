@@ -25,37 +25,45 @@ ui.init()
 local ok, err = xpcall(function()
 	local keep_going = true
 	while keep_going do
-		ui.drawlevel()
-		ui.drawpaths()
-
 		local old_level = level.current
 		for _, denizen in ipairs(level.current.denizens_in_order) do
-			local dz_idx = level.current.denizens[base.getIdx(denizen.x, denizen.y)]
-			assert(dz_idx == denizen, "ID error for denizen\n"..debug.traceback())
+			ui.drawlevel()
+			ui.drawstats()
 
-			if denizen.symbol == base.symbols.player then
-				local c = ui.getinput()
-				keep_going = player.handle_input(c)
-			else
-				mon.act(denizen)
+			if not level.current.kill_set[denizen] then
+				local i = level.current.denizens[base.getIdx(denizen.x, denizen.y)]
+				assert(i == denizen, "ID error for denizen\n")
+
+				if denizen.symbol == base.symbols.player then
+					local c = ui.getinput()
+					keep_going = player.handle_input(c)
+				else
+					mon.act(denizen)
+				end
 			end
 
-			if level.current ~= old_level then
+			if keep_going and level.current.game_over then
+				keep_going = false
+			end
+
+			if level.current ~= old_level or not keep_going then
 				break
 			end
 		end
+		level.current:check_kills()
+	end
+
+	if level.current.game_over then
+		file.remove_save()
+		ui.game_over(level.current.game_over)
+	else
+		local state = {
+			current = level.current
+		}
+		file.save(state)
 	end
 end, base.error_handler)
 ui.shutdown()
-
-if ok then
-	state = {
-		current = level.current
-	}
-	ok, err = pcall(function()
-		file.save(state)
-	end)
-end
 
 if not ok then
 	print(err)

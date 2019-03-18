@@ -15,7 +15,9 @@ end
 
 function mon.follow_player(denizen)
 	local _, x, y = base.adjacent_min(level.current.paths.to_player, denizen.x, denizen.y)
-	level.current:move(denizen, x, y)
+	if not level.current:move(denizen, x, y) then
+		level.current:bump_hit(denizen, x, y, 1)
+	end
 end
 
 return mon
