@@ -51,7 +51,7 @@ end
 
 function level:reset_paths()
 	local player = self.denizens[self.player_id]
-	assert(player, "Player not found\n"..debug.traceback())
+	assert(player, "Player not found")
 	self.paths.to_player = self:paths_to(player.x, player.y)
 end
 
@@ -90,7 +90,7 @@ function level:move(denizen, new_x, new_y)
 	end
 
 	local old_id = base.getIdx(denizen.x, denizen.y)
-	assert(denizen == self.denizens[old_id], "ID error for denizen\n"..debug.traceback())
+	assert(denizen == self.denizens[old_id], "ID error for denizen")
 	denizen.x = new_x
 	denizen.y = new_y
 	self.denizens[new_id] = denizen
@@ -101,7 +101,7 @@ end
 
 function level:move_player(dx, dy)
 	local p = self.denizens[self.player_id]
-	assert(p, "ID error for player\n"..debug.traceback())
+	assert(p, "ID error for player")
 	local res = self:move(p, p.x + dx, p.y + dy)
 	if res then
 		self.player_id = base.getIdx(p.x, p.y)

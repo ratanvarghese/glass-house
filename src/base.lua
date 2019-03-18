@@ -36,9 +36,13 @@ for _,v in pairs(base.direction) do
 end
 
 function base.getIdx(x, y)
-	assert(type(x)=="number", "invalid x:\n"..debug.traceback())
-	assert(type(y)=="number", "invalid y:\n"..debug.traceback())
+	assert(type(x)=="number", "invalid x")
+	assert(type(y)=="number", "invalid y")
 	return (y*base.MAX_X) + x
+end
+
+function base.error_handler(msg)
+	return msg.."\n"..debug.traceback()
 end
 
 function base.rn_direction()

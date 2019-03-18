@@ -22,7 +22,7 @@ else
 end
 
 ui.init()
-local ok, err = pcall(function()
+local ok, err = xpcall(function()
 	local keep_going = true
 	while keep_going do
 		ui.drawlevel()
@@ -44,7 +44,7 @@ local ok, err = pcall(function()
 			end
 		end
 	end
-end)
+end, base.error_handler)
 ui.shutdown()
 
 if ok then
