@@ -51,14 +51,19 @@ end
 
 function base.adjacent_min(t, x, y)
 	local res = base.MAX_X * base.MAX_Y
+	local res_x, res_y = x, y
 	for _,d in pairs(base.direction) do
-		local di = base.getIdx(x + d.x, y + d.y)
+		local nx = x + d.x
+		local ny = y + d.y
+		local di = base.getIdx(nx, ny)
 		local new_res = t[di]
 		if new_res and res > new_res then
 			res = new_res
+			res_x = nx
+			res_y = ny
 		end
 	end
-	return res
+	return res, res_x, res_y
 end
 
 function base.shallow_equals(t1, t2)

@@ -105,19 +105,18 @@ function level:move(denizen, new_x, new_y)
 	self.denizens[new_id] = denizen
 	self.denizens[old_id] = nil
 	self:reset_light()
+
+	if old_id == self.player_id then
+		self.player_id = new_id
+	end
+	self:reset_paths()
 	return true
 end
 
 function level:move_player(dx, dy)
 	local p = self.denizens[self.player_id]
 	assert(p, "ID error for player")
-	local res = self:move(p, p.x + dx, p.y + dy)
-	if res then
-		self.player_id = base.getIdx(p.x, p.y)
-	end
-
-	self:reset_paths()
-	return res
+	return self:move(p, p.x + dx, p.y + dy)
 end
 
 function level:add_denizen(dz)

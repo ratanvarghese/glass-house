@@ -26,6 +26,7 @@ local ok, err = xpcall(function()
 	local keep_going = true
 	while keep_going do
 		ui.drawlevel()
+		ui.drawpaths()
 
 		local old_level = level.current
 		for _, denizen in ipairs(level.current.denizens_in_order) do
