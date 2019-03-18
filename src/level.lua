@@ -73,10 +73,43 @@ function level:light_area(radius, x, y)
 	end
 end
 
+local function light_from_item_list(list, default)
+	if not list then
+		return default
+	end
+
+	local use_res = false
+	local res = 0
+	for i,v in ipairs(list) do
+		if v.light_radius then
+			res = math.max(res, v.light_radius)
+			use_res = true
+		end
+	end
+
+	if use_res then
+		return res
+	else
+		return default
+	end
+
+end
+
+
 function level:reset_light()
 	self.light = {}
 	for _,denizen in pairs(self.denizens) do
-		self:light_area(denizen.light_radius, denizen.x, denizen.y)
+		local radius = light_from_item_list(denizen.inventory, denizen.light_radius)
+		self:light_area(radius, denizen.x, denizen.y)
+	end
+
+	for y=1,base.MAX_Y do
+		for x=1,base.MAX_X do
+			local i = base.getIdx(x, y)
+			local pile = self.item_piles[i]
+			local radius = light_from_item_list(pile, nil)
+			self:light_area(radius, x, y)
+		end
 	end
 end
 
@@ -87,6 +120,62 @@ function level:set_light(b)
 			self.light[i] = b
 		end
 	end
+end
+
+function level:get_pile(x, y, make_missing)
+	local i = base.getIdx(x, y)
+	local pile = self.item_piles[i]
+	if not pile and make_missing then
+		pile = {}
+		self.item_piles[i] = pile
+	end
+	return pile
+end
+
+function level:drop_item(denizen, item_idx)
+	if not denizen.inventory or #denizen.inventory < 1 then
+		return false
+	end
+
+	local item = table.remove(denizen.inventory, item_idx)
+	local i = base.getIdx(denizen.x, denizen.y)
+	local pile = self.item_piles[i]
+	if pile then
+		table.insert(pile, item)
+	else
+		self.item_piles[i] = {item}
+	end
+	return true
+end
+
+function level:pickup_item(denizen, item_idx)
+	local pile = self:get_pile(denizen.x, denizen.y, false)
+	if not pile or #pile < 1 then
+		return false
+	end
+
+	local item = table.remove(pile, item_idx)
+	local inventory = denizen.inventory
+	if inventory then
+		table.insert(inventory, item)
+	else
+		denizen.inventory = {item}
+	end
+	return true
+end
+
+function level:pickup_all_items(denizen)
+	local pile = self:get_pile(denizen.x, denizen.y, false)
+	if not pile or #pile < 1 then
+		return false
+	end
+
+	local max=#pile
+	for i=max,1,-1 do
+		local item = table.remove(pile, i)
+		table.insert(denizen.inventory, item)
+	end
+	return true
 end
 
 function level:kill_denizen(id)
@@ -127,15 +216,18 @@ function level:bump_hit(source, targ_x, targ_y, damage)
 end
 
 function level:move(denizen, new_x, new_y)
+	local old_id = base.getIdx(denizen.x, denizen.y)
 	local new_id = base.getIdx(new_x, new_y)
 	local target = self.terrain[new_id]
 	if target.symbol == base.symbols.wall then
+		if old_id == self.player_id then
+			self.memory[new_id] = true
+		end
 		return false
 	elseif self.denizens[new_id] then
 		return false
 	end
 
-	local old_id = base.getIdx(denizen.x, denizen.y)
 	assert(denizen == self.denizens[old_id], "ID error for denizen")
 	denizen.x = new_x
 	denizen.y = new_y
@@ -169,6 +261,7 @@ function level.make(num)
 		memory = {},
 		paths = {},
 		kill_set = {},
+		item_piles = {},
 		num = num,
 		game_over = false
 	}
@@ -182,8 +275,22 @@ function level.make(num)
 		symbol = base.symbols.player,
 		x = init_x,
 		y = init_y,
-		light_radius = 2,
-		hp = 10
+		hp = 10,
+		light_radius = 0,
+		inventory = {
+			{
+				name = "lantern",
+				light_radius = 2,
+				on = true,
+				equip = function(self, denizen)
+					if self.light_radius > 0 then
+						self.light_radius = 0
+					else
+						self.light_radius = 2
+					end
+				end
+			}
+		}
 	}
 	res:add_denizen(player)
 
@@ -215,11 +322,14 @@ function level:symbol_at(x, y)
 	local tile = self.terrain[i]
 	local light = self.light[i]
 	local memory = self.memory[i]
+	local item_pile = self.item_piles[i]
 	assert(type(tile)=="table", "Invalid tile at x="..x.." y="..y)
 
 	if light then
 		if denizen then
 			return denizen.symbol
+		elseif item_pile and #item_pile > 0 then
+			return base.symbols.item
 		else
 			return tile.symbol
 		end

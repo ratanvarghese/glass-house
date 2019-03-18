@@ -10,7 +10,8 @@ base.symbols = {
 	floor = ".",
 	wall = "#",
 	stair = "<",
-	dark = " "
+	dark = " ",
+	item = "("
 }
 
 base.conf = {}
@@ -20,7 +21,8 @@ base.conf.keys = {
 	north = "w",
 	south = "s",
 	west = "a",
-	east = "d"
+	east = "d",
+	drop = "f"
 }
 
 base.direction = {
@@ -36,8 +38,8 @@ for _,v in pairs(base.direction) do
 end
 
 function base.getIdx(x, y)
-	assert(type(x)=="number", "invalid x")
-	assert(type(y)=="number", "invalid y")
+	assert(type(x)=="number", "invalid x: "..tostring(x))
+	assert(type(y)=="number", "invalid y: "..tostring(y))
 	return (y*base.MAX_X) + x
 end
 
