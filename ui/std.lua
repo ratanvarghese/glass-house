@@ -25,4 +25,21 @@ function ui.getinput()
 	return io.read()
 end
 
+function ui.drawpaths()
+	for y=1,base.MAX_Y do
+		for x=1,base.MAX_X do
+			local i = base.getIdx(x, y)
+			local n = level.current.paths.to_player[i]
+			if n == 0 then
+				io.write("@")
+			elseif n then
+				io.write(n % 10)
+			else
+				io.write(" ")
+			end
+		end
+		io.write("\n")
+	end
+end
+
 return ui

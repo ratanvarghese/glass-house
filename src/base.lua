@@ -45,4 +45,38 @@ function base.rn_direction()
 	return base.direction_list[math.random(1, #base.direction_list)]
 end
 
+function base.adjacent_min(t, x, y)
+	local res = base.MAX_X * base.MAX_Y
+	for _,d in pairs(base.direction) do
+		local di = base.getIdx(x + d.x, y + d.y)
+		local new_res = t[di]
+		if new_res and res > new_res then
+			res = new_res
+		end
+	end
+	return res
+end
+
+function base.shallow_equals(t1, t2)
+	for k,v in pairs(t1) do
+		if t2[k] ~= v then
+			return false
+		end
+	end
+	for k,v in pairs(t2) do
+		if t1[k] == nil then
+			return false
+		end
+	end
+	return true
+end
+
+function base.shallow_copy(t1)
+	local res = {}
+	for k,v in pairs(t1) do
+		res[k] = v
+	end
+	return res
+end
+
 return base

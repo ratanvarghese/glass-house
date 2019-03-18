@@ -1,7 +1,59 @@
+local serpent = require("serpent")
+
 local base = require("src.base")
 local gen = require("src.gen")
 
 local level = {}
+
+function level:paths_iter(old)
+	local res = {}
+	local max = base.MAX_X * base.MAX_Y
+	for y=1,base.MAX_Y do
+		for x=1,base.MAX_X do
+			local i = base.getIdx(x, y)
+			local old_v = old[i]
+			if old_v then
+				new_v = base.adjacent_min(old, x, y) + 1
+				if new_v < old_v then
+					res[i] = new_v
+				else
+					res[i] = old_v
+				end
+			end
+		end
+	end
+	return res
+end
+
+function level:paths_to(targ_x, targ_y)
+	local res = {}
+	local max = base.MAX_X * base.MAX_Y
+	local min = 0
+
+	local targ_id = base.getIdx(targ_x, targ_y)
+	for i,tile in pairs(self.terrain) do
+		if i == targ_id then
+			res[i] = min
+		elseif not self.denizens[i] and tile.symbol == base.symbols.floor then
+			res[i] = max
+		end
+	end
+
+	while true do
+		local old = base.shallow_copy(res)
+		res = self:paths_iter(old)
+		if base.shallow_equals(old, res) then
+			break
+		end
+	end
+	return res
+end
+
+function level:reset_paths()
+	local player = self.denizens[self.player_id]
+	assert(player, "Player not found\n"..debug.traceback())
+	self.paths.to_player = self:paths_to(player.x, player.y)
+end
 
 function level:light_area(radius, x, y)
 	if not radius then
@@ -55,6 +107,7 @@ function level:move_player(dx, dy)
 		self.player_id = base.getIdx(p.x, p.y)
 	end
 
+	self:reset_paths()
 	return res
 end
 
@@ -75,6 +128,7 @@ function level.make(num)
 		denizens = {},
 		denizens_in_order = {},
 		memory = {},
+		paths = {},
 		num = num
 	}
 	level.register(res)
@@ -107,6 +161,7 @@ function level.make(num)
 	res:add_denizen(dragon)
 
 	res:reset_light()
+	res:reset_paths()
 	return res
 end
 
