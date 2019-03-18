@@ -4,13 +4,7 @@ local ui = require("ui.std")
 
 math.randomseed(os.time())
 level.current = level.make(1)
-
-for y=1,base.MAX_Y do
-	for x=1,base.MAX_X do
-		local i = base.getIdx(x, y)
-		level.current.light[i] = true
-	end
-end
+level.current:set_light(true)
 
 ui.init()
 

@@ -80,6 +80,15 @@ function level:reset_light()
 	end
 end
 
+function level:set_light(b)
+	for y=1,base.MAX_Y do
+		for x=1,base.MAX_X do
+			local i = base.getIdx(x, y)
+			self.light[i] = b
+		end
+	end
+end
+
 function level:move(denizen, new_x, new_y)
 	local new_id = base.getIdx(new_x, new_y)
 	local target = self.terrain[new_id]
