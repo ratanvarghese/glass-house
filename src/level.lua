@@ -1,7 +1,6 @@
-local serpent = require("serpent")
-
 local base = require("src.base")
 local gen = require("src.gen")
+local item = require("src.item")
 
 local level = {}
 
@@ -278,18 +277,7 @@ function level.make(num)
 		hp = 10,
 		light_radius = 0,
 		inventory = {
-			{
-				name = "lantern",
-				light_radius = 2,
-				on = true,
-				equip = function(self, denizen)
-					if self.light_radius > 0 then
-						self.light_radius = 0
-					else
-						self.light_radius = 2
-					end
-				end
-			}
+			item.make("lantern")
 		}
 	}
 	res:add_denizen(player)

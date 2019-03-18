@@ -1,5 +1,6 @@
 local base = require("src.base")
 local level = require("src.level")
+local item = require("src.item")
 
 local player = {}
 
@@ -16,9 +17,9 @@ function player.handle_input(c)
 	local n = tonumber(c)
 	local d
 	if n then
-		local item = p.inventory[n]
-		if item then
-			item:equip(p)
+		local obj = p.inventory[n]
+		if obj then
+			item.equip(obj, p)
 		end
 	elseif c == base.conf.keys.quit then
 		return false
