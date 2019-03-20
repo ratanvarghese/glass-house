@@ -64,4 +64,10 @@ property "base.adjacent_min: pick minimum coordinates" {
 		return grid[base.getIdx(res_x, res_y)] == math.min(v1, v2, v3, v4)
 	end
 }
-
+property "base.adjacent_min: return number as default result" {
+	generators = { int(1, base.MAX_X), int(1, base.MAX_Y) },
+	check = function(x, y)
+		local grid = {} --Empty, so must use default value
+		return type(base.adjacent_min(grid, x, y)) == "number"
+	end
+}
