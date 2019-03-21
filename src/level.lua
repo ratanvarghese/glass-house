@@ -39,9 +39,9 @@ function level:paths_to(targ_x, targ_y)
 	end
 
 	while true do
-		local old = base.shallow_copy(res)
+		local old = base.copy(res)
 		res = self:paths_iter(old)
-		if base.shallow_equals(old, res) then
+		if base.equals(old, res) then
 			break
 		end
 	end

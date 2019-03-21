@@ -68,24 +68,44 @@ function base.adjacent_min(t, x, y)
 	return res, res_x, res_y
 end
 
-function base.shallow_equals(t1, t2)
-	for k,v in pairs(t1) do
-		if t2[k] ~= v then
+function base.equals(a, b)
+	local type1, type2 = type(a), type(b)
+	if type1 ~= type2 then
+		return false
+	elseif type1 ~= "table" and type2 ~= "table" then
+		return a == b
+	elseif #a ~= #b then
+		return false
+	end
+
+	for k,v in pairs(a) do
+		if not base.equals(v, b[k]) then
 			return false
 		end
 	end
-	for k,v in pairs(t2) do
-		if t1[k] == nil then
+
+	for k,v in pairs(b) do
+		if a[k] == nil then
 			return false
 		end
 	end
+
 	return true
 end
 
-function base.shallow_copy(t1)
-	local res = {}
-	for k,v in pairs(t1) do
-		res[k] = v
+--Based on http://stackoverflow.com/questions/640642
+function base.copy(a, seen)
+	if type(a) ~= "table" then
+		return a
+	end
+	if seen and seen[a] then
+		return seen[a]
+	end
+	local s = seen or {}
+	local res = setmetatable({}, getmetatable(a))
+	s[a] = res
+	for k,v in pairs(a) do
+		res[base.copy(k, s)] = base.copy(v, s)
 	end
 	return res
 end

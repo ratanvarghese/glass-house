@@ -24,7 +24,7 @@ function item.equip(obj, denizen)
 end
 
 function item.make(name)
-	return base.shallow_copy(item_set[name])
+	return base.copy(item_set[name])
 end
 
 return item
