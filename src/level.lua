@@ -52,6 +52,12 @@ function level:reset_paths()
 	local player = self.denizens[self.player_id]
 	assert(player, "Player not found")
 	self.paths.to_player = self:paths_to(player.x, player.y)
+
+	for _,v in pairs(self.terrain) do
+		if v.symbol == base.symbols.stair then
+			self.paths.to_stair = self:paths_to(v.x, v.y)
+		end
+	end
 end
 
 function level:light_area(radius, x, y)
@@ -274,7 +280,7 @@ function level.make(num)
 		symbol = base.symbols.player,
 		x = init_x,
 		y = init_y,
-		hp = 10,
+		hp = 1000,
 		light_radius = 0,
 		inventory = {
 			item.make("lantern")
