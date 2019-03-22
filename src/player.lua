@@ -20,6 +20,7 @@ function player.handle_input(c)
 		local obj = p.inventory[n]
 		if obj then
 			item.equip(obj, p)
+			level.current:reset_light()
 		end
 	elseif c == base.conf.keys.quit then
 		return false
