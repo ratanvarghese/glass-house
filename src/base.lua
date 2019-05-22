@@ -51,6 +51,12 @@ function base.rn_direction()
 	return base.direction_list[math.random(1, #base.direction_list)]
 end
 
+function base.rn_xy()
+	local x = math.random(2, base.MAX_X - 1)
+	local y = math.random(2, base.MAX_Y - 1)
+	return x, y
+end
+
 function base.adjacent_min(t, x, y)
 	local res = math.huge
 	local res_x, res_y = x, y

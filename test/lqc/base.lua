@@ -40,6 +40,23 @@ property "base.getIdx: error on bool" {
 	end
 }
 
+property "base.rn_xy: x in range" {
+	generators = {},
+	check = function()
+		local x = base.rn_xy()
+		return (x > 1) and (x < base.MAX_X) and (x == math.floor(x))
+	end
+}
+
+property "base.rn_xy: y in range" {
+	generators = {},
+	check = function()
+		local _, y = base.rn_xy()
+		return (y > 1) and (y < base.MAX_Y) and (y == math.floor(y))
+	end
+}
+
+
 local function smallGrid(x, y, v1, v2, v3, v4)
 	return {
 		[base.getIdx(x,y+1)] = v1,
@@ -108,3 +125,4 @@ property "base.copy: base.equals(original, copy)" {
 		return base.equals(a, base.copy(a))
 	end
 }
+
