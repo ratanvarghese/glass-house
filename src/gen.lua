@@ -16,20 +16,23 @@ function gen.big_room()
 		end
 	end
 
-	local stair_x = math.random(2, base.MAX_X - 1)
-	local stair_y = math.random(2, base.MAX_Y - 1)
+	local stair_x, stair_y = base.rn_xy()
 	local stair_id = base.getIdx(stair_x, stair_y)
 	terrain[stair_id] = {symbol = base.symbols.stair, x = stair_x, y = stair_y}
 
-	local player_x = math.random(2, base.MAX_X - 1)
-	local player_y = math.random(2, base.MAX_Y - 1)
+	local player_x, player_y = base.rn_xy()
+	local tries = 0
+	while player_x == stair_x and player_y == stair_y do
+		player_x, player_y = base.rn_xy()
+		tries = tries + 1
+		assert(tries < 100, "Too many failures to generate player x, y!") 
+	end
 	return terrain, player_x, player_y
 end
 
 local function boolean_walker(max_steps)
 	local floors = {}
-	local x = math.random(2, base.MAX_X - 1)
-	local y = math.random(2, base.MAX_Y - 1)
+	local x, y = base.rn_xy()
 	local start_x, start_y = x, y
 	local steps = 0
 	while steps < max_steps do

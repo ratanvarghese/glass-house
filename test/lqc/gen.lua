@@ -1,16 +1,33 @@
 local base = require("src.base")
 local gen = require("src.gen")
 
-property "gen.big_room: player x, y" {
+property "gen.big_room: player x" {
 	generators = {},
 	check = function()
 		local t, x, y = gen.big_room()
 		local i = base.getIdx(x, y)
 		local v = t[i]
-		local good_x = v.x > 1 and v.x < base.MAX_X
-		local good_y = v.y > 1 and v.y < base.MAX_Y
-		local good_s = v.symbol == base.symbols.floor
-		return good_x and good_y and good_s
+		return (v.x > 1) and (v.x < base.MAX_X)
+	end
+}
+
+property "gen.big_room: player y" {
+	generators = {},
+	check = function()
+		local t, x, y = gen.big_room()
+		local i = base.getIdx(x, y)
+		local v = t[i]
+		return (v.y > 1) and (v.y < base.MAX_Y)
+	end
+}
+
+property "gen.big_room: player on floor" {
+	generators = {},
+	check = function()
+		local t, x, y = gen.big_room()
+		local i = base.getIdx(x, y)
+		local v = t[i]
+		return (v.symbol == base.symbols.floor)
 	end
 }
 
