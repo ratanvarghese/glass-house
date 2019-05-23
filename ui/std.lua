@@ -14,7 +14,7 @@ end
 function ui.draw_level()
 	base.for_all_points(function(x, y, i)
 		io.write(level.symbol_at(level.current, x, y))
-		if y == base.MAX_Y then
+		if x == base.MAX_X then
 			io.write("\n")
 		end
 	end)

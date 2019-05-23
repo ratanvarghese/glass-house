@@ -28,7 +28,7 @@ local function write_err(f, err)
 	f:write(err, "\n")
 	base.for_all_points(function(x, y, i)
 		f:write(level.symbol_at(level.current, x, y))
-		if y == base.MAX_Y then
+		if x == base.MAX_X then
 			f:write("\n")
 		end
 	end)
