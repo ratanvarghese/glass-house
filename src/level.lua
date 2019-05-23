@@ -113,60 +113,40 @@ function level:set_light(b)
 	end)
 end
 
-function level:get_pile(x, y, make_missing)
-	local i = base.get_idx(x, y)
-	local pile = self.tool_piles[i]
-	if not pile and make_missing then
-		pile = {}
-		self.tool_piles[i] = pile
-	end
-	return pile
-end
-
 function level:drop_tool(denizen, tool_idx)
 	if not denizen.inventory or #denizen.inventory < 1 then
 		return false
 	end
 
 	local tool_to_drop = table.remove(denizen.inventory, tool_idx)
-	local i = base.get_idx(denizen.x, denizen.y)
-	local pile = self.tool_piles[i]
-	if pile then
-		table.insert(pile, tool_to_drop)
-	else
-		self.tool_piles[i] = {tool_to_drop}
-	end
+	tool.drop_onto_array(self.tool_piles, tool_to_drop, denizen.x, denizen.y)
 	return true
 end
 
 function level:pickup_tool(denizen, tool_idx)
-	local pile = self:get_pile(denizen.x, denizen.y, false)
-	if not pile or #pile < 1 then
+	local targ_tool = tool.pickup_from_array(self.tool_piles, tool_idx, denizen.x, denizen.y)
+	if not targ_tool then
 		return false
 	end
 
-	local tool_to_pickup = table.remove(pile, tool_idx)
 	local inventory = denizen.inventory
 	if inventory then
-		table.insert(inventory, tool_to_pickup)
+		table.insert(inventory, targ_tool)
 	else
-		denizen.inventory = {tool_to_pickup}
+		denizen.inventory = {targ_tool}
 	end
 	return true
 end
 
 function level:pickup_all_tools(denizen)
-	local pile = self:get_pile(denizen.x, denizen.y, false)
-	if not pile or #pile < 1 then
-		return false
+	local pile = tool.pickup_all_from_array(self.tool_piles, denizen.x, denizen.y)
+	if not pile then
+		return
 	end
 
-	local max=#pile
-	for i=max,1,-1 do
-		local tool_to_pickup = table.remove(pile, i)
-		table.insert(denizen.inventory, tool_to_pickup)
+	for i,v in ipairs(pile) do
+		table.insert(denizen.inventory, v)
 	end
-	return true
 end
 
 function level:kill_denizen(id)
