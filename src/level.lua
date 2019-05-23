@@ -1,43 +1,16 @@
 local base = require("src.base")
 local gen = require("src.gen")
 local tool = require("src.tool")
+local path = require("src.path")
 
 local level = {}
 
-function level:paths_iter(old)
-	local res = {}
-	base.for_all_points(function(x, y, i)
-		local old_v = old[i]
-		if old_v then
-			local new_v = base.adjacent_min(old, x, y) + 1
-			res[i] = math.min(new_v, old_v)
-		end
-	end)
-	return res
+function level:walkable(x, y, i)
+	return (not self.denizens[i]) and (self.terrain[i].symbol == base.symbols.floor)
 end
 
 function level:paths_to(targ_x, targ_y)
-	local res = {}
-	local max = base.MAX_X * base.MAX_Y
-	local min = 0
-
-	local targ_id = base.get_idx(targ_x, targ_y)
-	for i,tile in pairs(self.terrain) do
-		if i == targ_id then
-			res[i] = min
-		elseif not self.denizens[i] and tile.symbol == base.symbols.floor then
-			res[i] = max
-		end
-	end
-
-	while true do
-		local old = base.copy(res)
-		res = self:paths_iter(old)
-		if base.equals(old, res) then
-			break
-		end
-	end
-	return res
+	return path.to(targ_x, targ_y, function(x, y, i) return self:walkable(x, y, i) end)
 end
 
 function level:reset_paths()
