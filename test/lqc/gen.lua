@@ -1,6 +1,38 @@
 local base = require("src.base")
 local gen = require("src.gen")
 
+local valid_names = {"floor", "stair", "wall"}
+local valid_symbols = { ".", "<", "#" }
+property "gen.set_tile: valid name" {
+	generators = { int(1, #valid_names), int(1, base.MAX_X), int(1, base.MAX_Y) },
+	check = function(i, x, y)
+		local name = valid_names[i]
+		local s = valid_symbols[i]
+		local terrain = {}
+		gen.set_tile(terrain, name, x, y)
+		local idx = base.getIdx(x, y)
+
+		local tile = terrain[idx]
+		return tile and (tile.x == x) and (tile.y == y) and (tile.symbol == s)
+	end
+}
+
+property "gen.set_tile: invalid name" {
+	generators = { str(), int(1, base.MAX_X), int(1, base.MAX_Y) },
+	check = function(name, x, y)
+		local terrain = {}
+		local ok = pcall(function()
+			gen.set_tile(terrain, name, x, y)
+		end)
+		for k,v in pairs(valid_names) do
+			if name == v then
+				return ok
+			end
+		end
+		return not ok
+	end
+}
+
 property "gen.big_room: player x" {
 	generators = {},
 	check = function()

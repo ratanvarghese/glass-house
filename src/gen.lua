@@ -2,30 +2,31 @@ local base = require("src.base")
 
 local gen = {}
 
+function gen.set_tile(terrain, name, x, y)
+	local s = base.symbols[name]
+	assert(s, "Invalid tile name: "..name)
+	local i = base.getIdx(x, y)
+	terrain[i] = {symbol = s, x = x, y = y}
+end
+
 function gen.big_room()
 	local terrain = {}
 	for y=1,base.MAX_Y do
 		for x=1,base.MAX_X do
-			local s
 			if x == 1 or x == base.MAX_X or y == 1 or y == base.MAX_Y then
-				s = base.symbols.wall
+				gen.set_tile(terrain, "wall", x, y)
 			else
-				s = base.symbols.floor
+				gen.set_tile(terrain, "floor", x, y)
 			end
-			terrain[base.getIdx(x, y)] = {symbol = s, x = x, y = y}
 		end
 	end
 
 	local stair_x, stair_y = base.rn_xy()
-	local stair_id = base.getIdx(stair_x, stair_y)
-	terrain[stair_id] = {symbol = base.symbols.stair, x = stair_x, y = stair_y}
+	gen.set_tile(terrain, "stair", stair_x, stair_y)
 
 	local player_x, player_y = base.rn_xy()
-	local tries = 0
 	while player_x == stair_x and player_y == stair_y do
 		player_x, player_y = base.rn_xy()
-		tries = tries + 1
-		assert(tries < 100, "Too many failures to generate player x, y!") 
 	end
 	return terrain, player_x, player_y
 end
@@ -57,18 +58,16 @@ function gen.cave()
 	local max_steps = math.floor((base.MAX_X * base.MAX_Y * 2) / 4)
 	local floors, start_x, start_y, end_x, end_y = boolean_walker(max_steps)
 	local terrain = {}
+
 	for y=1,base.MAX_Y do
 		for x=1,base.MAX_X do
-			local s
-			local id = base.getIdx(x, y)
 			if x == start_x and y == start_y then
-				s = base.symbols.stair
-			elseif floors[id] then
-				s = base.symbols.floor
+				gen.set_tile(terrain, "stair", x, y) 
+			elseif floors[base.getIdx(x, y)] then
+				gen.set_tile(terrain, "floor", x, y) 
 			else
-				s = base.symbols.wall
+				gen.set_tile(terrain, "wall", x, y) 
 			end
-			terrain[id] = {symbol = s, x = x, y = y}
 		end
 	end
 	return terrain, end_x, end_y
