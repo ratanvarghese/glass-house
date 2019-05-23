@@ -30,17 +30,10 @@ function level:light_area(radius, x, y)
 		return
 	end
 
-	local min_x = math.max(x - radius, 1)
-	local max_x = math.min(x + radius, base.MAX_X)
-	local min_y = math.max(y - radius, 1)
-	local max_y = math.min(y + radius, base.MAX_Y)
-	for x = min_x,max_x do
-		for y = min_y,max_y do
-			local id = base.get_idx(x, y)
-			self.light[id] = true
-			self.memory[id] = true
-		end
-	end
+	base.for_rect(x-radius, y-radius, x+radius, y+radius, function(x, y, i)
+		self.light[i] = true
+		self.memory[i] = true
+	end)
 end
 
 function level:reset_light()

@@ -48,8 +48,16 @@ function base.is_edge(x, y)
 end
 
 function base.for_all_points(f)
-	for y=1,base.MAX_Y do
-		for x=1,base.MAX_X do
+	base.for_rect(1, 1, base.MAX_X, base.MAX_Y, f)
+end
+
+function base.for_rect(x1, y1, x2, y2, f)
+	local min_x = math.max(x1, 1)
+	local max_x = math.min(x2, base.MAX_X)
+	local min_y = math.max(y1, 1)
+	local max_y = math.min(y2, base.MAX_Y)
+	for x = min_x,max_x do
+		for y = min_y,max_y do
 			f(x, y, base.get_idx(x, y))
 		end
 	end
