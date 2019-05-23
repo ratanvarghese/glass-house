@@ -70,40 +70,16 @@ function level:light_area(radius, x, y)
 	end
 end
 
-local function light_from_tool_list(list, default)
-	if not list then
-		return default
-	end
-
-	local use_res = false
-	local res = 0
-	for i,v in ipairs(list) do
-		if v.light_radius then
-			res = math.max(res, v.light_radius)
-			use_res = true
-		end
-	end
-
-	if use_res then
-		return res
-	else
-		return default
-	end
-
-end
-
-
 function level:reset_light()
 	self.light = {}
 	for _,denizen in pairs(self.denizens) do
-		local radius = light_from_tool_list(denizen.inventory, denizen.light_radius)
+		local radius = tool.light_from_list(denizen.inventory, denizen.light_radius)
 		self:light_area(radius, denizen.x, denizen.y)
 	end
 	base.for_all_points(function(x, y, i)
 		local pile = self.tool_piles[i]
-		local radius = light_from_tool_list(pile, nil)
+		local radius = tool.light_from_list(pile, nil)
 		self:light_area(radius, x, y)
-
 	end)
 end
 

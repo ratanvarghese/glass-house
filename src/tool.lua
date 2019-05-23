@@ -62,4 +62,25 @@ function tool.drop_onto_array(pile_array, tool_to_drop, x, y)
 	end
 end
 
+function tool.light_from_list(list, default)
+	if not list then
+		return default
+	end
+
+	local use_res = false
+	local res = 0
+	for i,v in ipairs(list) do
+		if v.light_radius then
+			res = math.max(res, v.light_radius)
+			use_res = true
+		end
+	end
+
+	if use_res then
+		return res
+	else
+		return default
+	end
+end
+
 return tool
