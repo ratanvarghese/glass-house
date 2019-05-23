@@ -35,7 +35,7 @@ function ui.drawpaths()
 		else
 			io.write(" ")
 		end
-		if y == base.MAX_Y then
+		if x == base.MAX_X then
 			io.write("\n")
 		end
 	end)
