@@ -1,10 +1,10 @@
 local base = require("src.base")
 
 local unique_idx_set = {}
-property "base.getIdx: unique idx" {
+property "base.get_idx: unique idx" {
 	generators = { int(1, base.MAX_X), int(1, base.MAX_Y) },
 	check = function(x, y)
-		local i = base.getIdx(x, y)
+		local i = base.get_idx(x, y)
 		local alreadyFound = unique_idx_set[i]
 		unique_idx_set[i] = {x=x, y=y}
 		if alreadyFound then
@@ -15,27 +15,27 @@ property "base.getIdx: unique idx" {
 	end
 }
 
-property "base.getIdx: error on string" {
+property "base.get_idx: error on string" {
 	generators = { str(), int(1, base.MAX_X) },
 	check = function(s, i)
-		local ok_1 = pcall(function() base.getIdx(s,i) end)
-		local ok_2 = pcall(function() base.getIdx(i,s) end)
+		local ok_1 = pcall(function() base.get_idx(s,i) end)
+		local ok_2 = pcall(function() base.get_idx(i,s) end)
 		return (not ok_1) and (not ok_2)
 	end
 }
-property "base.getIdx: error on table" {
+property "base.get_idx: error on table" {
 	generators = { tbl(), int(1, base.MAX_X) },
 	check = function(s, i)
-		local ok_1 = pcall(function() base.getIdx(s,i) end)
-		local ok_2 = pcall(function() base.getIdx(i,s) end)
+		local ok_1 = pcall(function() base.get_idx(s,i) end)
+		local ok_2 = pcall(function() base.get_idx(i,s) end)
 		return (not ok_1) and (not ok_2)
 	end
 }
-property "base.getIdx: error on bool" {
+property "base.get_idx: error on bool" {
 	generators = { bool(), int(1, base.MAX_X) },
 	check = function(s, i)
-		local ok_1 = pcall(function() base.getIdx(s,i) end)
-		local ok_2 = pcall(function() base.getIdx(i,s) end)
+		local ok_1 = pcall(function() base.get_idx(s,i) end)
+		local ok_2 = pcall(function() base.get_idx(i,s) end)
 		return (not ok_1) and (not ok_2)
 	end
 }
@@ -59,10 +59,10 @@ property "base.rn_xy: y in range" {
 
 local function smallGrid(x, y, v1, v2, v3, v4)
 	return {
-		[base.getIdx(x,y+1)] = v1,
-		[base.getIdx(x,y-1)] = v2,
-		[base.getIdx(x+1,y)] = v3,
-		[base.getIdx(x-1,y)] = v4
+		[base.get_idx(x,y+1)] = v1,
+		[base.get_idx(x,y-1)] = v2,
+		[base.get_idx(x+1,y)] = v3,
+		[base.get_idx(x-1,y)] = v4
 	}
 end
 property "base.adjacent_min: pick minimum value" {
@@ -78,7 +78,7 @@ property "base.adjacent_min: pick minimum coordinates" {
 	check = function(x, y, v1, v2, v3, v4)
 		local grid = smallGrid(x, y, v1, v2, v3, v4)
 		local _, res_x, res_y = base.adjacent_min(grid, x, y)
-		return grid[base.getIdx(res_x, res_y)] == math.min(v1, v2, v3, v4)
+		return grid[base.get_idx(res_x, res_y)] == math.min(v1, v2, v3, v4)
 	end
 }
 property "base.adjacent_min: return number as default result" {

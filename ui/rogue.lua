@@ -26,7 +26,7 @@ end
 function ui.drawpaths()
 	for y=1,base.MAX_Y do
 		for x=1,base.MAX_X do
-			local i = base.getIdx(x, y)
+			local i = base.get_idx(x, y)
 			local n = level.current.paths.to_player[i]
 			local c
 			if n == 0 then

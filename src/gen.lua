@@ -5,7 +5,7 @@ local gen = {}
 function gen.set_tile(terrain, name, x, y)
 	local s = base.symbols[name]
 	assert(s, "Invalid tile name: "..name)
-	local i = base.getIdx(x, y)
+	local i = base.get_idx(x, y)
 	terrain[i] = {symbol = s, x = x, y = y}
 end
 
@@ -44,7 +44,7 @@ local function boolean_walker(max_steps)
 		if new_y < 2 or new_y > (base.MAX_Y - 1) then new_y = y end
 		x = new_x
 		y = new_y
-		local id = base.getIdx(x, y)
+		local id = base.get_idx(x, y)
 		if not floors[id] then
 			floors[id] = true
 			steps = steps + 1
@@ -63,7 +63,7 @@ function gen.cave()
 		for x=1,base.MAX_X do
 			if x == start_x and y == start_y then
 				gen.set_tile(terrain, "stair", x, y) 
-			elseif floors[base.getIdx(x, y)] then
+			elseif floors[base.get_idx(x, y)] then
 				gen.set_tile(terrain, "floor", x, y) 
 			else
 				gen.set_tile(terrain, "wall", x, y) 

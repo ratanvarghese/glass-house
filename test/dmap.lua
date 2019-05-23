@@ -9,7 +9,7 @@ level.current:set_light(true)
 ui.init()
 
 function huh()
-	print(base.getIdx(5, nil))
+	print(base.get_idx(5, nil))
 end
 
 local ok, err = xpcall(function()

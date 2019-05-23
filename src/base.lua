@@ -37,7 +37,7 @@ for _,v in pairs(base.direction) do
 	table.insert(base.direction_list, v)
 end
 
-function base.getIdx(x, y)
+function base.get_idx(x, y)
 	assert(type(x)=="number", "invalid x: "..tostring(x))
 	assert(type(y)=="number", "invalid y: "..tostring(y))
 	return (y*base.MAX_X) + x
@@ -63,7 +63,7 @@ function base.adjacent_min(t, x, y)
 	for _,d in pairs(base.direction) do
 		local nx = x + d.x
 		local ny = y + d.y
-		local di = base.getIdx(nx, ny)
+		local di = base.get_idx(nx, ny)
 		local new_res = t[di]
 		if (new_res and res > new_res) then
 			res = new_res

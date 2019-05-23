@@ -12,7 +12,7 @@ function loop.iter(ui)
 		ui.drawstats()
 
 		if not level.current.kill_set[denizen] then
-			local i = level.current.denizens[base.getIdx(denizen.x, denizen.y)]
+			local i = level.current.denizens[base.get_idx(denizen.x, denizen.y)]
 			assert(i == denizen, "ID error for denizen\n")
 
 			if denizen.symbol == base.symbols.player then

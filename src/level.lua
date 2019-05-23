@@ -9,7 +9,7 @@ function level:paths_iter(old)
 	local max = base.MAX_X * base.MAX_Y
 	for y=1,base.MAX_Y do
 		for x=1,base.MAX_X do
-			local i = base.getIdx(x, y)
+			local i = base.get_idx(x, y)
 			local old_v = old[i]
 			if old_v then
 				new_v = base.adjacent_min(old, x, y) + 1
@@ -29,7 +29,7 @@ function level:paths_to(targ_x, targ_y)
 	local max = base.MAX_X * base.MAX_Y
 	local min = 0
 
-	local targ_id = base.getIdx(targ_x, targ_y)
+	local targ_id = base.get_idx(targ_x, targ_y)
 	for i,tile in pairs(self.terrain) do
 		if i == targ_id then
 			res[i] = min
@@ -71,7 +71,7 @@ function level:light_area(radius, x, y)
 	local max_y = math.min(y + radius, base.MAX_Y)
 	for x = min_x,max_x do
 		for y = min_y,max_y do
-			local id = base.getIdx(x, y)
+			local id = base.get_idx(x, y)
 			self.light[id] = true
 			self.memory[id] = true
 		end
@@ -110,7 +110,7 @@ function level:reset_light()
 
 	for y=1,base.MAX_Y do
 		for x=1,base.MAX_X do
-			local i = base.getIdx(x, y)
+			local i = base.get_idx(x, y)
 			local pile = self.item_piles[i]
 			local radius = light_from_item_list(pile, nil)
 			self:light_area(radius, x, y)
@@ -121,14 +121,14 @@ end
 function level:set_light(b)
 	for y=1,base.MAX_Y do
 		for x=1,base.MAX_X do
-			local i = base.getIdx(x, y)
+			local i = base.get_idx(x, y)
 			self.light[i] = b
 		end
 	end
 end
 
 function level:get_pile(x, y, make_missing)
-	local i = base.getIdx(x, y)
+	local i = base.get_idx(x, y)
 	local pile = self.item_piles[i]
 	if not pile and make_missing then
 		pile = {}
@@ -143,7 +143,7 @@ function level:drop_item(denizen, item_idx)
 	end
 
 	local item = table.remove(denizen.inventory, item_idx)
-	local i = base.getIdx(denizen.x, denizen.y)
+	local i = base.get_idx(denizen.x, denizen.y)
 	local pile = self.item_piles[i]
 	if pile then
 		table.insert(pile, item)
@@ -208,7 +208,7 @@ function level:check_kills()
 end
 
 function level:bump_hit(source, targ_x, targ_y, damage)
-	local targ_id = base.getIdx(targ_x, targ_y)
+	local targ_id = base.get_idx(targ_x, targ_y)
 	local targ = self.denizens[targ_id]
 	if not targ then
 		return false
@@ -221,8 +221,8 @@ function level:bump_hit(source, targ_x, targ_y, damage)
 end
 
 function level:move(denizen, new_x, new_y)
-	local old_id = base.getIdx(denizen.x, denizen.y)
-	local new_id = base.getIdx(new_x, new_y)
+	local old_id = base.get_idx(denizen.x, denizen.y)
+	local new_id = base.get_idx(new_x, new_y)
 	local target = self.terrain[new_id]
 	if target.symbol == base.symbols.wall then
 		if old_id == self.player_id then
@@ -248,7 +248,7 @@ function level:move(denizen, new_x, new_y)
 end
 
 function level:add_denizen(dz)
-	self.denizens[base.getIdx(dz.x, dz.y)] = dz
+	self.denizens[base.get_idx(dz.x, dz.y)] = dz
 	table.insert(self.denizens_in_order, dz)
 end
 
@@ -275,7 +275,7 @@ function level.make(num)
 	local terrain, init_x, init_y = gen.cave(res)
 	res.terrain = terrain
 
-	res.player_id = base.getIdx(init_x, init_y)
+	res.player_id = base.get_idx(init_x, init_y)
 	local player = {
 		symbol = base.symbols.player,
 		x = init_x,
@@ -311,7 +311,7 @@ function level.make(num)
 end
 
 function level:symbol_at(x, y)
-	local i = base.getIdx(x, y)
+	local i = base.get_idx(x, y)
 	local denizen = self.denizens[i]
 	local tile = self.terrain[i]
 	local light = self.light[i]

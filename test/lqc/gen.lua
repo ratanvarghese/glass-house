@@ -10,7 +10,7 @@ property "gen.set_tile: valid name" {
 		local s = valid_symbols[i]
 		local terrain = {}
 		gen.set_tile(terrain, name, x, y)
-		local idx = base.getIdx(x, y)
+		local idx = base.get_idx(x, y)
 
 		local tile = terrain[idx]
 		return tile and (tile.x == x) and (tile.y == y) and (tile.symbol == s)
@@ -37,7 +37,7 @@ property "gen.big_room: player x" {
 	generators = {},
 	check = function()
 		local t, x, y = gen.big_room()
-		local i = base.getIdx(x, y)
+		local i = base.get_idx(x, y)
 		local v = t[i]
 		return (v.x > 1) and (v.x < base.MAX_X)
 	end
@@ -47,7 +47,7 @@ property "gen.big_room: player y" {
 	generators = {},
 	check = function()
 		local t, x, y = gen.big_room()
-		local i = base.getIdx(x, y)
+		local i = base.get_idx(x, y)
 		local v = t[i]
 		return (v.y > 1) and (v.y < base.MAX_Y)
 	end
@@ -57,7 +57,7 @@ property "gen.big_room: player on floor" {
 	generators = {},
 	check = function()
 		local t, x, y = gen.big_room()
-		local i = base.getIdx(x, y)
+		local i = base.get_idx(x, y)
 		local v = t[i]
 		return (v.symbol == base.symbols.floor)
 	end
@@ -67,7 +67,7 @@ property "gen.big_room: terrain" {
 	generators = { int(1, base.MAX_X), int(1, base.MAX_Y) },
 	check = function(x, y)
 		local t = gen.big_room()
-		local i = base.getIdx(x, y)
+		local i = base.get_idx(x, y)
 		local s = t[i].symbol
 		local wall_x = (x == 1 or x == base.MAX_X)
 		local wall_y = (y == 1 or y == base.MAX_Y)
@@ -82,7 +82,7 @@ property "gen.big_room: terrain" {
 }
 
 local function find_stairs(t, x, y, finished)
-	local i = base.getIdx(x, y)
+	local i = base.get_idx(x, y)
 	local tile = t[i]
 	if finished[i] then
 		return false
