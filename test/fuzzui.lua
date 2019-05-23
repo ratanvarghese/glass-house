@@ -12,7 +12,7 @@ function ui.shutdown()
 end
 
 ui.screen = {} --ui.screen[y][x], not the other way around
-function ui.drawlevel()
+function ui.draw_level()
 	for y=1,base.MAX_Y do
 		local row = {}
 		ui.screen[y] = row
@@ -52,7 +52,7 @@ function ui.drawpaths()
 end
 
 ui.statbar = {}
-function ui.drawstats()
+function ui.draw_stats()
 	local p = level.current.denizens[level.current.player_id]
 	ui.statbar.hp = p.hp
 end

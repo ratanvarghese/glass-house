@@ -8,8 +8,8 @@ local loop = {}
 function loop.iter(ui)
 	local old_level = level.current
 	for _, denizen in ipairs(level.current.denizens_in_order) do
-		ui.drawlevel()
-		ui.drawstats()
+		ui.draw_level()
+		ui.draw_stats()
 
 		if not level.current.kill_set[denizen] then
 			local i = level.current.denizens[base.get_idx(denizen.x, denizen.y)]

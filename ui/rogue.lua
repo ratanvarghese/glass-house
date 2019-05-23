@@ -9,7 +9,7 @@ local ui = {}
 ui.init = termfx.init
 ui.shutdown = termfx.shutdown
 
-function ui.drawlevel()
+function ui.draw_level()
 	for y=1,base.MAX_Y do
 		for x=1,base.MAX_X do
 			termfx.printat(x, y, level.current:symbol_at(x, y))
@@ -42,7 +42,7 @@ function ui.drawpaths()
 	termfx.present()
 end
 
-function ui.drawstats()
+function ui.draw_stats()
 	local p = level.current.denizens[level.current.player_id]
 	local hp_line = string.format("HP: %2d", p.hp)
 	termfx.printat(base.MAX_X + 2, 1, hp_line)

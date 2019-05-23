@@ -11,7 +11,7 @@ function ui.shutdown()
 	print("Bye!")
 end
 
-function ui.drawlevel()
+function ui.draw_level()
 	for y=1,base.MAX_Y do
 		for x=1,base.MAX_X do
 			io.write(level.symbol_at(level.current, x, y))
@@ -42,7 +42,7 @@ function ui.drawpaths()
 	end
 end
 
-function ui.drawstats()
+function ui.draw_stats()
 	local p = level.current.denizens[level.current.player_id]
 	local hp_line = string.format("HP: %2d", p.hp)
 	io.write(hp_line, "\n")
