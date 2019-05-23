@@ -11,7 +11,7 @@ base.symbols = {
 	wall = "#",
 	stair = "<",
 	dark = " ",
-	item = "("
+	tool = "("
 }
 
 base.conf = {}
@@ -41,6 +41,18 @@ function base.get_idx(x, y)
 	assert(type(x)=="number", "invalid x: "..tostring(x))
 	assert(type(y)=="number", "invalid y: "..tostring(y))
 	return (y*base.MAX_X) + x
+end
+
+function base.is_edge(x, y)
+	return x == 1 or x == base.MAX_X or y == 1 or y == base.MAX_Y
+end
+
+function base.for_all_points(f)
+	for y=1,base.MAX_Y do
+		for x=1,base.MAX_X do
+			f(x, y, base.get_idx(x, y))
+		end
+	end
 end
 
 function base.error_handler(msg)

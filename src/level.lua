@@ -1,26 +1,18 @@
 local base = require("src.base")
 local gen = require("src.gen")
-local item = require("src.item")
+local tool = require("src.tool")
 
 local level = {}
 
 function level:paths_iter(old)
 	local res = {}
-	local max = base.MAX_X * base.MAX_Y
-	for y=1,base.MAX_Y do
-		for x=1,base.MAX_X do
-			local i = base.get_idx(x, y)
-			local old_v = old[i]
-			if old_v then
-				new_v = base.adjacent_min(old, x, y) + 1
-				if new_v < old_v then
-					res[i] = new_v
-				else
-					res[i] = old_v
-				end
-			end
+	base.for_all_points(function(x, y, i)
+		local old_v = old[i]
+		if old_v then
+			local new_v = base.adjacent_min(old, x, y) + 1
+			res[i] = math.min(new_v, old_v)
 		end
-	end
+	end)
 	return res
 end
 
@@ -78,7 +70,7 @@ function level:light_area(radius, x, y)
 	end
 end
 
-local function light_from_item_list(list, default)
+local function light_from_tool_list(list, default)
 	if not list then
 		return default
 	end
@@ -104,72 +96,66 @@ end
 function level:reset_light()
 	self.light = {}
 	for _,denizen in pairs(self.denizens) do
-		local radius = light_from_item_list(denizen.inventory, denizen.light_radius)
+		local radius = light_from_tool_list(denizen.inventory, denizen.light_radius)
 		self:light_area(radius, denizen.x, denizen.y)
 	end
+	base.for_all_points(function(x, y, i)
+		local pile = self.tool_piles[i]
+		local radius = light_from_tool_list(pile, nil)
+		self:light_area(radius, x, y)
 
-	for y=1,base.MAX_Y do
-		for x=1,base.MAX_X do
-			local i = base.get_idx(x, y)
-			local pile = self.item_piles[i]
-			local radius = light_from_item_list(pile, nil)
-			self:light_area(radius, x, y)
-		end
-	end
+	end)
 end
 
 function level:set_light(b)
-	for y=1,base.MAX_Y do
-		for x=1,base.MAX_X do
-			local i = base.get_idx(x, y)
-			self.light[i] = b
-		end
-	end
+	base.for_all_points(function(x, y, i)
+		self.light[i] = b
+	end)
 end
 
 function level:get_pile(x, y, make_missing)
 	local i = base.get_idx(x, y)
-	local pile = self.item_piles[i]
+	local pile = self.tool_piles[i]
 	if not pile and make_missing then
 		pile = {}
-		self.item_piles[i] = pile
+		self.tool_piles[i] = pile
 	end
 	return pile
 end
 
-function level:drop_item(denizen, item_idx)
+function level:drop_tool(denizen, tool_idx)
 	if not denizen.inventory or #denizen.inventory < 1 then
 		return false
 	end
 
-	local item = table.remove(denizen.inventory, item_idx)
+	local tool_to_drop = table.remove(denizen.inventory, tool_idx)
 	local i = base.get_idx(denizen.x, denizen.y)
-	local pile = self.item_piles[i]
+	local pile = self.tool_piles[i]
 	if pile then
-		table.insert(pile, item)
+		table.insert(pile, tool_to_drop)
 	else
-		self.item_piles[i] = {item}
+		self.tool_piles[i] = {tool_to_drop}
 	end
 	return true
 end
 
-function level:pickup_item(denizen, item_idx)
+function level:pickup_tool(denizen, tool_idx)
 	local pile = self:get_pile(denizen.x, denizen.y, false)
 	if not pile or #pile < 1 then
 		return false
 	end
 
-	local item = table.remove(pile, item_idx)
+	local tool_to_pickup = table.remove(pile, tool_idx)
 	local inventory = denizen.inventory
 	if inventory then
-		table.insert(inventory, item)
+		table.insert(inventory, tool_to_pickup)
 	else
-		denizen.inventory = {item}
+		denizen.inventory = {tool_to_pickup}
 	end
 	return true
 end
 
-function level:pickup_all_items(denizen)
+function level:pickup_all_tools(denizen)
 	local pile = self:get_pile(denizen.x, denizen.y, false)
 	if not pile or #pile < 1 then
 		return false
@@ -177,8 +163,8 @@ function level:pickup_all_items(denizen)
 
 	local max=#pile
 	for i=max,1,-1 do
-		local item = table.remove(pile, i)
-		table.insert(denizen.inventory, item)
+		local tool_to_pickup = table.remove(pile, i)
+		table.insert(denizen.inventory, tool_to_pickup)
 	end
 	return true
 end
@@ -266,7 +252,7 @@ function level.make(num)
 		memory = {},
 		paths = {},
 		kill_set = {},
-		item_piles = {},
+		tool_piles = {},
 		num = num,
 		game_over = false
 	}
@@ -283,7 +269,7 @@ function level.make(num)
 		hp = 1000,
 		light_radius = 0,
 		inventory = {
-			item.make("lantern")
+			tool.make("lantern")
 		}
 	}
 	res:add_denizen(player)
@@ -316,14 +302,14 @@ function level:symbol_at(x, y)
 	local tile = self.terrain[i]
 	local light = self.light[i]
 	local memory = self.memory[i]
-	local item_pile = self.item_piles[i]
+	local tool_pile = self.tool_piles[i]
 	assert(type(tile)=="table", "Invalid tile at x="..x.." y="..y)
 
 	if light then
 		if denizen then
 			return denizen.symbol
-		elseif item_pile and #item_pile > 0 then
-			return base.symbols.item
+		elseif tool_pile and #tool_pile > 0 then
+			return base.symbols.tool
 		else
 			return tile.symbol
 		end

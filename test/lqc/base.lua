@@ -40,6 +40,49 @@ property "base.get_idx: error on bool" {
 	end
 }
 
+property "base.is_edge: across y" {
+	generators = { int(1, base.MAX_Y) },
+	check = function(y)
+		return base.is_edge(1, y) and base.is_edge(base.MAX_X, y)
+	end
+}
+
+property "base.is_edge: across y" {
+	generators = { int(1, base.MAX_X) },
+	check = function(x)
+		return base.is_edge(x, 1) and base.is_edge(x, base.MAX_Y)
+	end
+}
+
+property "base.is_edge: restricted to edge" {
+	generators = { int(2, base.MAX_X-1), int(2, base.MAX_Y-1) },
+	check = function(x, y)
+		return not base.is_edge(x, y)
+	end
+}
+
+property "base.for_all_points: handles all points" {
+	generators = { int(1, base.MAX_X), int(1, base.MAX_Y) },
+	check = function(test_x, test_y)
+		local t = {}
+		base.for_all_points(function(x, y, i)
+			t[i] = true
+		end)
+		return t[base.get_idx(test_x, test_y)]
+	end
+}
+
+property "base.for_all_points: no extra points" {
+	generators = { int(1, base.MAX_X), int(base.MAX_Y+1, base.MAX_Y*2) },
+	check = function(test_x, test_y)
+		local t = {}
+		base.for_all_points(function(x, y, i)
+			t[i] = true
+		end)
+		return not t[base.get_idx(test_x, test_y)]
+	end
+}
+
 property "base.rn_xy: x in range" {
 	generators = {},
 	check = function()

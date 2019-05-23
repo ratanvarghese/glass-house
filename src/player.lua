@@ -1,6 +1,6 @@
 local base = require("src.base")
 local level = require("src.level")
-local item = require("src.item")
+local tool = require("src.tool")
 
 local player = {}
 
@@ -17,15 +17,15 @@ function player.handle_input(c)
 	local n = tonumber(c)
 	local d
 	if n then
-		local obj = p.inventory[n]
-		if obj then
-			item.equip(obj, p)
+		local target_tool = p.inventory[n]
+		if target_tool then
+			tool.equip(target_tool, p)
 			level.current:reset_light()
 		end
 	elseif c == base.conf.keys.quit then
 		return false
 	elseif c == base.conf.keys.drop then
-		level.current:drop_item(p, 1)
+		level.current:drop_tool(p, 1)
 	elseif c == base.conf.keys.north then
 		d = base.direction.north
 	elseif c == base.conf.keys.south then
@@ -40,7 +40,7 @@ function player.handle_input(c)
 		local nx = p.x + d.x
 		local ny = p.y + d.y
 		if level.current:move(p, nx, ny) then
-			level.current:pickup_all_items(p)
+			level.current:pickup_all_tools(p)
 			player.climb_stairs()
 		else
 			level.current:bump_hit(p, nx, ny, 1)

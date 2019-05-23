@@ -26,12 +26,12 @@ end, base.error_handler)
 local function write_err(f, err)
 	f:write("Level saved at ",base.savefile, "\n\n")
 	f:write(err, "\n")
-	for y=1,base.MAX_Y do
-		for x=1,base.MAX_X do
-			f:write(level.symbol_at(level.current, x, y))
+	base.for_all_points(function(x, y, i)
+		f:write(level.symbol_at(level.current, x, y))
+		if y == base.MAX_Y then
+			f:write("\n")
 		end
-		f:write("\n")
-	end
+	end)
 
 	f:write("\n\nStatbar:\n")
 	f:write("HP:\t\t", ui.statbar.hp, "\n")

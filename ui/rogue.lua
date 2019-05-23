@@ -10,11 +10,9 @@ ui.init = termfx.init
 ui.shutdown = termfx.shutdown
 
 function ui.draw_level()
-	for y=1,base.MAX_Y do
-		for x=1,base.MAX_X do
-			termfx.printat(x, y, level.current:symbol_at(x, y))
-		end
-	end
+	base.for_all_points(function(x, y, i)
+		termfx.printat(x, y, level.current:symbol_at(x, y))
+	end)
 	termfx.present()
 end
 
@@ -24,21 +22,19 @@ function ui.getinput()
 end
 
 function ui.drawpaths()
-	for y=1,base.MAX_Y do
-		for x=1,base.MAX_X do
-			local i = base.get_idx(x, y)
-			local n = level.current.paths.to_player[i]
-			local c
-			if n == 0 then
-				c = "@"
-			elseif n then
-				c = n % 10
-			else
-				c = " "
-			end
-			termfx.printat(x, y + base.MAX_Y + 1, c)
+	base.for_all_points(function(x, y, i)
+		local n = level.current.paths.to_player[i]
+		local c
+		if n == 0 then
+			c = "@"
+		elseif n then
+			c = n % 10
+		else
+			c = " "
 		end
-	end
+		termfx.printat(x, y + base.MAX_Y + 1, c)
+
+	end)
 	termfx.present()
 end
 

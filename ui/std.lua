@@ -12,12 +12,12 @@ function ui.shutdown()
 end
 
 function ui.draw_level()
-	for y=1,base.MAX_Y do
-		for x=1,base.MAX_X do
-			io.write(level.symbol_at(level.current, x, y))
+	base.for_all_points(function(x, y, i)
+		io.write(level.symbol_at(level.current, x, y))
+		if y == base.MAX_Y then
+			io.write("\n")
 		end
-		io.write("\n")
-	end
+	end)
 end
 
 function ui.getinput()
@@ -26,20 +26,19 @@ function ui.getinput()
 end
 
 function ui.drawpaths()
-	for y=1,base.MAX_Y do
-		for x=1,base.MAX_X do
-			local i = base.get_idx(x, y)
-			local n = level.current.paths.to_player[i]
-			if n == 0 then
-				io.write("@")
-			elseif n then
-				io.write(n % 10)
-			else
-				io.write(" ")
-			end
+	base.for_all_points(function(x, y, i)
+		local n = level.current.paths.to_player[i]
+		if n == 0 then
+			io.write("@")
+		elseif n then
+			io.write(n % 10)
+		else
+			io.write(" ")
 		end
-		io.write("\n")
-	end
+		if y == base.MAX_Y then
+			io.write("\n")
+		end
+	end)
 end
 
 function ui.draw_stats()
