@@ -83,6 +83,21 @@ property "base.for_all_points: no extra points" {
 	end
 }
 
+property "base.for_all_points: correct order" {
+	generators = {},
+	check = function()
+		local res = true
+		local last_x = 0
+		base.for_all_points(function(x, y, i)
+			if x == last_x then
+				res = false
+			end
+			last_x = x
+		end)
+		return res
+	end
+}
+
 property "base.rn_xy: x in range" {
 	generators = {},
 	check = function()

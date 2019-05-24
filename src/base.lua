@@ -56,8 +56,8 @@ function base.for_rect(x1, y1, x2, y2, f)
 	local max_x = math.min(x2, base.MAX_X)
 	local min_y = math.max(y1, 1)
 	local max_y = math.min(y2, base.MAX_Y)
-	for x = min_x,max_x do
-		for y = min_y,max_y do
+	for y = min_y,max_y do
+		for x = min_x,max_x do
 			f(x, y, base.get_idx(x, y))
 		end
 	end
