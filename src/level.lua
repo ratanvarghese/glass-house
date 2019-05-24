@@ -2,6 +2,7 @@ local base = require("src.base")
 local gen = require("src.gen")
 local tool = require("src.tool")
 local path = require("src.path")
+local bestiary = require("src.bestiary")
 
 local level = {}
 
@@ -184,34 +185,9 @@ function level.make(num)
 	res.terrain = terrain
 
 	res.player_id = base.get_idx(init_x, init_y)
-	local player = {
-		symbol = base.symbols.player,
-		x = init_x,
-		y = init_y,
-		hp = 1000,
-		light_radius = 0,
-		inventory = {
-			tool.make("lantern")
-		}
-	}
-	res:add_denizen(player)
-
-	local angel = {
-		symbol = base.symbols.angel,
-		x = 40,
-		y = 10,
-		light_radius = 2,
-		hp = 10
-	}
-	res:add_denizen(angel)
-
-	local dragon = {
-		symbol = base.symbols.dragon,
-		x = 10,
-		y = 10,
-		hp = 20
-	}
-	res:add_denizen(dragon)
+	res:add_denizen(bestiary.make("player", init_x, init_y))
+	res:add_denizen(bestiary.make("angel", 40, 10))
+	res:add_denizen(bestiary.make("dragon", 10, 10))
 
 	res:reset_light()
 	res:reset_paths()
