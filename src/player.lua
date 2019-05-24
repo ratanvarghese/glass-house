@@ -1,6 +1,7 @@
 local base = require("src.base")
 local level = require("src.level")
 local tool = require("src.tool")
+local mon = require("src.mon")
 
 local player = {}
 
@@ -25,7 +26,7 @@ function player.handle_input(c)
 	elseif c == base.conf.keys.quit then
 		return false
 	elseif c == base.conf.keys.drop then
-		level.current:drop_tool(p, 1)
+		mon.drop_tool(level.current.tool_piles, p, 1)
 	elseif c == base.conf.keys.north then
 		d = base.direction.north
 	elseif c == base.conf.keys.south then
@@ -40,7 +41,7 @@ function player.handle_input(c)
 		local nx = p.x + d.x
 		local ny = p.y + d.y
 		if level.current:move(p, nx, ny) then
-			level.current:pickup_all_tools(p)
+			mon.pickup_all_tools(level.current.tool_piles, p)
 			player.climb_stairs()
 		else
 			level.current:bump_hit(p, nx, ny, 1)

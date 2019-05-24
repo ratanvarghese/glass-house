@@ -56,42 +56,6 @@ function level:set_light(b)
 	end)
 end
 
-function level:drop_tool(denizen, tool_idx)
-	if not denizen.inventory or #denizen.inventory < 1 then
-		return false
-	end
-
-	local tool_to_drop = table.remove(denizen.inventory, tool_idx)
-	tool.drop_onto_array(self.tool_piles, tool_to_drop, denizen.x, denizen.y)
-	return true
-end
-
-function level:pickup_tool(denizen, tool_idx)
-	local targ_tool = tool.pickup_from_array(self.tool_piles, tool_idx, denizen.x, denizen.y)
-	if not targ_tool then
-		return false
-	end
-
-	local inventory = denizen.inventory
-	if inventory then
-		table.insert(inventory, targ_tool)
-	else
-		denizen.inventory = {targ_tool}
-	end
-	return true
-end
-
-function level:pickup_all_tools(denizen)
-	local pile = tool.pickup_all_from_array(self.tool_piles, denizen.x, denizen.y)
-	if not pile then
-		return
-	end
-
-	for i,v in ipairs(pile) do
-		table.insert(denizen.inventory, v)
-	end
-end
-
 function level:kill_denizen(id)
 	if id == self.player_id then
 		self.game_over = {
