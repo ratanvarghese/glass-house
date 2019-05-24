@@ -5,14 +5,14 @@ local mon = require("src.mon")
 
 local player = {}
 
-function player.climb_stairs()
-	if level.current:denizen_on_terrain(level.current.player_id, base.symbols.stair) then
-		level.current = level.make(level.current.num + 1)
+function player.climb_stairs(lvl)
+	if lvl:denizen_on_terrain(lvl.player_id, base.symbols.stair) then
+		level.current = level.make(lvl.num + 1)
 	end
 end
 
-function player.handle_input(c)
-	local p = level.current.denizens[level.current.player_id]
+function player.handle_input(lvl, c)
+	local p = lvl.denizens[lvl.player_id]
 	assert(p, "ID error for player")
 
 	local n = tonumber(c)
@@ -21,12 +21,12 @@ function player.handle_input(c)
 		local target_tool = p.inventory[n]
 		if target_tool then
 			tool.equip(target_tool, p)
-			level.current:reset_light()
+			lvl:reset_light()
 		end
 	elseif c == base.conf.keys.quit then
 		return false
 	elseif c == base.conf.keys.drop then
-		mon.drop_tool(level.current.tool_piles, p, 1)
+		mon.drop_tool(lvl.tool_piles, p, 1)
 	elseif c == base.conf.keys.north then
 		d = base.direction.north
 	elseif c == base.conf.keys.south then
@@ -40,11 +40,11 @@ function player.handle_input(c)
 	if d then
 		local nx = p.x + d.x
 		local ny = p.y + d.y
-		if level.current:move(p, nx, ny) then
-			mon.pickup_all_tools(level.current.tool_piles, p)
-			player.climb_stairs()
+		if lvl:move(p, nx, ny) then
+			mon.pickup_all_tools(lvl.tool_piles, p)
+			player.climb_stairs(lvl)
 		else
-			level.current:bump_hit(p, nx, ny, 1)
+			lvl:bump_hit(p, nx, ny, 1)
 		end
 	end
 	return true

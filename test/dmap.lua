@@ -13,8 +13,8 @@ function huh()
 end
 
 local ok, err = xpcall(function()
-	ui.draw_level()
-	ui.drawpaths()
+	ui.draw_level(level.current)
+	ui.drawpaths(level.current)
 
 	huh()
 end, base.error_handler)

@@ -8,8 +8,8 @@ local loop = {}
 function loop.iter(ui)
 	local old_level = level.current
 	for _, denizen in ipairs(level.current.denizens_in_order) do
-		ui.draw_level()
-		ui.draw_stats()
+		ui.draw_level(level.current)
+		ui.draw_stats(level.current)
 
 		if not level.current.kill_set[denizen] then
 			local i = level.current.denizens[base.get_idx(denizen.x, denizen.y)]
@@ -17,11 +17,11 @@ function loop.iter(ui)
 
 			if denizen.symbol == base.symbols.player then
 				local c = ui.getinput()
-				if not player.handle_input(c) then
+				if not player.handle_input(level.current, c) then
 					return false
 				end
 			else
-				mon.act(denizen)
+				mon.act(level.current, denizen)
 			end
 		end
 

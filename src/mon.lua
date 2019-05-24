@@ -4,20 +4,20 @@ local tool = require("src.tool")
 
 local mon = {}
 
-function mon.act(denizen)
-	--mon.wander(denizen)
-	mon.follow_player(denizen)
+function mon.act(lvl, denizen)
+	--mon.wander(lvl, denizen)
+	mon.follow_player(lvl, denizen)
 end
 
-function mon.wander(denizen)
+function mon.wander(lvl, denizen)
 	local d = base.rn_direction()
-	level.current:move(denizen, denizen.x + d.x, denizen.y + d.y)
+	lvl:move(denizen, denizen.x + d.x, denizen.y + d.y)
 end
 
-function mon.follow_player(denizen)
-	local _, x, y = base.adjacent_min(level.current.paths.to_player, denizen.x, denizen.y)
-	if not level.current:move(denizen, x, y) and (denizen.x ~= x or denizen.y ~= y) then
-		level.current:bump_hit(denizen, x, y, 1)
+function mon.follow_player(lvl, denizen)
+	local _, x, y = base.adjacent_min(lvl.paths.to_player, denizen.x, denizen.y)
+	if not lvl:move(denizen, x, y) and (denizen.x ~= x or denizen.y ~= y) then
+		lvl:bump_hit(denizen, x, y, 1)
 	end
 end
 

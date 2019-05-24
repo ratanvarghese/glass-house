@@ -11,9 +11,9 @@ function ui.shutdown()
 	print("Bye!")
 end
 
-function ui.draw_level()
+function ui.draw_level(lvl)
 	base.for_all_points(function(x, y, i)
-		io.write(level.symbol_at(level.current, x, y))
+		io.write(lvl:symbol_at(x, y))
 		if x == base.MAX_X then
 			io.write("\n")
 		end
@@ -25,9 +25,9 @@ function ui.getinput()
 	return io.read()
 end
 
-function ui.drawpaths()
+function ui.drawpaths(lvl)
 	base.for_all_points(function(x, y, i)
-		local n = level.current.paths.to_player[i]
+		local n = lvl.paths.to_player[i]
 		if n == 0 then
 			io.write("@")
 		elseif n then
@@ -41,8 +41,8 @@ function ui.drawpaths()
 	end)
 end
 
-function ui.draw_stats()
-	local p = level.current.denizens[level.current.player_id]
+function ui.draw_stats(lvl)
+	local p = lvl.denizens[lvl.player_id]
 	local hp_line = string.format("HP: %2d", p.hp)
 	io.write(hp_line, "\n")
 end

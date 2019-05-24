@@ -27,7 +27,7 @@ local function write_err(f, err)
 	f:write("Level saved at ",base.savefile, "\n\n")
 	f:write(err, "\n")
 	base.for_all_points(function(x, y, i)
-		f:write(level.symbol_at(level.current, x, y))
+		f:write(level.current:symbol_at(x, y))
 		if x == base.MAX_X then
 			f:write("\n")
 		end
