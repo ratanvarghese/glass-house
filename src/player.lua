@@ -11,6 +11,28 @@ function player.climb_stairs(lvl)
 	end
 end
 
+function player.try_move(lvl, p, d)
+	if not d then
+		return
+	end
+	local nx = p.x + d.x
+	local ny = p.y + d.y
+	if lvl:move(p, nx, ny) then
+		mon.pickup_all_tools(lvl.tool_piles, p)
+		player.climb_stairs(lvl)
+	else
+		lvl:bump_hit(p, nx, ny, 1)
+	end
+end
+
+function player.equip(lvl, p, tool_idx)
+	local target_tool = p.inventory[tool_idx]
+	if target_tool then
+		tool.equip(target_tool, p)
+		lvl:reset_light()
+	end
+end
+
 function player.handle_input(lvl, c)
 	local p = lvl.denizens[lvl.player_id]
 	assert(p, "ID error for player")
@@ -18,11 +40,7 @@ function player.handle_input(lvl, c)
 	local n = tonumber(c)
 	local d
 	if n then
-		local target_tool = p.inventory[n]
-		if target_tool then
-			tool.equip(target_tool, p)
-			lvl:reset_light()
-		end
+		player.equip(lvl, p, n)
 	elseif c == base.conf.keys.quit then
 		return false
 	elseif c == base.conf.keys.drop then
@@ -37,16 +55,7 @@ function player.handle_input(lvl, c)
 		d = base.direction.east
 	end
 
-	if d then
-		local nx = p.x + d.x
-		local ny = p.y + d.y
-		if lvl:move(p, nx, ny) then
-			mon.pickup_all_tools(lvl.tool_piles, p)
-			player.climb_stairs(lvl)
-		else
-			lvl:bump_hit(p, nx, ny, 1)
-		end
-	end
+	player.try_move(lvl, p, d)
 	return true
 end
 
