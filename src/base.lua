@@ -37,6 +37,21 @@ for _,v in pairs(base.direction) do
 	table.insert(base.direction_list, v)
 end
 
+function base.is_empty(t)
+	return (next(t) == nil)
+end
+
+function base.map_k(list, targ_k)
+	local res = {}
+	for k,v in pairs(list) do
+		local targ_v = v[targ_k]
+		if targ_v or targ_v == false then
+			res[k] = targ_v
+		end
+	end
+	return res
+end
+
 function base.get_idx(x, y)
 	assert(type(x)=="number", "invalid x: "..tostring(x))
 	assert(type(y)=="number", "invalid y: "..tostring(y))

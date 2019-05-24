@@ -67,19 +67,13 @@ function tool.light_from_list(list, default)
 		return default
 	end
 
-	local use_res = false
-	local res = 0
-	for i,v in ipairs(list) do
-		if v.light_radius then
-			res = math.max(res, v.light_radius)
-			use_res = true
-		end
-	end
-
-	if use_res then
-		return res
-	else
+	local radii = base.map_k(list, "light_radius")
+	if base.is_empty(radii) then
 		return default
+	elseif not default then
+		return math.max(unpack(radii))
+	else
+		return math.max(default, unpack(radii))
 	end
 end
 
