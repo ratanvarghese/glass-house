@@ -3,26 +3,17 @@ local base = require("src.base")
 
 local gen = {}
 
-function gen.set_tile(terrain, name, x, y)
-	local s = base.symbols[name]
-	assert(s, "Invalid tile name: "..name)
-	local i = grid.get_idx(x, y)
-	terrain[i] = {symbol = s, x = x, y = y}
-end
-
 function gen.big_room()
-	local terrain = {}
-	grid.for_all_points(function(x, y, i)
-		if grid.is_edge(x, y) then
-			gen.set_tile(terrain, "wall", x, y)
-		else
-			gen.set_tile(terrain, "floor", x, y)
-		end
-	end)
-
 	local stair_x, stair_y = grid.rn_xy()
-	gen.set_tile(terrain, "stair", stair_x, stair_y)
-
+	local terrain = grid.make_full(function(x, y)
+		local s = base.symbols.floor
+		if x == stair_x and y == stair_y then
+			s = base.symbols.stair
+		elseif grid.is_edge(x, y) then
+			s = base.symbols.wall
+		end
+		return {symbol = s, x = x, y = y}
+	end)
 	local player_x, player_y = grid.rn_xy()
 	while player_x == stair_x and player_y == stair_y do
 		player_x, player_y = grid.rn_xy()
@@ -55,19 +46,17 @@ local function boolean_walker(max_steps)
 	return floors, start_x, start_y, end_x, end_y
 end
 
+gen.CAVE_STEPS = math.floor((grid.MAX_X * grid.MAX_Y * 2) / 4)
 function gen.cave()
-	local max_steps = math.floor((grid.MAX_X * grid.MAX_Y * 2) / 4)
-	local floors, start_x, start_y, end_x, end_y = boolean_walker(max_steps)
-	local terrain = {}
-	grid.for_all_points(function(x, y, i)
+	local floors, start_x, start_y, end_x, end_y = boolean_walker(gen.CAVE_STEPS)
+	local terrain = grid.make_full(function(x, y, i)
+		local s = base.symbols.wall
 		if x == start_x and y == start_y then
-			gen.set_tile(terrain, "stair", x, y) 
+			s = base.symbols.stair
 		elseif floors[i] then
-			gen.set_tile(terrain, "floor", x, y) 
-		else
-			gen.set_tile(terrain, "wall", x, y) 
+			s = base.symbols.floor
 		end
-
+		return {symbol = s, x = x, y = y}
 	end)
 	return terrain, end_x, end_y
 end

@@ -32,10 +32,9 @@ function level:light_area(radius, x, y)
 		return
 	end
 
-	grid.for_rect(x-radius, y-radius, x+radius, y+radius, function(x, y, i)
-		self.light[i] = true
-		self.memory[i] = true
-	end)
+	local x1, y1, x2, y2 = x-radius, y-radius, x+radius, y+radius 
+	grid.edit_rect(x1, y1, x2, y2, self.light, function() return true end)
+	grid.edit_rect(x1, y1, x2, y2, self.memory, function() return true end)
 end
 
 function level:reset_light()
@@ -44,7 +43,7 @@ function level:reset_light()
 		local radius = tool.light_from_list(denizen.inventory, denizen.light_radius)
 		self:light_area(radius, denizen.x, denizen.y)
 	end
-	grid.for_all_points(function(x, y, i)
+	grid.make_full(function(x, y, i)
 		local pile = self.tool_piles[i]
 		local radius = tool.light_from_list(pile, nil)
 		self:light_area(radius, x, y)
@@ -52,9 +51,7 @@ function level:reset_light()
 end
 
 function level:set_light(b)
-	grid.for_all_points(function(x, y, i)
-		self.light[i] = b
-	end)
+	self.light = grid.make_full(function() return b end)
 end
 
 function level:kill_denizen(id)

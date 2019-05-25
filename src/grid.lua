@@ -25,20 +25,33 @@ function grid.is_edge(x, y)
 	return x == 1 or x == grid.MAX_X or y == 1 or y == grid.MAX_Y
 end
 
-function grid.for_all_points(f)
-	grid.for_rect(1, 1, grid.MAX_X, grid.MAX_Y, f)
+function grid.make_rect(x1, y1, x2, y2, f)
+	local res = {}
+	grid.edit_rect(res, f)
+	return res
 end
 
-function grid.for_rect(x1, y1, x2, y2, f)
+function grid.make_full(f)
+	local res = {}
+	grid.edit_full(res, f)
+	return res
+end
+
+function grid.edit_rect(x1, y1, x2, y2, t, f)
 	local min_x = math.max(x1, 1)
 	local max_x = math.min(x2, grid.MAX_X)
 	local min_y = math.max(y1, 1)
 	local max_y = math.min(y2, grid.MAX_Y)
 	for y = min_y,max_y do
 		for x = min_x,max_x do
-			f(x, y, grid.get_idx(x, y))
+			local i = grid.get_idx(x, y)
+			t[i] = f(x, y, i)
 		end
 	end
+end
+
+function grid.edit_full(t, f)
+	grid.edit_rect(1, 1, grid.MAX_X, grid.MAX_Y, t, f)
 end
 
 function grid.rn_direction()

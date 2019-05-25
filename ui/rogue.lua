@@ -10,7 +10,7 @@ ui.init = termfx.init
 ui.shutdown = termfx.shutdown
 
 function ui.draw_level(lvl)
-	grid.for_all_points(function(x, y, i)
+	grid.make_full(function(x, y, i)
 		termfx.printat(x, y, lvl:symbol_at(x, y))
 	end)
 	termfx.present()
@@ -22,7 +22,7 @@ function ui.getinput()
 end
 
 function ui.drawpaths(lvl)
-	grid.for_all_points(function(x, y, i)
+	grid.make_full(function(x, y, i)
 		local n = lvl.paths.to_player[i]
 		local c
 		if n == 0 then

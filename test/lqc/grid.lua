@@ -61,34 +61,32 @@ property "grid.is_edge: restricted to edge" {
 	end
 }
 
-property "grid.for_all_points: handles all points" {
+property "grid.make_full: handles all points" {
 	generators = { int(1, grid.MAX_X), int(1, grid.MAX_Y) },
 	check = function(test_x, test_y)
-		local t = {}
-		grid.for_all_points(function(x, y, i)
-			t[i] = true
+		local t = grid.make_full(function(x, y, i)
+			return true
 		end)
 		return t[grid.get_idx(test_x, test_y)]
 	end
 }
 
-property "grid.for_all_points: no extra points" {
+property "grid.make_full: no extra points" {
 	generators = { int(1, grid.MAX_X), int(grid.MAX_Y+1, grid.MAX_Y*2) },
 	check = function(test_x, test_y)
-		local t = {}
-		grid.for_all_points(function(x, y, i)
-			t[i] = true
+		local t = grid.make_full(function(x, y, i)
+			return true
 		end)
 		return not t[grid.get_idx(test_x, test_y)]
 	end
 }
 
-property "grid.for_all_points: correct order" {
+property "grid.make_full: correct order" {
 	generators = {},
 	check = function()
 		local res = true
 		local last_x = 0
-		grid.for_all_points(function(x, y, i)
+		grid.make_full(function(x, y, i)
 			if x == last_x then
 				res = false
 			end

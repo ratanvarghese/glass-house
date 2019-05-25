@@ -39,7 +39,6 @@ function base.map_k(list, targ_k)
 	return res
 end
 
-
 function base.error_handler(msg)
 	return msg.."\n"..debug.traceback()
 end

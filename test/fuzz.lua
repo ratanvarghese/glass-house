@@ -27,7 +27,7 @@ end, base.error_handler)
 local function write_err(f, err)
 	f:write("Level saved at ",base.savefile, "\n\n")
 	f:write(err, "\n")
-	grid.for_all_points(function(x, y, i)
+	grid.make_full(function(x, y, i)
 		f:write(level.current:symbol_at(x, y))
 		if x == grid.MAX_X then
 			f:write("\n")

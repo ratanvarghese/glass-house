@@ -12,7 +12,7 @@ function ui.shutdown()
 end
 
 function ui.draw_level(lvl)
-	grid.for_all_points(function(x, y, i)
+	grid.make_full(function(x, y, i)
 		io.write(lvl:symbol_at(x, y))
 		if x == grid.MAX_X then
 			io.write("\n")
@@ -26,7 +26,7 @@ function ui.getinput()
 end
 
 function ui.drawpaths(lvl)
-	grid.for_all_points(function(x, y, i)
+	grid.make_full(function(x, y, i)
 		local n = lvl.paths.to_player[i]
 		if n == 0 then
 			io.write("@")
