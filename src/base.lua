@@ -1,6 +1,5 @@
 local base = {}
 
-base.savefile = ".save.glass"
 base.symbols = {
 	player = "@",
 	angel = "A",
