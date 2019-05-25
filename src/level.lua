@@ -1,4 +1,5 @@
 local base = require("src.base")
+local grid = require("src.grid")
 local gen = require("src.gen")
 local tool = require("src.tool")
 local path = require("src.path")
@@ -31,7 +32,7 @@ function level:light_area(radius, x, y)
 		return
 	end
 
-	base.for_rect(x-radius, y-radius, x+radius, y+radius, function(x, y, i)
+	grid.for_rect(x-radius, y-radius, x+radius, y+radius, function(x, y, i)
 		self.light[i] = true
 		self.memory[i] = true
 	end)
@@ -43,7 +44,7 @@ function level:reset_light()
 		local radius = tool.light_from_list(denizen.inventory, denizen.light_radius)
 		self:light_area(radius, denizen.x, denizen.y)
 	end
-	base.for_all_points(function(x, y, i)
+	grid.for_all_points(function(x, y, i)
 		local pile = self.tool_piles[i]
 		local radius = tool.light_from_list(pile, nil)
 		self:light_area(radius, x, y)
@@ -51,7 +52,7 @@ function level:reset_light()
 end
 
 function level:set_light(b)
-	base.for_all_points(function(x, y, i)
+	grid.for_all_points(function(x, y, i)
 		self.light[i] = b
 	end)
 end
@@ -81,7 +82,7 @@ function level:check_kills()
 end
 
 function level:bump_hit(source, targ_x, targ_y, damage)
-	local targ_id = base.get_idx(targ_x, targ_y)
+	local targ_id = grid.get_idx(targ_x, targ_y)
 	local targ = self.denizens[targ_id]
 	if not targ then
 		return false
@@ -94,8 +95,8 @@ function level:bump_hit(source, targ_x, targ_y, damage)
 end
 
 function level:move(denizen, new_x, new_y)
-	local old_id = base.get_idx(denizen.x, denizen.y)
-	local new_id = base.get_idx(new_x, new_y)
+	local old_id = grid.get_idx(denizen.x, denizen.y)
+	local new_id = grid.get_idx(new_x, new_y)
 	local target = self.terrain[new_id]
 	if target.symbol == base.symbols.wall then
 		if old_id == self.player_id then
@@ -121,7 +122,7 @@ function level:move(denizen, new_x, new_y)
 end
 
 function level:add_denizen(dz)
-	self.denizens[base.get_idx(dz.x, dz.y)] = dz
+	self.denizens[grid.get_idx(dz.x, dz.y)] = dz
 	table.insert(self.denizens_in_order, dz)
 end
 
@@ -148,7 +149,7 @@ function level.make(num)
 	local terrain, init_x, init_y = gen.cave(res)
 	res.terrain = terrain
 
-	res.player_id = base.get_idx(init_x, init_y)
+	res.player_id = grid.get_idx(init_x, init_y)
 	res:add_denizen(bestiary.make("player", init_x, init_y))
 	res:add_denizen(bestiary.make("angel", 40, 10))
 	res:add_denizen(bestiary.make("dragon", 10, 10))
@@ -159,7 +160,7 @@ function level.make(num)
 end
 
 function level:symbol_at(x, y)
-	local i = base.get_idx(x, y)
+	local i = grid.get_idx(x, y)
 	local denizen = self.denizens[i]
 	local tile = self.terrain[i]
 	local light = self.light[i]

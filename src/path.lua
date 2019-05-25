@@ -1,13 +1,14 @@
+local grid = require("src.grid")
 local base = require("src.base")
 
 local path = {}
 
 function path.iter(old)
 	local res = {}
-	base.for_all_points(function(x, y, i)
+	grid.for_all_points(function(x, y, i)
 		local old_v = old[i]
 		if old_v then
-			local new_v = base.adjacent_min(old, x, y) + 1
+			local new_v = grid.adjacent_min(old, x, y) + 1
 			res[i] = math.min(new_v, old_v)
 		end
 	end)
@@ -16,10 +17,10 @@ end
 
 function path.init_array(targ_x, targ_y, eligible_f)
 	local res = {}
-	local max = base.MAX_X * base.MAX_Y
+	local max = grid.MAX_X * grid.MAX_Y
 	local min = 0
 
-	base.for_all_points(function(x, y, i)
+	grid.for_all_points(function(x, y, i)
 		if x == targ_x and y == targ_y then
 			res[i] = min
 		elseif eligible_f(x, y, i) then

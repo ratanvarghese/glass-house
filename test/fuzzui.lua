@@ -1,4 +1,5 @@
 local base = require("src.base")
+local grid = require("src.grid")
 local level = require("src.level")
 
 local ui = {}
@@ -13,10 +14,10 @@ end
 
 ui.screen = {} --ui.screen[y][x], not the other way around
 function ui.draw_level(lvl)
-	for y=1,base.MAX_Y do
+	for y=1,grid.MAX_Y do
 		local row = {}
 		ui.screen[y] = row
-		for x=1,base.MAX_X do
+		for x=1,grid.MAX_X do
 			row[x] = lvl:symbol_at(x, y)
 		end
 	end
@@ -35,7 +36,7 @@ function ui.getinput()
 	end
 
 	local p = level.current.denizens[level.current.player_id]
-	local _, x, y = base.adjacent_min(level.current.paths.to_stair, p.x, p.y)
+	local _, x, y = grid.adjacent_min(level.current.paths.to_stair, p.x, p.y)
 	if x == p.x+1 then
 		return base.conf.keys.east
 	elseif x == p.x-1 then

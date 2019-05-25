@@ -1,4 +1,5 @@
 local base = require("src.base")
+local grid = require("src.grid")
 local level = require("src.level")
 local tool = require("src.tool")
 local mon = require("src.mon")
@@ -46,13 +47,13 @@ function player.handle_input(lvl, c)
 	elseif c == base.conf.keys.drop then
 		mon.drop_tool(lvl.tool_piles, p, 1)
 	elseif c == base.conf.keys.north then
-		d = base.direction.north
+		d = grid.direction.north
 	elseif c == base.conf.keys.south then
-		d = base.direction.south
+		d = grid.direction.south
 	elseif c == base.conf.keys.west then
-		d = base.direction.west
+		d = grid.direction.west
 	elseif c == base.conf.keys.east then
-		d = base.direction.east
+		d = grid.direction.east
 	end
 
 	player.try_move(lvl, p, d)

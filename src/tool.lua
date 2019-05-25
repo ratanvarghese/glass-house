@@ -1,3 +1,4 @@
+local grid = require("src.grid")
 local base = require("src.base")
 
 local tool_set = {}
@@ -28,7 +29,7 @@ function tool.make(name)
 end
 
 function tool.pile_from_array(pile_array, x, y, make_missing)
-	local i = base.get_idx(x, y)
+	local i = grid.get_idx(x, y)
 	local pile = pile_array[i]
 	if not pile and make_missing then
 		pile = {}
@@ -46,14 +47,14 @@ function tool.pickup_from_array(pile_array, tool_idx, x, y)
 end
 
 function tool.pickup_all_from_array(pile_array, x, y)
-	local i = base.get_idx(x, y)
+	local i = grid.get_idx(x, y)
 	local pile = pile_array[i]
 	pile_array[i] = nil
 	return pile
 end
 
 function tool.drop_onto_array(pile_array, tool_to_drop, x, y)
-	local i = base.get_idx(x, y)
+	local i = grid.get_idx(x, y)
 	local pile = pile_array[i]
 	if pile then
 		table.insert(pile, tool_to_drop)

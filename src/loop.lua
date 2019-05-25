@@ -1,4 +1,5 @@
 local base = require("src.base")
+local grid = require("src.grid")
 local player = require("src.player")
 local level = require("src.level")
 local mon = require("src.mon")
@@ -12,7 +13,7 @@ function loop.iter(ui)
 		ui.draw_stats(level.current)
 
 		if not level.current.kill_set[denizen] then
-			local i = level.current.denizens[base.get_idx(denizen.x, denizen.y)]
+			local i = level.current.denizens[grid.get_idx(denizen.x, denizen.y)]
 			assert(i == denizen, "ID error for denizen\n")
 
 			if denizen.symbol == base.symbols.player then

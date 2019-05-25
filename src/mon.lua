@@ -1,4 +1,4 @@
-local base = require("src.base")
+local grid = require("src.grid")
 local level = require("src.level")
 local tool = require("src.tool")
 
@@ -10,12 +10,12 @@ function mon.act(lvl, denizen)
 end
 
 function mon.wander(lvl, denizen)
-	local d = base.rn_direction()
+	local d = grid.rn_direction()
 	lvl:move(denizen, denizen.x + d.x, denizen.y + d.y)
 end
 
 function mon.follow_player(lvl, denizen)
-	local _, x, y = base.adjacent_min(lvl.paths.to_player, denizen.x, denizen.y)
+	local _, x, y = grid.adjacent_min(lvl.paths.to_player, denizen.x, denizen.y)
 	if not lvl:move(denizen, x, y) and (denizen.x ~= x or denizen.y ~= y) then
 		lvl:bump_hit(denizen, x, y, 1)
 	end

@@ -1,4 +1,5 @@
 local base = require("src.base")
+local grid = require("src.grid")
 local file = require("src.file")
 local level = require("src.level")
 local loop = require("src.loop")
@@ -26,16 +27,19 @@ end, base.error_handler)
 local function write_err(f, err)
 	f:write("Level saved at ",base.savefile, "\n\n")
 	f:write(err, "\n")
-	base.for_all_points(function(x, y, i)
+	grid.for_all_points(function(x, y, i)
 		f:write(level.current:symbol_at(x, y))
-		if x == base.MAX_X then
+		if x == grid.MAX_X then
 			f:write("\n")
 		end
 	end)
 
 	f:write("\n\nStatbar:\n")
-	f:write("HP:\t\t", ui.statbar.hp, "\n")
-
+	if ui and ui.statbar and ui.statbar.hp then
+		f:write("HP:\t\t", ui.statbar.hp, "\n")
+	else
+		f:write("HP:\t\t ??? \n")
+	end
 	f:write("\n\nOther Stats:\n")
 	f:write("level num:\t", level.current.num, "\n")
 	f:write("turns:\t\t", turns, "\n")

@@ -1,4 +1,4 @@
-local base = require("src.base")
+local grid = require("src.grid")
 local level = require("src.level")
 
 local ui = {}
@@ -12,9 +12,9 @@ function ui.shutdown()
 end
 
 function ui.draw_level(lvl)
-	base.for_all_points(function(x, y, i)
+	grid.for_all_points(function(x, y, i)
 		io.write(lvl:symbol_at(x, y))
-		if x == base.MAX_X then
+		if x == grid.MAX_X then
 			io.write("\n")
 		end
 	end)
@@ -26,7 +26,7 @@ function ui.getinput()
 end
 
 function ui.drawpaths(lvl)
-	base.for_all_points(function(x, y, i)
+	grid.for_all_points(function(x, y, i)
 		local n = lvl.paths.to_player[i]
 		if n == 0 then
 			io.write("@")
@@ -35,7 +35,7 @@ function ui.drawpaths(lvl)
 		else
 			io.write(" ")
 		end
-		if x == base.MAX_X then
+		if x == grid.MAX_X then
 			io.write("\n")
 		end
 	end)
