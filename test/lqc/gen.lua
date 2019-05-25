@@ -5,20 +5,16 @@ local gen = require("src.gen")
 property "gen.big_room: player x" {
 	generators = {},
 	check = function()
-		local t, x, y = gen.big_room()
-		local i = grid.get_idx(x, y)
-		local v = t[i]
-		return (v.x > 1) and (v.x < grid.MAX_X)
+		local _, x, y = gen.big_room()
+		return (x > 1) and (x < grid.MAX_X)
 	end
 }
 
 property "gen.big_room: player y" {
 	generators = {},
 	check = function()
-		local t, x, y = gen.big_room()
-		local i = grid.get_idx(x, y)
-		local v = t[i]
-		return (v.y > 1) and (v.y < grid.MAX_Y)
+		local _, x, y = gen.big_room()
+		return (y > 1) and (y < grid.MAX_Y)
 	end
 }
 

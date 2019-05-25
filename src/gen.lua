@@ -12,7 +12,7 @@ function gen.big_room()
 		elseif grid.is_edge(x, y) then
 			s = base.symbols.wall
 		end
-		return {symbol = s, x = x, y = y}
+		return {symbol = s}
 	end)
 	local player_x, player_y = grid.rn_xy()
 	while player_x == stair_x and player_y == stair_y do
@@ -56,7 +56,7 @@ function gen.cave()
 		elseif floors[i] then
 			s = base.symbols.floor
 		end
-		return {symbol = s, x = x, y = y}
+		return {symbol = s}
 	end)
 	return terrain, end_x, end_y
 end
