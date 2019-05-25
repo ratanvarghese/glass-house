@@ -4,7 +4,7 @@ local file = require("src.file")
 local level = require("src.level")
 local loop = require("src.loop")
 
-local ui = require("test.fuzzui")
+local ui = require("ui.fuzz")
 
 local TURNS_MAX = 500
 if tonumber(arg[1]) then
