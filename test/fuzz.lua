@@ -5,6 +5,7 @@ local level = require("src.level")
 local loop = require("src.loop")
 
 local ui = require("ui.fuzz")
+local cmdutil = require("ui.cmdutil")
 
 local TURNS_MAX = 500
 if tonumber(arg[1]) then
@@ -27,12 +28,7 @@ end, base.error_handler)
 local function write_err(f, err)
 	f:write("Level saved at ",base.savefile, "\n\n")
 	f:write(err, "\n")
-	grid.make_full(function(x, y, i)
-		f:write(level.current:symbol_at(x, y))
-		if x == grid.MAX_X then
-			f:write("\n")
-		end
-	end)
+	io.write(cmdutil.full_string(cmdutil.symbol_grid(level.current)), "\n")
 
 	f:write("\n\nStatbar:\n")
 	if ui and ui.statbar and ui.statbar.hp then

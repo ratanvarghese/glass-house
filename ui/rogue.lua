@@ -2,7 +2,7 @@ local termfx = require("termfx")
 
 local grid = require("src.grid")
 local level = require("src.level")
-
+local cmdutil = require("ui.cmdutil")
 
 local ui = {}
 
@@ -10,9 +10,10 @@ ui.init = termfx.init
 ui.shutdown = termfx.shutdown
 
 function ui.draw_level(lvl)
-	grid.make_full(function(x, y, i)
-		termfx.printat(x, y, lvl:symbol_at(x, y))
-	end)
+	local rows = cmdutil.row_strings(cmdutil.symbol_grid(lvl))
+	for y,v in ipairs(rows) do
+		termfx.printat(1, y, v)
+	end
 	termfx.present()
 end
 
@@ -21,20 +22,11 @@ function ui.getinput()
 	return evt.char
 end
 
-function ui.drawpaths(lvl)
-	grid.make_full(function(x, y, i)
-		local n = lvl.paths.to_player[i]
-		local c
-		if n == 0 then
-			c = "@"
-		elseif n then
-			c = n % 10
-		else
-			c = " "
-		end
-		termfx.printat(x, y + grid.MAX_Y + 1, c)
-
-	end)
+function ui.draw_paths(lvl)
+	local rows = cmdutil.row_strings(cmdutil.paths_grid(lvl))
+	for y,v in ipairs(rows) do
+		termfx.printat(1, y + grid.MAX_Y + 1, v)
+	end
 	termfx.present()
 end
 

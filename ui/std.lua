@@ -1,10 +1,11 @@
 local grid = require("src.grid")
 local level = require("src.level")
+local cmdutil = require("ui.cmdutil")
 
 local ui = {}
 
 function ui.init()
-	print("Welcome to GLASS TOWER")
+	print("Welcome to GLASS HOUSE")
 end
 
 function ui.shutdown()
@@ -12,12 +13,7 @@ function ui.shutdown()
 end
 
 function ui.draw_level(lvl)
-	grid.make_full(function(x, y, i)
-		io.write(lvl:symbol_at(x, y))
-		if x == grid.MAX_X then
-			io.write("\n")
-		end
-	end)
+	io.write(cmdutil.full_string(cmdutil.symbol_grid(lvl)), "\n")
 end
 
 function ui.getinput()
@@ -25,20 +21,8 @@ function ui.getinput()
 	return io.read()
 end
 
-function ui.drawpaths(lvl)
-	grid.make_full(function(x, y, i)
-		local n = lvl.paths.to_player[i]
-		if n == 0 then
-			io.write("@")
-		elseif n then
-			io.write(n % 10)
-		else
-			io.write(" ")
-		end
-		if x == grid.MAX_X then
-			io.write("\n")
-		end
-	end)
+function ui.draw_paths(lvl)
+	io.write(cmdutil.full_string(cmdutil.paths_grid(lvl)), "\n")
 end
 
 function ui.draw_stats(lvl)

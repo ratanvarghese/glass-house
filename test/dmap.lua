@@ -15,7 +15,7 @@ end
 
 local ok, err = xpcall(function()
 	ui.draw_level(level.current)
-	ui.drawpaths(level.current)
+	ui.draw_paths(level.current)
 
 	huh()
 end, base.error_handler)
