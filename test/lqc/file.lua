@@ -48,14 +48,14 @@ property "file.load: recover saved table" {
 property "file.save: file exists" {
 	generators = { tbl() },
 	check = function(t)
-		local oldname = base.savefile
-		base.savefile = os.tmpname()
+		local oldname = file.name
+		file.name = os.tmpname()
 
 		file.save(t)
-		local res = os.rename(base.savefile, base.savefile) and true or false
+		local res = os.rename(file.name, file.name) and true or false
 
-		os.remove(base.savefile)
-		base.savefile = oldname
+		os.remove(file.name)
+		file.name = oldname
 		return res
 	end
 }
@@ -63,8 +63,8 @@ property "file.save: file exists" {
 property "file.load: recover simple saved table" {
 	generators = { str(), str(), int(), int() },
 	check = function(s1, s2, i1, i2)
-		local oldname = base.savefile
-		base.savefile = os.tmpname()
+		local oldname = file.name
+		file.name = os.tmpname()
 
 		local in_t = {
 			[s1] = {
@@ -77,8 +77,8 @@ property "file.load: recover simple saved table" {
 		file.save(in_t)
 		local out_t = file.load()
 
-		os.remove(base.savefile)
-		base.savefile = oldname
+		os.remove(file.name)
+		file.name = oldname
 		return base.equals(in_t, out_t)
 	end
 }
@@ -86,14 +86,14 @@ property "file.load: recover simple saved table" {
 property "file.remove_save: remove save" {
 	generators = { tbl() },
 	check = function(t)
-		local oldname = base.savefile
-		base.savefile = os.tmpname()
+		local oldname = file.name
+		file.name = os.tmpname()
 
 		file.save(t)
 		file.remove_save()
-		local res = os.rename(base.savefile, base.savefile) and true or false
+		local res = os.rename(file.name, file.name) and true or false
 
-		base.savefile = oldname
+		file.name = oldname
 		return not res
 	end
 }
