@@ -53,6 +53,8 @@ function player.handle_input(lvl, c, n)
 		d = grid.direction.west
 	elseif c == enum.cmd.east then
 		d = grid.direction.east
+	else
+		error("Received player command: "..tostring(c))
 	end
 
 	player.try_move(lvl, p, d)

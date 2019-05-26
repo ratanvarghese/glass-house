@@ -28,7 +28,7 @@ end, base.error_handler)
 local function write_err(f, err)
 	f:write("Level saved at ",file.name, "\n\n")
 	f:write(err, "\n")
-	io.write(cmdutil.full_string(cmdutil.symbol_grid(level.current)), "\n")
+	f:write(cmdutil.full_string(cmdutil.symbol_grid(level.current)), "\n")
 
 	f:write("\n\nStatbar:\n")
 	if ui and ui.statbar and ui.statbar.hp then

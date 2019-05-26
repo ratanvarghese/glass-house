@@ -31,6 +31,7 @@ symbols.monster = {
 symbols.tool = {
 	lantern = "("
 }
+cmdutil.symbols = symbols
 
 function cmdutil.symbol_at(lvl, x, y)
 	local targ_kind, targ_enum = lvl:visible_kind_at(x, y)

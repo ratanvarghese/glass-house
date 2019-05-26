@@ -14,20 +14,22 @@ function ui.shutdown()
 	error("Called ui.shutdown")
 end
 
-ui.screen = {} --ui.screen[y][x], not the other way around
+ui.screen = {}
 function ui.draw_level(lvl)
-	for y=1,grid.MAX_Y do
-		local row = {}
-		ui.screen[y] = row
-		for x=1,grid.MAX_X do
-			row[x] = cmdutil.symbol_at(lvl, x, y)
-		end
-	end
+	ui.screen = cmdutil.symbol_grid(lvl)
+
+	local player_s = ui.screen[lvl.player_id]
+	assert(player_s == cmdutil.symbols.monster.player, "Can't find player")
+
+	grid.make_full(function(x, y, i)
+		local ne = ui.screen[i] ~= cmdutil.symbols.err
+		assert(ne, "Display error: x="..tostring(x)..", y="..tostring(y))
+	end)
 end
 
 ui.cmdlist = {}
 for k,v in pairs(enum.cmd) do
-	if k ~= "quit" then
+	if k ~= "quit" and k ~= "MAX" then
 		table.insert(ui.cmdlist, v)
 	end
 end
