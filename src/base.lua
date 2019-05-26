@@ -1,30 +1,15 @@
 local base = {}
 
-base.symbols = {
-	player = "@",
-	angel = "A",
-	dragon = "D",
-	floor = ".",
-	wall = "#",
-	stair = "<",
-	dark = " ",
-	tool = "("
-}
-
-base.conf = {}
-
-base.conf.keys = {
-	quit = "q",
-	north = "w",
-	south = "s",
-	west = "a",
-	east = "d",
-	drop = "f"
-}
-
-
 function base.is_empty(t)
 	return (next(t) == nil)
+end
+
+function base.reverse(t)
+	local res = {}
+	for k,v in pairs(t) do
+		res[v] = k
+	end
+	return res
 end
 
 function base.map_k(list, targ_k)

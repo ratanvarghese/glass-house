@@ -1,4 +1,4 @@
-local base = require("src.base")
+local enum = require("src.enum")
 local grid = require("src.grid")
 local gen = require("src.gen")
 
@@ -24,7 +24,7 @@ property "gen.big_room: player on floor" {
 		local t, x, y = gen.big_room()
 		local i = grid.get_idx(x, y)
 		local v = t[i]
-		return (v.symbol == base.symbols.floor)
+		return (v.kind == enum.terrain.floor)
 	end
 }
 
@@ -33,12 +33,12 @@ property "gen.big_room: terrain" {
 	check = function(x, y)
 		local t = gen.big_room()
 		local i = grid.get_idx(x, y)
-		local s = t[i].symbol
+		local s = t[i].kind
 		local wall_x = (x == 1 or x == grid.MAX_X)
 		local wall_y = (y == 1 or y == grid.MAX_Y)
-		if s == base.symbols.stair or s == base.symbols.floor then
+		if s == enum.terrain.stair or s == enum.terrain.floor then
 			return not (wall_x or wall_y)
-		elseif s == base.symbols.wall then
+		elseif s == enum.terrain.wall then
 			return wall_x or wall_y
 		else
 			return false
@@ -56,9 +56,9 @@ local function find_stairs(t, x, y, finished)
 	end
 
 	if tile then
-		if tile.symbol == base.symbols.stair then
+		if tile.kind == enum.terrain.stair then
 			return true
-		elseif tile.symbol == base.symbols.floor then
+		elseif tile.kind == enum.terrain.floor then
 			if find_stairs(t, x, y-1, finished) then
 				return true
 			elseif find_stairs(t, x, y+1, finished) then

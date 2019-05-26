@@ -1,5 +1,6 @@
 local grid = require("src.grid")
 local base = require("src.base")
+local enum = require("src.enum")
 
 local tool_set = {}
 local equip_set = {}
@@ -7,6 +8,7 @@ local equip_set = {}
 tool_set.lantern = {
 	name = "lantern",
 	light_radius = 2,
+	kind = enum.tool.lantern,
 	on = true
 }
 function equip_set.lantern(tool, denizen)

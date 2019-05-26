@@ -1,6 +1,8 @@
-local base = require("src.base")
+local enum = require("src.enum")
 local grid = require("src.grid")
 local level = require("src.level")
+
+local cmdutil = require("ui.cmdutil")
 
 local ui = {}
 
@@ -18,13 +20,13 @@ function ui.draw_level(lvl)
 		local row = {}
 		ui.screen[y] = row
 		for x=1,grid.MAX_X do
-			row[x] = lvl:symbol_at(x, y)
+			row[x] = cmdutil.symbol_at(lvl, x, y)
 		end
 	end
 end
 
-ui.cmdlist = {"1"}
-for k,v in pairs(base.conf.keys) do
+ui.cmdlist = {}
+for k,v in pairs(enum.cmd) do
 	if k ~= "quit" then
 		table.insert(ui.cmdlist, v)
 	end
@@ -32,19 +34,19 @@ end
 
 function ui.getinput()
 	if math.random(1, 2) == 1 then
-		return ui.cmdlist[math.random(1, #ui.cmdlist)]
+		return ui.cmdlist[math.random(1, #ui.cmdlist)], 1
 	end
 
 	local p = level.current.denizens[level.current.player_id]
 	local _, x, y = grid.adjacent_min(level.current.paths.to_stair, p.x, p.y)
 	if x == p.x+1 then
-		return base.conf.keys.east
+		return enum.cmd.east, 1
 	elseif x == p.x-1 then
-		return base.conf.keys.west
+		return enum.cmd.west, 1
 	elseif y == p.y+1 then
-		return base.conf.keys.south
+		return enum.cmd.south, 1
 	else
-		return base.conf.keys.north
+		return enum.cmd.north, 1
 	end
 end
 

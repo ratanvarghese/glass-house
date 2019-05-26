@@ -1,4 +1,4 @@
-local base = require("src.base")
+local enum = require("src.enum")
 local grid = require("src.grid")
 local gen = require("src.gen")
 local tool = require("src.tool")
@@ -8,7 +8,7 @@ local bestiary = require("src.bestiary")
 local level = {}
 
 function level:walkable(x, y, i)
-	return (not self.denizens[i]) and (self.terrain[i].symbol == base.symbols.floor)
+	return (not self.denizens[i]) and (self.terrain[i].kind == enum.terrain.floor)
 end
 
 function level:paths_to(targ_x, targ_y)
@@ -21,7 +21,7 @@ function level:reset_paths()
 	self.paths.to_player = self:paths_to(player.x, player.y)
 
 	for _,v in pairs(self.terrain) do
-		if v.symbol == base.symbols.stair then
+		if v.kind == enum.terrain.stair then
 			self.paths.to_stair = self:paths_to(v.x, v.y)
 		end
 	end
@@ -95,7 +95,7 @@ function level:move(denizen, new_x, new_y)
 	local old_id = grid.get_idx(denizen.x, denizen.y)
 	local new_id = grid.get_idx(new_x, new_y)
 	local target = self.terrain[new_id]
-	if target.symbol == base.symbols.wall then
+	if target.kind == enum.terrain.wall then
 		if old_id == self.player_id then
 			self.memory[new_id] = true
 		end
@@ -156,7 +156,7 @@ function level.make(num)
 	return res
 end
 
-function level:symbol_at(x, y)
+function level:visible_kind_at(x, y)
 	local i = grid.get_idx(x, y)
 	local denizen = self.denizens[i]
 	local tile = self.terrain[i]
@@ -167,21 +167,21 @@ function level:symbol_at(x, y)
 
 	if light then
 		if denizen then
-			return denizen.symbol
+			return denizen.kind, enum.monster
 		elseif tool_pile and #tool_pile > 0 then
-			return base.symbols.tool
+			return tool_pile[#tool_pile].kind, enum.tool
 		else
-			return tile.symbol
+			return tile.kind, enum.terrain
 		end
-	elseif memory and tile.symbol ~= base.symbols.floor then
-		return tile.symbol
+	elseif memory and tile.kind ~= enum.terrain.floor then
+		return tile.kind, enum.terrain
 	else
-		return base.symbols.dark
+		return false, false
 	end
 end
 
-function level:denizen_on_terrain(denizen_id, terrain_symbol)
-	return (self.terrain[denizen_id].symbol == terrain_symbol)
+function level:denizen_on_terrain(denizen_id, terrain_kind)
+	return (self.terrain[denizen_id].kind == terrain_kind)
 end
 
 return level

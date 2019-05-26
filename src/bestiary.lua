@@ -1,4 +1,4 @@
-local base = require("src.base")
+local enum = require("src.enum")
 local tool = require("src.tool")
 
 local bestiary = {
@@ -6,18 +6,18 @@ local bestiary = {
 }
 
 bestiary.set.angel = {
-	symbol = base.symbols.angel,
+	kind = enum.monster.angel,
 	light_radius = 2,
 	hp = 10
 }
 
 bestiary.set.dragon = {
-	symbol = base.symbols.dragon,
+	kind = enum.monster.dragon,
 	hp = 20
 }
 
 bestiary.set.player = {
-	symbol = base.symbols.player,
+	kind = enum.monster.player,
 	hp = 1000,
 	light_radius = 0,
 	inventory = {
@@ -28,7 +28,7 @@ bestiary.set.player = {
 function bestiary.make(name, x, y)
 	local species = bestiary.set[name]
 	local res = {
-		symbol = species.symbol,
+		kind = species.kind,
 		hp = species.hp,
 		light_radius = species.light_radius,
 		x = x,

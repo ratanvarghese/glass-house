@@ -1,18 +1,18 @@
 local grid = require("src.grid")
-local base = require("src.base")
+local enum = require("src.enum")
 
 local gen = {}
 
 function gen.big_room()
 	local stair_x, stair_y = grid.rn_xy()
 	local terrain = grid.make_full(function(x, y)
-		local s = base.symbols.floor
+		local s = enum.terrain.floor
 		if x == stair_x and y == stair_y then
-			s = base.symbols.stair
+			s = enum.terrain.stair
 		elseif grid.is_edge(x, y) then
-			s = base.symbols.wall
+			s = enum.terrain.wall
 		end
-		return {symbol = s}
+		return {kind = s}
 	end)
 	local player_x, player_y = grid.rn_xy()
 	while player_x == stair_x and player_y == stair_y do
@@ -50,13 +50,13 @@ gen.CAVE_STEPS = math.floor((grid.MAX_X * grid.MAX_Y * 2) / 4)
 function gen.cave()
 	local floors, start_x, start_y, end_x, end_y = boolean_walker(gen.CAVE_STEPS)
 	local terrain = grid.make_full(function(x, y, i)
-		local s = base.symbols.wall
+		local s = enum.terrain.wall
 		if x == start_x and y == start_y then
-			s = base.symbols.stair
+			s = enum.terrain.stair
 		elseif floors[i] then
-			s = base.symbols.floor
+			s = enum.terrain.floor
 		end
-		return {symbol = s}
+		return {kind = s}
 	end)
 	return terrain, end_x, end_y
 end

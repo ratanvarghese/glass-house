@@ -26,7 +26,7 @@ local ok, err = xpcall(function()
 end, base.error_handler)
 
 local function write_err(f, err)
-	f:write("Level saved at ",base.savefile, "\n\n")
+	f:write("Level saved at ",file.name, "\n\n")
 	f:write(err, "\n")
 	io.write(cmdutil.full_string(cmdutil.symbol_grid(level.current)), "\n")
 
@@ -45,7 +45,7 @@ local function write_err(f, err)
 end
 
 if not ok then
-	base.savefile = os.tmpname()
+	file.name = os.tmpname()
 	file.save({
 		current = level.current
 	})

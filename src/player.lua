@@ -1,4 +1,4 @@
-local base = require("src.base")
+local enum = require("src.enum")
 local grid = require("src.grid")
 local level = require("src.level")
 local tool = require("src.tool")
@@ -7,7 +7,7 @@ local mon = require("src.mon")
 local player = {}
 
 function player.climb_stairs(lvl)
-	if lvl:denizen_on_terrain(lvl.player_id, base.symbols.stair) then
+	if lvl:denizen_on_terrain(lvl.player_id, enum.terrain.stair) then
 		level.current = level.make(lvl.num + 1)
 	end
 end
@@ -34,25 +34,24 @@ function player.equip(lvl, p, tool_idx)
 	end
 end
 
-function player.handle_input(lvl, c)
+function player.handle_input(lvl, c, n)
 	local p = lvl.denizens[lvl.player_id]
 	assert(p, "ID error for player")
 
-	local n = tonumber(c)
 	local d
-	if n then
+	if c == enum.cmd.equip then
 		player.equip(lvl, p, n)
-	elseif c == base.conf.keys.quit then
+	elseif c == enum.cmd.quit then
 		return false
-	elseif c == base.conf.keys.drop then
+	elseif c == enum.cmd.drop then
 		mon.drop_tool(lvl.tool_piles, p, 1)
-	elseif c == base.conf.keys.north then
+	elseif c == enum.cmd.north then
 		d = grid.direction.north
-	elseif c == base.conf.keys.south then
+	elseif c == enum.cmd.south then
 		d = grid.direction.south
-	elseif c == base.conf.keys.west then
+	elseif c == enum.cmd.west then
 		d = grid.direction.west
-	elseif c == base.conf.keys.east then
+	elseif c == enum.cmd.east then
 		d = grid.direction.east
 	end
 

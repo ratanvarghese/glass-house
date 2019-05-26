@@ -1,4 +1,5 @@
 local grid = require("src.grid")
+local enum = require("src.enum")
 local level = require("src.level")
 local cmdutil = require("ui.cmdutil")
 
@@ -18,7 +19,7 @@ end
 
 function ui.getinput()
 	io.write("> ")
-	return io.read()
+	return enum.cmd[cmdutil.keys[io.read()]], 1
 end
 
 function ui.draw_paths(lvl)

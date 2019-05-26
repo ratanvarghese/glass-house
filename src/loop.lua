@@ -1,4 +1,4 @@
-local base = require("src.base")
+local enum = require("src.enum")
 local grid = require("src.grid")
 local player = require("src.player")
 local level = require("src.level")
@@ -16,9 +16,9 @@ function loop.iter(ui)
 			local i = level.current.denizens[grid.get_idx(denizen.x, denizen.y)]
 			assert(i == denizen, "ID error for denizen\n")
 
-			if denizen.symbol == base.symbols.player then
-				local c = ui.getinput()
-				if not player.handle_input(level.current, c) then
+			if denizen.kind == enum.monster.player then
+				local c, n = ui.getinput()
+				if not player.handle_input(level.current, c, n) then
 					return false
 				end
 			else

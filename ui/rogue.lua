@@ -1,6 +1,7 @@
 local termfx = require("termfx")
 
 local grid = require("src.grid")
+local enum = require("src.enum")
 local level = require("src.level")
 local cmdutil = require("ui.cmdutil")
 
@@ -19,7 +20,7 @@ end
 
 function ui.getinput()
 	local evt = termfx.pollevent()
-	return evt.char
+	return enum.cmd[cmdutil.keys[evt.char]], 1
 end
 
 function ui.draw_paths(lvl)

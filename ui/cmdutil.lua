@@ -1,8 +1,53 @@
 --Utilities for command line user interfaces
 local grid = require("src.grid")
+local enum = require("src.enum")
 local level = require("src.level")
 
 local cmdutil = {}
+
+cmdutil.keys = {
+	q = "quit",
+	w = "north",
+	a = "west",
+	s = "south",
+	d = "east",
+	f = "drop",
+	["1"] = "equip"
+}
+
+local symbols = {}
+symbols.dark = " "
+symbols.err = ":"
+symbols.terrain = {
+	floor = ".",
+	wall = "#",
+	stair = "<"
+}
+symbols.monster = {
+	player = "@",
+	angel = "A",
+	dragon = "D"
+}
+symbols.tool = {
+	lantern = "("
+}
+
+function cmdutil.symbol_at(lvl, x, y)
+	local targ_kind, targ_enum = lvl:visible_kind_at(x, y)
+	if not targ_kind then
+		return symbols.dark
+	end
+
+	if targ_enum == enum.terrain then
+		return symbols.terrain[enum.reverse.terrain[targ_kind]]
+	elseif targ_enum == enum.monster then
+		return symbols.monster[enum.reverse.monster[targ_kind]]
+	elseif targ_enum == enum.tool then
+		return symbols.tool[enum.reverse.tool[targ_kind]]
+	end
+
+	return symbols.err
+end
 
 function cmdutil.paths_grid(lvl)
 	return grid.make_full(function(x, y, i)
@@ -19,7 +64,7 @@ end
 
 function cmdutil.symbol_grid(lvl)
 	return grid.make_full(function(x, y, i)
-		return lvl:symbol_at(x, y)
+		return cmdutil.symbol_at(lvl, x, y)
 	end)
 end
 
