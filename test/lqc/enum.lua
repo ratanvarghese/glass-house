@@ -45,4 +45,13 @@ property "enum: add item between MAX_STATIC and MAX" {
 	end
 }
 
-
+property "enum: add item alters reverse" {
+	generators = {},
+	numtests = 1,
+	check = function()
+		local targ_k = "Book of the Dead"
+		enum.new_item(enum.tool, targ_k)
+		local targ_v = enum.tool[targ_k]
+		return enum.reverse.tool[targ_v] == targ_k
+	end
+}
