@@ -13,8 +13,13 @@ function ui.shutdown()
 	print("Bye!")
 end
 
+local old_lvl_string = ""
 function ui.draw_level(lvl)
-	io.write(cmdutil.full_string(cmdutil.symbol_grid(lvl)), "\n")
+	local lvl_string = cmdutil.full_string(cmdutil.symbol_grid(lvl))
+	if lvl_string ~= old_lvl_string then
+		io.write(lvl_string, "\n")
+	end
+	old_lvl_string = lvl_string
 end
 
 function ui.getinput()
@@ -26,9 +31,8 @@ function ui.draw_paths(lvl)
 	io.write(cmdutil.full_string(cmdutil.paths_grid(lvl)), "\n")
 end
 
-function ui.draw_stats(lvl)
-	local p = lvl.denizens[lvl.player_id]
-	local hp_line = string.format("HP: %2d", p.hp)
+function ui.draw_stats(stats)
+	local hp_line = string.format("HP: %2d", stats.hp)
 	io.write(hp_line, "\n")
 end
 

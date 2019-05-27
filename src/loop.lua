@@ -1,3 +1,4 @@
+local base = require("src.base")
 local enum = require("src.enum")
 local grid = require("src.grid")
 local player = require("src.player")
@@ -8,9 +9,14 @@ local loop = {}
 
 function loop.iter(ui)
 	local old_level = level.current
+	local old_stats = nil
 	for _, denizen in ipairs(level.current.denizens_in_order) do
 		ui.draw_level(level.current)
-		ui.draw_stats(level.current)
+
+		local new_stats = player.stats(level.current)
+		if not base.equals(old_stats, new_stats) then
+			ui.draw_stats(new_stats)
+		end
 
 		if not level.current.kill_set[denizen] then
 			local i = level.current.denizens[grid.get_idx(denizen.x, denizen.y)]
@@ -33,6 +39,8 @@ function loop.iter(ui)
 		if level.current ~= old_level then
 			break
 		end
+
+		old_stats = base.copy(new_stats)
 	end
 	level.current:check_kills()
 	return true

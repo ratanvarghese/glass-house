@@ -31,9 +31,8 @@ function ui.draw_paths(lvl)
 	termfx.present()
 end
 
-function ui.draw_stats(lvl)
-	local p = lvl.denizens[lvl.player_id]
-	local hp_line = string.format("HP: %2d", p.hp)
+function ui.draw_stats(stats)
+	local hp_line = string.format("HP: %2d", stats.hp)
 	termfx.printat(grid.MAX_X + 2, 1, hp_line)
 	termfx.present()
 end

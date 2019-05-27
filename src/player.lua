@@ -61,4 +61,11 @@ function player.handle_input(lvl, c, n)
 	return true
 end
 
+function player.stats(lvl)
+	local p = lvl.denizens[lvl.player_id]
+	return {
+		hp = p.hp
+	}
+end
+
 return player

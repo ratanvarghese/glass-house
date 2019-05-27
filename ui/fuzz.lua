@@ -57,9 +57,8 @@ function ui.drawpaths()
 end
 
 ui.statbar = {}
-function ui.draw_stats(lvl)
-	local p = lvl.denizens[lvl.player_id]
-	ui.statbar.hp = p.hp
+function ui.draw_stats(stats)
+	ui.statbar.hp = stats.hp
 end
 
 function ui.game_over()
