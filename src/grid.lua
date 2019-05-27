@@ -27,7 +27,7 @@ end
 
 function grid.make_rect(x1, y1, x2, y2, f)
 	local res = {}
-	grid.edit_rect(res, f)
+	grid.edit_rect(x1, y1, x2, y2, res, f)
 	return res
 end
 
