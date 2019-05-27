@@ -47,7 +47,7 @@ property "grid.is_edge: across y" {
 	end
 }
 
-property "grid.is_edge: across y" {
+property "grid.is_edge: across x" {
 	generators = { int(1, grid.MAX_X) },
 	check = function(x)
 		return grid.is_edge(x, 1) and grid.is_edge(x, grid.MAX_Y)
@@ -157,6 +157,7 @@ property "grid.make_full: no extra points" {
 
 property "grid.make_full: correct order" {
 	generators = {},
+	numtests = 1,
 	check = function()
 		local res = true
 		local last_x = 0

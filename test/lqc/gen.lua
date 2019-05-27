@@ -34,12 +34,10 @@ property "gen.big_room: terrain" {
 		local t = gen.big_room()
 		local i = grid.get_idx(x, y)
 		local s = t[i].kind
-		local wall_x = (x == 1 or x == grid.MAX_X)
-		local wall_y = (y == 1 or y == grid.MAX_Y)
 		if s == enum.terrain.stair or s == enum.terrain.floor then
-			return not (wall_x or wall_y)
+			return not grid.is_edge(x, y)
 		elseif s == enum.terrain.wall then
-			return wall_x or wall_y
+			return grid.is_edge(x, y)
 		else
 			return false
 		end
