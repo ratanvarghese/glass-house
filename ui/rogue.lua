@@ -18,9 +18,13 @@ function ui.draw_level(lvl)
 	termfx.present()
 end
 
-function ui.getinput()
+local function get_key()
 	local evt = termfx.pollevent()
-	return enum.cmd[cmdutil.keys[evt.char]], 1
+	return evt.char
+end
+
+function ui.get_input()
+	return enum.cmd[cmdutil.keys[get_key()]], 1
 end
 
 function ui.draw_paths(lvl)
@@ -42,7 +46,7 @@ function ui.game_over(t)
 	termfx.printat(10, 10, t.msg)
 	termfx.printat(10, 12, "Press any key to exit.")
 	termfx.present()
-	ui.getinput()
+	get_key()	
 end
 
 return ui

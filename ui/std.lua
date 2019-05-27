@@ -22,7 +22,7 @@ function ui.draw_level(lvl)
 	old_lvl_string = lvl_string
 end
 
-function ui.getinput()
+function ui.get_input()
 	io.write("> ")
 	return enum.cmd[cmdutil.keys[io.read()]], 1
 end

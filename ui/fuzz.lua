@@ -34,7 +34,7 @@ for k,v in pairs(enum.cmd) do
 	end
 end
 
-function ui.getinput()
+function ui.get_input()
 	if math.random(1, 2) == 1 then
 		return ui.cmdlist[math.random(1, #ui.cmdlist)], 1
 	end
@@ -52,8 +52,8 @@ function ui.getinput()
 	end
 end
 
-function ui.drawpaths()
-	error("Called ui.drawpaths")
+function ui.draw_paths()
+	error("Called ui.draw_paths")
 end
 
 ui.statbar = {}

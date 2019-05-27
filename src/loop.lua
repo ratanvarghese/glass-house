@@ -23,7 +23,7 @@ function loop.iter(ui)
 			assert(i == denizen, "ID error for denizen\n")
 
 			if denizen.kind == enum.monster.player then
-				local c, n = ui.getinput()
+				local c, n = ui.get_input()
 				if not player.handle_input(level.current, c, n) then
 					return false
 				end
