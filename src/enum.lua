@@ -2,42 +2,43 @@ local base = require("src.base")
 
 local enum = {}
 
-enum.reverse = {}
-
-enum.reverse.cmd = {
-	"quit",
-	"north",
-	"south",
-	"east",
-	"west",
-	"drop",
-	"equip",
-	"MAX"
+enum.default_reverse = {
+	cmd = {
+		"quit",
+		"north",
+		"south",
+		"east",
+		"west",
+		"drop",
+		"equip",
+		"MAX"
+	},
+	terrain = {
+		"floor",
+		"wall",
+		"stair",
+		"MAX"
+	},
+	monster = {
+		"player",
+		"angel",
+		"dragon",
+		"MAX_STATIC",
+		"MAX"
+	},
+	tool = {
+		"lantern",
+		"MAX_STATIC",
+		"MAX"
+	}
 }
 
-enum.reverse.terrain = {
-	"floor",
-	"wall",
-	"stair",
-	"MAX"
-}
-
-enum.reverse.monster = {
-	"player",
-	"angel",
-	"dragon",
-	"MAX_STATIC",
-	"MAX"
-}
-
-enum.reverse.tool = {
-	"lantern",
-	"MAX_STATIC",
-	"MAX"
-}
-
-for k,v in pairs(enum.reverse) do
-	enum[k] = base.reverse(v)
+function enum.init(reverse)
+	enum.reverse = base.copy(reverse)
+	for k,v in pairs(enum.reverse) do
+		assert(enum.default_reverse[k], "Tried to overwrite enum."..k)
+		enum[k] = base.reverse(v)
+	end
 end
 
 function enum.new_item(list, item_name)
@@ -51,7 +52,16 @@ function enum.new_item(list, item_name)
 
 	list[item_name] = max
 	list.MAX = max + 1
+
+	for k,v in pairs(enum.reverse) do
+		if list == enum[k] then
+			table.insert(v, max, item_name)
+			break
+		end
+	end
+
 	return max
 end
 
+enum.init(enum.default_reverse)
 return enum
