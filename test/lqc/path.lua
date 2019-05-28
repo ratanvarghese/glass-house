@@ -82,6 +82,7 @@ property "path.iter: output is adjacent_min + 1 of input everywhere" {
 }
 
 property "path.to: correct number of steps" {
+	numtests = 10, --This is a slow test
 	generators = {
 		int(2, grid.MAX_X-1),
 		int(2, grid.MAX_Y-1),
