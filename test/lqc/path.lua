@@ -1,3 +1,4 @@
+local base = require("src.base")
 local grid = require("src.grid")
 local path = require("src.path")
 local cmdutil = require("ui.cmdutil")
@@ -78,6 +79,20 @@ property "path.iter: output is adjacent_min + 1 of input everywhere" {
 		else
 			return true
 		end
+	end
+}
+
+property "path.to: same result multiple times" {
+	numtests = 1, --This is a slow test
+	generators = {
+		int(1, grid.MAX_X),
+		int(1, grid.MAX_Y),
+	},
+	check = function(targ_x, targ_y)
+		local f = function() return true end
+		local t1 = path.to(targ_x, targ_y, f)
+		local t2 = path.to(targ_x, targ_y, f)
+		return base.equals(t1, t2)
 	end
 }
 
