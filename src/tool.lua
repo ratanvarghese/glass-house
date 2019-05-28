@@ -2,32 +2,33 @@ local grid = require("src.grid")
 local base = require("src.base")
 local enum = require("src.enum")
 
-local tool_set = {}
-local equip_set = {}
-
-tool_set.lantern = {
-	name = "lantern",
-	light_radius = 2,
-	kind = enum.tool.lantern,
-	on = true
-}
-function equip_set.lantern(tool, denizen)
-	if tool.light_radius > 0 then
-		tool.light_radius = 0
-	else
-		tool.light_radius = 2
-	end
-end
-
-
 local tool = {}
 
+tool.set = {}
+
+tool.set.lantern = {
+	template = {
+		name = "lantern",
+		light_radius = 2,
+		max_radius = 2,
+		kind = enum.tool.lantern,
+		on = true
+	},
+	equip = function(data, denizen)
+		if data.light_radius > 0 then
+			data.light_radius = 0
+		else
+			data.light_radius = data.max_radius
+		end
+	end
+}
+
 function tool.equip(obj, denizen)
-	return equip_set[obj.name](obj, denizen)
+	return tool.set[obj.name].equip(obj, denizen)
 end
 
 function tool.make(name)
-	return base.copy(tool_set[name])
+	return base.copy(tool.set[name].template)
 end
 
 function tool.pile_from_array(pile_array, x, y, make_missing)
