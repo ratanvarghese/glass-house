@@ -65,20 +65,21 @@ function grid.rn_xy()
 end
 
 function grid.adjacent_min(t, x, y)
-	local res = math.huge
-	local res_x, res_y = x, y
-	for _,d in pairs(grid.direction) do
-		local nx = x + d.x
-		local ny = y + d.y
-		local di = grid.get_idx(nx, ny)
-		local new_res = t[di]
-		if (new_res and res > new_res) then
-			res = new_res
-			res_x = nx
-			res_y = ny
-		end
+	local i = grid.get_idx(x, y)
+	local v_north = t[i - grid.MAX_X] or math.huge
+	local v_south = t[i + grid.MAX_X] or math.huge
+	local v_west = t[i - 1] or math.huge
+	local v_east = t[i + 1] or math.huge
+	local res = math.min(v_north, v_south, v_west, v_east)
+	if res == v_north then
+		return res, x, y-1
+	elseif res == v_south then
+		return res, x, y+1
+	elseif res == v_west then
+		return res, x-1, y
+	else
+		return res, x+1, y
 	end
-	return res, res_x, res_y
 end
 
 return grid
