@@ -7,7 +7,7 @@ function path.iter(old)
 	return grid.make_full(function(x, y, i)
 		local old_v = old[i]
 		if old_v then
-			local new_v = grid.adjacent_min(old, x, y) + 1
+			local new_v = grid.adjacent_min(old, x, y, i) + 1
 			return math.min(new_v, old_v)
 		end
 	end)
