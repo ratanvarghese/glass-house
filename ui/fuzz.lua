@@ -1,5 +1,6 @@
 local enum = require("src.enum")
 local grid = require("src.grid")
+local flood = require("src.flood")
 local level = require("src.level")
 
 local cmdutil = require("ui.cmdutil")
@@ -40,7 +41,7 @@ function ui.get_input()
 	end
 
 	local p = level.current.denizens[level.current.player_id]
-	local _, x, y = grid.adjacent_min(level.current.paths.to_stair, p.x, p.y)
+	local _, x, y = flood.local_min(p.x, p.y, level.current.paths.to_stair)
 	if x == p.x+1 then
 		return enum.cmd.east, 1
 	elseif x == p.x-1 then
