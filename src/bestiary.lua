@@ -5,17 +5,6 @@ local bestiary = {
 	set = {}
 }
 
-bestiary.set.angel = {
-	kind = enum.monster.angel,
-	light_radius = 2,
-	hp = 10
-}
-
-bestiary.set.dragon = {
-	kind = enum.monster.dragon,
-	hp = 20
-}
-
 bestiary.set.player = {
 	kind = enum.monster.player,
 	hp = 1000,

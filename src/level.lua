@@ -151,8 +151,6 @@ function level.make(num)
 
 	res.player_id = grid.get_idx(init_x, init_y)
 	res:add_denizen(bestiary.make("player", init_x, init_y))
-	res:add_denizen(bestiary.make("angel", 40, 10))
-	res:add_denizen(bestiary.make("dragon", 10, 10))
 
 	res:reset_light()
 	res:reset_paths()

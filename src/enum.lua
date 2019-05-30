@@ -21,8 +21,6 @@ enum.default_reverse = {
 	},
 	monster = {
 		"player",
-		"angel",
-		"dragon",
 		"MAX_STATIC",
 		"MAX"
 	},

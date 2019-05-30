@@ -25,8 +25,6 @@ symbols.terrain = {
 }
 symbols.monster = {
 	player = "@",
-	angel = "A",
-	dragon = "D"
 }
 symbols.tool = {
 	lantern = "("
