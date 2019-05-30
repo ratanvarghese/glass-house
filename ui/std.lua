@@ -27,8 +27,8 @@ function ui.get_input()
 	return enum.cmd[cmdutil.keys[io.read()]], 1
 end
 
-function ui.draw_paths(lvl)
-	io.write(cmdutil.full_string(cmdutil.paths_grid(lvl)), "\n")
+function ui.draw_paths(lvl, name)
+	io.write(cmdutil.full_string(cmdutil.paths_grid(lvl, name)), "\n")
 end
 
 function ui.draw_stats(stats)

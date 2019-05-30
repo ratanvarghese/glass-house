@@ -64,8 +64,8 @@ function grid.rn_xy()
 	return x, y
 end
 
-function grid.adjacent_min(t, x, y)
-	local i = grid.get_idx(x, y)
+function grid.adjacent_min(t, x, y, i)
+	local i = i or grid.get_idx(x, y)
 	local v_north = t[i - grid.MAX_X] or math.huge
 	local v_south = t[i + grid.MAX_X] or math.huge
 	local v_west = t[i - 1] or math.huge

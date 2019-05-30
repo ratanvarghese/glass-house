@@ -262,36 +262,3 @@ property "grid.rn_xy: y in range" {
 		return (y > 1) and (y < grid.MAX_Y) and (y == math.floor(y))
 	end
 }
-
-
-local function smallGrid(x, y, v1, v2, v3, v4)
-	return {
-		[grid.get_idx(x,y+1)] = v1,
-		[grid.get_idx(x,y-1)] = v2,
-		[grid.get_idx(x+1,y)] = v3,
-		[grid.get_idx(x-1,y)] = v4
-	}
-end
-property "grid.adjacent_min: pick minimum value" {
-	generators = { int(1, grid.MAX_X), int(1, grid.MAX_Y), int(), int(), int(), int() },
-	check = function(x, y, v1, v2, v3, v4)
-		local my_grid = smallGrid(x, y, v1, v2, v3, v4)
-		local res_v = grid.adjacent_min(my_grid, x, y)
-		return res_v == math.min(v1, v2, v3, v4)
-	end
-}
-property "grid.adjacent_min: pick minimum coordinates" {
-	generators = { int(1, grid.MAX_X), int(1, grid.MAX_Y), int(), int(), int(), int() },
-	check = function(x, y, v1, v2, v3, v4)
-		local my_grid = smallGrid(x, y, v1, v2, v3, v4)
-		local _, res_x, res_y = grid.adjacent_min(my_grid, x, y)
-		return my_grid[grid.get_idx(res_x, res_y)] == math.min(v1, v2, v3, v4)
-	end
-}
-property "grid.adjacent_min: return number as default result" {
-	generators = { int(1, grid.MAX_X), int(1, grid.MAX_Y) },
-	check = function(x, y)
-		local my_grid = {} --Empty, so must use default value
-		return type(grid.adjacent_min(my_grid, x, y)) == "number"
-	end
-}

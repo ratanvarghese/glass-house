@@ -1,6 +1,7 @@
 local enum = require("src.enum")
 local grid = require("src.grid")
 local gen = require("src.gen")
+local flood = require("src.flood")
 
 property "gen.big_room: player x" {
 	generators = {},
@@ -44,40 +45,15 @@ property "gen.big_room: terrain" {
 	end
 }
 
-local function find_stairs(t, x, y, finished)
-	local i = grid.get_idx(x, y)
-	local tile = t[i]
-	if finished[i] then
-		return false
-	else
-		finished[i] = true
-	end
-
-	if tile then
-		if tile.kind == enum.terrain.stair then
-			return true
-		elseif tile.kind == enum.terrain.floor then
-			if find_stairs(t, x, y-1, finished) then
-				return true
-			elseif find_stairs(t, x, y+1, finished) then
-				return true
-			elseif find_stairs(t, x+1, y, finished) then
-				return true
-			else
-				return find_stairs(t, x-1, y, finished)
-			end
-		else
-			return false
-		end
-	else
-		return false
-	end
-end
-
 property "gen.cave: connected start and stairs" {
 	generators = {},
 	check = function()
 		local t, x, y = gen.cave()
-		return find_stairs(t, x, y, {})
+		local eligible = grid.make_full(function(x, y, i)
+			return t[i].kind ~= enum.terrain.wall
+		end)
+		return flood.search(x, y, eligible, function(x, y, i)
+			return t[i].kind == enum.terrain.stair
+		end)
 	end
 }

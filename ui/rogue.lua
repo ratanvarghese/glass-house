@@ -27,8 +27,8 @@ function ui.get_input()
 	return enum.cmd[cmdutil.keys[get_key()]], 1
 end
 
-function ui.draw_paths(lvl)
-	local rows = cmdutil.row_strings(cmdutil.paths_grid(lvl))
+function ui.draw_paths(lvl, name)
+	local rows = cmdutil.row_strings(cmdutil.paths_grid(lvl, name))
 	for y,v in ipairs(rows) do
 		termfx.printat(1, y + grid.MAX_Y + 1, v)
 	end

@@ -2,7 +2,7 @@ local enum = require("src.enum")
 local grid = require("src.grid")
 local gen = require("src.gen")
 local tool = require("src.tool")
-local path = require("src.path")
+local flood = require("src.flood")
 local bestiary = require("src.bestiary")
 
 local level = {}
@@ -12,7 +12,9 @@ function level:walkable(x, y, i)
 end
 
 function level:paths_to(targ_x, targ_y)
-	return path.to(targ_x, targ_y, function(x, y, i) return self:walkable(x, y, i) end)
+	return flood.gradient(targ_x, targ_y, grid.make_full(function(x, y, i)
+		return self:walkable(x, y, i) or (x == targ_x and y == targ_y)
+	end))
 end
 
 function level:reset_paths()

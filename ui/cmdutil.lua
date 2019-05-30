@@ -50,9 +50,10 @@ function cmdutil.symbol_at(lvl, x, y)
 	return symbols.err
 end
 
-function cmdutil.paths_grid(lvl)
+function cmdutil.paths_grid(lvl, name)
+	local paths = lvl.paths[name or "to_player"]
 	return grid.make_full(function(x, y, i)
-		local n = lvl.paths.to_player[i]
+		local n = paths[i]
 		if n == 0 then
 			return "@"
 		elseif n then
