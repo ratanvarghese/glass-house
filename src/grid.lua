@@ -64,4 +64,6 @@ function grid.rn_xy()
 	return x, y
 end
 
+grid.not_edge_t = grid.make_full(function(x, y, i) return not grid.is_edge(x, y) end)
+
 return grid

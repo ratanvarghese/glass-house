@@ -5,6 +5,7 @@ local flood = {}
 function flood.gradient(x, y, eligible, v, res)
 	local res = res or {}
 	local v = v or 0
+	local eligible = eligible or grid.not_edge_t
 	local i = grid.get_idx(x, y)
 	if not eligible[i] or (res[i] and res[i] <= v) then
 		return res
@@ -21,6 +22,7 @@ end
 function flood.search(x, y, eligible, f, finished)
 	local finished = finished or {}
 	local i = grid.get_idx(x, y)
+	local eligible = eligible or grid.not_edge_t
 	if finished[i] or not eligible[i] then
 		return false
 	end

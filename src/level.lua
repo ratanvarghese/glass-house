@@ -22,12 +22,8 @@ function level:reset_paths()
 	assert(player, "Player not found")
 	self.paths.to_player = self:paths_to(player.x, player.y)
 
-	local stair_x, stair_y
-	grid.make_full(function(x, y, i)
-		if self.terrain[i].kind == enum.terrain.stair then
-			stair_x = x
-			stair_y = y
-		end
+	local _, stair_x, stair_y = flood.search(player.x, player.y, nil, function(x, y, i)
+		return self.terrain[i].kind == enum.terrain.stair
 	end)
 	self.paths.to_stair = self:paths_to(stair_x, stair_y)
 end

@@ -25,11 +25,7 @@ property "flood.gradient: correct number of steps" {
 		int(2, grid.MAX_Y-1)
 	},
 	check = function(targ_x, targ_y, start_x, start_y)
-		local eligible = grid.make_full(function(x, y)
-			--flood.gradient relies on eligible_f for bounds checking
-			return not grid.is_edge(x, y)
-		end)
-		local t = flood.gradient(targ_x, targ_y, eligible)
+		local t = flood.gradient(targ_x, targ_y)
 		local start_i = grid.get_idx(start_x, start_y)
 		local targ_i = grid.get_idx(targ_x, targ_y)
 		local expected = math.abs(targ_x - start_x) + math.abs(targ_y - start_y)
@@ -37,11 +33,7 @@ property "flood.gradient: correct number of steps" {
 		return expected == actual
 	end,
 	when_fail = function(targ_x, targ_y, start_x, start_y)
-		local eligible = grid.make_full(function(x, y)
-			--flood.gradient relies on eligible_f for bounds checking
-			return not grid.is_edge(x, y)
-		end)
-		local t = flood.gradient(targ_x, targ_y, eligible)
+		local t = flood.gradient(targ_x, targ_y)
 		local out = grid.make_full(function(x, y, i)
 			if t[i] == 0 then
 				return "@@@"
@@ -72,13 +64,10 @@ property "flood.search: finds target" {
 		local targ_i = grid.get_idx(targ_x, targ_y)
 		local dummy_i = grid.get_idx(dummy_x, dummy_y)
 		local t = {[targ_i] = 0, [dummy_i] = math.huge}
-		local eligible = grid.make_full(function(x, y, i)
-			return not grid.is_edge(x, y)
-		end)
 		local f = function(x, y, i)
 			return t[i] == 0
 		end
-		local res, res_x, res_y = flood.search(targ_x, targ_y, eligible, f)
+		local res, res_x, res_y = flood.search(targ_x, targ_y, nil, f)
 		return res and res_x == targ_x and res_y == targ_y
 	end
 }
