@@ -65,6 +65,8 @@ function level:kill_denizen(id)
 		self.kill_set[victim] = true --Remove from denizens_in_order later
 		self.denizens[id] = nil
 	end
+	self:reset_light()
+	self:reset_paths()
 end
 
 function level:check_kills()
