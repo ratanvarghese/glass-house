@@ -16,8 +16,6 @@ for _,v in pairs(grid.direction) do
 end
 
 function grid.get_idx(x, y)
-	assert(type(x)=="number", "invalid x: "..tostring(x))
-	assert(type(y)=="number", "invalid y: "..tostring(y))
 	return (y*grid.MAX_X) + x
 end
 
