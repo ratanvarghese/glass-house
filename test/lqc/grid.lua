@@ -1,3 +1,4 @@
+local base = require("src.base")
 local grid = require("src.grid")
 
 local unique_idx_set = {}
@@ -75,9 +76,7 @@ property "grid.make_rect: handles all points" {
 		table.sort(x_asc)
 		local y_asc = {y1, y2, y3}
 		table.sort(y_asc)
-		local t = grid.make_rect(x_asc[1], y_asc[1], x_asc[3], y_asc[3], function()
-			return true
-		end)
+		local t = grid.make_rect(x_asc[1], y_asc[1], x_asc[3], y_asc[3], base.true_f)
 		return t[grid.get_idx(x_asc[2], y_asc[2])]
 	end
 }
@@ -95,9 +94,7 @@ property "grid.make_rect: no extra points" {
 		local x_asc, y_asc = {x1, x2, x3}, {y1, y2, y3}
 		table.sort(x_asc)
 		table.sort(y_asc)
-		local t = grid.make_rect(x_asc[1], y_asc[1], x_asc[2], y_asc[2], function(x, y, i)
-			return true
-		end)
+		local t = grid.make_rect(x_asc[1], y_asc[1], x_asc[2], y_asc[2], base.true_f)
 		local id_2 = grid.get_idx(x_asc[2], y_asc[2])
 		local id_3 = grid.get_idx(x_asc[3], y_asc[3])
 		if id_2 ~= id_3 then
@@ -138,9 +135,7 @@ property "grid.make_rect: correct order" {
 property "grid.make_full: handles all points" {
 	generators = { int(1, grid.MAX_X), int(1, grid.MAX_Y) },
 	check = function(test_x, test_y)
-		local t = grid.make_full(function(x, y, i)
-			return true
-		end)
+		local t = grid.make_full(base.true_f)
 		return t[grid.get_idx(test_x, test_y)]
 	end
 }
@@ -148,9 +143,7 @@ property "grid.make_full: handles all points" {
 property "grid.make_full: no extra points" {
 	generators = { int(1, grid.MAX_X), int(grid.MAX_Y+1, grid.MAX_Y*2) },
 	check = function(test_x, test_y)
-		local t = grid.make_full(function(x, y, i)
-			return true
-		end)
+		local t = grid.make_full(base.true_f)
 		return not t[grid.get_idx(test_x, test_y)]
 	end
 }
@@ -177,9 +170,7 @@ property "grid.edit_full: overwrite targets" {
 		local t = {}
 		local i = grid.get_idx(x, y)
 		t[i] = false
-		grid.edit_full(t, function(x, y, i)
-			return true
-		end)
+		grid.edit_full(t, base.true_f)
 		return t[i]
 	end
 }
@@ -190,9 +181,7 @@ property "grid.edit_full: do not overwrite non-targets" {
 		local t = {}
 		local i = grid.get_idx(x, y)
 		t[i] = false
-		grid.edit_full(t, function(x, y, i)
-			return true
-		end)
+		grid.edit_full(t, base.true_f)
 		return t[i] == false --make sure it's not nil!
 	end
 }
@@ -213,9 +202,7 @@ property "grid.edit_rect: overwrite targets" {
 		local t = {}
 		local i = grid.get_idx(x_asc[2], y_asc[2])
 		t[i] = false
-		grid.edit_rect(x_asc[1], y_asc[1], x_asc[3], y_asc[3], t, function(x, y, i)
-			return true
-		end)
+		grid.edit_rect(x_asc[1], y_asc[1], x_asc[3], y_asc[3], t, base.true_f)
 		return t[i]
 	end
 }
@@ -236,9 +223,7 @@ property "grid.edit_rect: do not overwrite non-targets" {
 		local t = {}
 		local i = grid.get_idx(x_asc[3], y_asc[3])
 		t[i] = false
-		grid.edit_rect(x_asc[1], y_asc[1], x_asc[2], y_asc[2], t, function(x, y, i)
-			return true
-		end)
+		grid.edit_rect(x_asc[1], y_asc[1], x_asc[2], y_asc[2], t, base.true_f)
 		if i == grid.get_idx(x_asc[2], y_asc[2]) then
 			return true
 		else

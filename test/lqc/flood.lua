@@ -9,7 +9,7 @@ property "flood.gradient: same result multiple times" {
 		int(1, grid.MAX_Y),
 	},
 	check = function(targ_x, targ_y)
-		local eligible = grid.make_full(function() return true end)
+		local eligible = grid.make_full(base.true_f)
 		local t1 = flood.gradient(targ_x, targ_y, eligible)
 		local t2 = flood.gradient(targ_x, targ_y, eligible)
 		return base.equals(t1, t2)

@@ -40,13 +40,7 @@ function power.make_list(define_list)
 end
 
 function power.tool_list(define_list)
-	local res = {}
-	for i,v in ipairs(define_list) do
-		if not v.monster_only then
-			table.insert(res, v)
-		end
-	end
-	return res
+	return base.filter(define_list, function(v) return not v.monster_only end)
 end
 
 return power

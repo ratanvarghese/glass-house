@@ -71,7 +71,9 @@ function tool.light_from_list(list, default)
 		return default
 	end
 
-	local radii = base.map_k(list, "light_radius")
+	local filter_f = function(v) return v end
+	local map_f = function(v) return v.light_radius end
+	local radii = base.filter(base.map(list, map_f), filter_f)
 	if base.is_empty(radii) then
 		return default
 	elseif not default then

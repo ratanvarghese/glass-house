@@ -1,3 +1,4 @@
+local base = require("src.base")
 local enum = require("src.enum")
 local grid = require("src.grid")
 local gen = require("src.gen")
@@ -34,8 +35,8 @@ function level:light_area(radius, x, y)
 	end
 
 	local x1, y1, x2, y2 = x-radius, y-radius, x+radius, y+radius 
-	grid.edit_rect(x1, y1, x2, y2, self.light, function() return true end)
-	grid.edit_rect(x1, y1, x2, y2, self.memory, function() return true end)
+	grid.edit_rect(x1, y1, x2, y2, self.light, base.true_f)
+	grid.edit_rect(x1, y1, x2, y2, self.memory, base.true_f)
 end
 
 function level:reset_light()

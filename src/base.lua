@@ -4,6 +4,10 @@ function base.is_empty(t)
 	return (next(t) == nil)
 end
 
+function base.true_f()
+	return true
+end
+
 function base.reverse(t)
 	local res = {}
 	for k,v in pairs(t) do
@@ -12,12 +16,19 @@ function base.reverse(t)
 	return res
 end
 
-function base.map_k(list, targ_k)
+function base.map(t, f)
 	local res = {}
-	for k,v in pairs(list) do
-		local targ_v = v[targ_k]
-		if targ_v or targ_v == false then
-			res[k] = targ_v
+	for k,v in pairs(t) do
+		res[k] = f(v)
+	end
+	return res
+end
+
+function base.filter(t, f)
+	local res = {}
+	for k,v in pairs(t) do
+		if f(v) then
+			res[k] = v
 		end
 	end
 	return res

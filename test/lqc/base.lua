@@ -13,6 +13,13 @@ property "base.is_empty: true only if input empty" {
 	end
 }
 
+property "base.true_f: return true" {
+	generators = { any(), any(), any() },
+	check = function(a, b, c)
+		return base.true_f(a, b, c)
+	end
+}
+
 property "base.reverse: output values match input keys" {
 	generators = { tbl() },
 	check = function(t)
@@ -50,32 +57,58 @@ property "base.reverse: all input values included as output keys" {
 	end
 }
 
-property "base.map_k: creates mapping" {
-	generators = { any(), any(), any(), any(), any(), any(), int(1, 100) },
-	check = function(targ_k, targ_v1, targ_v2, targ_v3, extra_k, extra_v, size)
-		if targ_k == nil or extra_k == nil then
-			return true
+local mapf = {
+	type,
+	tostring,
+	tonumber,
+	function(v) return v end,
+	function(v) return not v end,
+	function(v) return {v} end
+}
+property "base.map: act on all values, without adding extras" {
+	generators = { tbl(), int(1, #mapf) },
+	check = function(t, i)
+		local f = mapf[i]
+		local res = base.map(t, f)
+		for k,v in pairs(t) do
+			if not base.equals(res[k], f(v)) then
+				return false
+			end
 		end
-
-		local t = {}
-		for i=1,size do
-			table.insert(t, {[targ_k] = targ_v1, [extra_k] = extra_v})
-			table.insert(t, {[targ_k] = targ_v2, [extra_k] = extra_v})
-			table.insert(t, {[targ_k] = targ_v3, [extra_k] = extra_v})
-		end
-
-		local res = base.map_k(t, targ_k)
-		local nil_offset = 0
-		for i,v in ipairs(t) do
-			if v[targ_k] == nil then
-				nil_offset = nil_offset+1
-			elseif res[i-nil_offset] ~= v[targ_k] then
+		for k,v in pairs(res) do
+			if not base.equals(v, f(t[k])) then
 				return false
 			end
 		end
 		return true
 	end
-} 
+}
+
+local filterf = {
+	tonumber,
+	function(v) return type(v) == "string" end,
+	function(v) return type(v) == "table" end
+}
+property "base.filter: filter correct values" {
+	generators = { tbl(), int(1, #filterf) },
+	check = function(t, i)
+		local f = filterf[i]
+		local res = base.filter(t, f)
+		for k,v in pairs(t) do
+			if f(v) and res[k] == nil then
+				return false
+			elseif not f(v) and res[k] ~= nil then
+				return false
+			end
+		end
+		for k,v in pairs(res) do
+			if t[k] == nil or not f(t[k]) then
+				return false
+			end
+		end
+		return true
+	end
+}
 
 property "base.equals: obviously equal values" {
 	generators = { any() },
@@ -113,4 +146,3 @@ property "base.copy: base.equals(original, copy)" {
 		return base.equals(a, base.copy(a))
 	end
 }
-
