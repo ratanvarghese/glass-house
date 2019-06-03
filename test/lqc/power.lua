@@ -61,28 +61,3 @@ property "power.make_list: with versions" {
 		return #res == versions
 	end
 }
-
-property "power.tool_list: remove only powers with monster_only" {
-	generators = { int(2, power.MAX_LEN), str() },
-	check = function(max, prefix)
-		local define_list = {}
-		local added = {}
-		local monster_only = {}
-		for i=1,max do
-			local name = prefix..tostring(i)
-			local mon = math.random(1, 2) == 1
-			table.insert(define_list, {name = name, monster_only = mon})
-			added[name] = true
-			monster_only[name] = mon
-		end
-		local res = power.tool_list(define_list)
-		for i,v in ipairs(res) do
-			if not added[v.name] and not monster_only[v.name] then
-				return false
-			elseif added[v.name] and monster_only[v.name] then
-				return false
-			end
-		end
-		return true
-	end
-}

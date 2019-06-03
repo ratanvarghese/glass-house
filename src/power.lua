@@ -12,11 +12,11 @@ power.define.passive = {
 
 power.define.movement = {
 	{name = "warp", min = 2, max = 10, versions = 3},
-	{name = "break", monster_only = true}
+	{name = "break"}
 }
 
 power.define.fighting = {
-	{name = "tool", monster_only = true}
+	{name = "tool"}
 }
 
 function power.make_list(define_list)
@@ -37,10 +37,6 @@ function power.make_list(define_list)
 		end
 	end
 	return res
-end
-
-function power.tool_list(define_list)
-	return base.filter(define_list, function(v) return not v.monster_only end)
 end
 
 return power
