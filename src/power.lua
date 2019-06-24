@@ -16,7 +16,9 @@ power.define.movement = {
 }
 
 power.define.fighting = {
-	{name = "tool"}
+	{name = "tool"},
+	{name = "kick", min = 1, max = 4, versions = 2},
+	{name = "punch", min = 1, max = 10, versions = 3}
 }
 
 function power.make_list(define_list)
