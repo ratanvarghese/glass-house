@@ -80,4 +80,22 @@ function base.copy(a, seen)
 	return res
 end
 
+function base.rn_distinct(min, max, len)
+	assert(min < max, "Bad range")
+	assert(len <= (max - min), "Bad len")
+	local i = 0
+	local used = {}
+	while i < len do
+		local n = math.random(min, max)
+		if not used[n] then
+			used[n] = true
+			i = i + 1
+		end
+	end
+
+	local res = {}
+	for k in pairs(used) do table.insert(res, k) end
+	return res
+end
+
 return base

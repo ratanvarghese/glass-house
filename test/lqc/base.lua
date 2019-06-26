@@ -146,3 +146,59 @@ property "base.copy: base.equals(original, copy)" {
 		return base.equals(a, base.copy(a))
 	end
 }
+
+property "base.rn_distinct: detect bad range" {
+	generators = { int(), int(), int() },
+	check = function(a, b, len)
+		local min = math.max(a, b)
+		local max = math.min(a, b)
+		return not pcall(function() base.rn_distinct(min, max, len) end)
+	end
+}
+
+property "base.rn_distinct: detect bad len" {
+	generators = { int(), int(), int() },
+	check = function(a, b, extralen)
+		local min = math.min(a, b)
+		local max = math.max(a, b)
+		local len = (max - min) + 1 + math.abs(extralen)
+		return not pcall(function() base.rn_distinct(min, max, len) end)
+	end
+}
+
+property "base.rn_distinct: results in range" {
+	generators = { int(), int(), int() },
+	check = function(a, b, len)
+		local min = math.min(a, b)
+		local max = math.max(a, b)
+		if max == min then max = max + 1 end
+		if len > (max - min) then len = (max - min) end
+		local res = base.rn_distinct(min, max, len)
+		for _,v in ipairs(res) do
+			if v < min or v > max then
+				return false
+			end
+		end
+		return true
+	end
+}
+
+property "base.rn_distinct: results distinct" {
+	generators = { int(), int(), int() },
+	check = function(a, b, len)
+		local min = math.min(a, b)
+		local max = math.max(a, b)
+		if max == min then max = max + 1 end
+		if len > (max - min) then len = (max - min) end
+		local res = base.rn_distinct(min, max, len)
+
+		local seen = {}
+		for _,v in ipairs(res) do
+			if seen[v] then
+				return false
+			end
+			seen[v] = true
+		end
+		return true
+	end
+}
