@@ -25,18 +25,39 @@ function power.make_list(define_list)
 	local res = {}
 	for _,v in ipairs(define_list) do
 		if v.versions then
-			local template = base.copy(v)
-			template.max = nil
-			template.min = nil
-			template.versions = nil
-			for i=1,v.versions do
-				local p = base.copy(template)
-				p.factor = math.random(v.min, v.max)
+			local factor_list = base.rn_distinct(v.min, v.max, v.versions)
+			for _,factor in ipairs(factor_list) do
+				local p = base.copy(v)
+				p.max = nil
+				p.min = nil
+				p.versions = nil
+				p.factor = factor
 				table.insert(res, p)
 			end
 		else
 			table.insert(res, base.copy(v))
 		end
+	end
+	return res
+end
+
+function power.make_all()
+	local all_passive = power.make_list(power.define.passive)
+	local all_movement = power.make_list(power.define.movement)
+	local all_fighting = power.make_list(power.define.fighting)
+
+	local res = {}
+	local num_species = math.min(#all_passive, #all_movement, #all_fighting)
+	for i=1,num_species do
+		local passive_i = math.random(1, #all_passive)
+		local movement_i = math.random(1, #all_movement)
+		local fighting_i = math.random(1, #all_fighting)
+
+		local p = table.remove(all_passive, passive_i)
+		local m = table.remove(all_movement, movement_i)
+		local f = table.remove(all_fighting, fighting_i)
+
+		table.insert(res, {passive=p, movement=m, fighting=f})
 	end
 	return res
 end
