@@ -19,6 +19,7 @@ property "grid.get_idx: unique idx" {
 property "grid.get_idx: error on string" {
 	generators = { str(), int(1, grid.MAX_X) },
 	check = function(s, i)
+		if tonumber(s) then return true end
 		local ok_1 = pcall(function() grid.get_idx(s,i) end)
 		local ok_2 = pcall(function() grid.get_idx(i,s) end)
 		return (not ok_1) and (not ok_2)
