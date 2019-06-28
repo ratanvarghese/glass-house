@@ -15,8 +15,8 @@ tool.set.lantern = {
 		on = true
 	},
 	equip = function(data, denizen)
-		if data.light_radius > 0 then
-			data.light_radius = 0
+		if data.light_radius then
+			data.light_radius = nil
 		else
 			data.light_radius = data.max_radius
 		end

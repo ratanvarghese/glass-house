@@ -43,6 +43,9 @@ function level:reset_light()
 	self.light = {}
 	for _,denizen in pairs(self.denizens) do
 		local radius = tool.light_from_list(denizen.inventory, denizen.light_radius)
+		if not radius and denizen.kind == enum.monster.player then
+			radius = 0
+		end
 		self:light_area(radius, denizen.x, denizen.y)
 	end
 	grid.make_full(function(x, y, i)

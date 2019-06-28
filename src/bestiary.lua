@@ -17,7 +17,6 @@ bestiary.names = {
 bestiary.set.player = {
 	kind = enum.monster.player,
 	hp = 1000,
-	light_radius = 0,
 	inventory = {
 		"lantern"
 	}
