@@ -63,4 +63,8 @@ function power.make_all()
 	return res
 end
 
+function power.max_factor(list, kind)
+	return nil
+end
+
 return power
