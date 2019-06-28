@@ -63,7 +63,7 @@ property "flood.search: finds target" {
 	check = function(targ_x, targ_y, dummy_x, dummy_y)
 		local targ_i = grid.get_idx(targ_x, targ_y)
 		local dummy_i = grid.get_idx(dummy_x, dummy_y)
-		local t = {[targ_i] = 0, [dummy_i] = math.huge}
+		local t = {[dummy_i] = math.huge, [targ_i] = 0} --Order matters if dummy_i == targ_i
 		local f = function(x, y, i)
 			return t[i] == 0
 		end
