@@ -57,7 +57,7 @@ function power.make_all()
 		local m = table.remove(all_movement, movement_i)
 		local f = table.remove(all_fighting, fighting_i)
 
-		table.insert(res, {passive=p, movement=m, fighting=f})
+		table.insert(res, {p, m, f})
 	end
 	return res
 end

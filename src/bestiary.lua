@@ -25,13 +25,17 @@ bestiary.set.player = {
 function bestiary.make_set()
 	local power_set = power.make_all()
 	for i,v in ipairs(power_set) do
-		local t = base.copy(v)
 		local name = bestiary.names[i]
+		local t = {}
+		t.powers = base.copy(v)
 		t.kind = enum.new_item(enum.monster, name)
 		t.hp = i * 5
-		if t.passive.name == "light" then
-			t.light_radius = t.passive.factor
-		end
+
+		local filter_f = function(p) return p.name == "light" end
+		local map_f = function(p) return p.factor end
+		local light_radius_list = base.map(base.filter(t.powers, filter_f), map_f)
+		t.light_radius = light_radius_list[1]
+
 		bestiary.set[name] = t
 	end
 end
