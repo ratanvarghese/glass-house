@@ -158,10 +158,12 @@ property "power.make_list: (versions) correct number of results" {
 local function simple_power_list(targ_max, targ_kind, skip_target)
 	local len = math.random(1, 100)
 	local res = {}
+	local placed_target = false
 	for i=1,len do
 		local dice = math.random(1, 6)
 		if dice == 1 and not skip_target then
 			table.insert(res, {kind=targ_kind, factor=targ_max})
+			placed_target = true
 		elseif dice == 2 and not skip_target then
 			table.insert(res, {kind=targ_kind, factor=targ_max-1})
 		elseif dice == 3 then
@@ -174,6 +176,9 @@ local function simple_power_list(targ_max, targ_kind, skip_target)
 			table.insert(res, {kind=targ_kind-1, factor=targ_max+1})
 		end
 	end
+	if not placed_target and not skip_target then
+		table.insert(res, {kind=targ_kind, factor=targ_max})
+	end
 	return res
 end
 
@@ -181,7 +186,8 @@ property "power.max_factor: find max" {
 	generators = { int(), int() },
 	check = function(targ_max, targ_kind)
 		local list = simple_power_list(targ_max, targ_kind)
-		return power.max_factor(list, targ_kind) == targ_max
+		local res = power.max_factor(list, targ_kind)
+		return res == targ_max
 	end
 }
 
