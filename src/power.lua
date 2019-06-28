@@ -1,4 +1,5 @@
 local base = require("src.base")
+local enum = require("src.enum")
 
 local power = {}
 
@@ -7,18 +8,18 @@ power.MAX_LEN = 52 -- 2*(length of English alphabet)
 power.define = {}
 
 power.define.passive = {
-	{name = "light", min = 2, max = 5, versions = 2},
+	{kind = enum.power.light, min = 2, max = 5, versions = 2},
 }
 
 power.define.movement = {
-	{name = "warp", min = 2, max = 10, versions = 3},
-	{name = "break"}
+	{kind = enum.power.warp, min = 2, max = 10, versions = 3},
+	{kind = enum.power.smash}
 }
 
 power.define.fighting = {
-	{name = "tool"},
-	{name = "kick", min = 1, max = 4, versions = 2},
-	{name = "punch", min = 1, max = 10, versions = 3}
+	{kind = enum.power.tool},
+	{kind = enum.power.kick, min = 1, max = 4, versions = 2},
+	{kind = enum.power.punch, min = 1, max = 10, versions = 3}
 }
 
 function power.make_list(define_list)

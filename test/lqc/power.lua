@@ -6,7 +6,8 @@ local function versionless_define_list(max, prefix)
 	local define_set = {}
 	for i=1,max do
 		local name = prefix..tostring(i)
-		table.insert(define_list, {name = name})
+		local kind = i * 3
+		table.insert(define_list, {name = name, kind = kind})
 		define_set[name] = true
 	end
 	return define_list, define_set
@@ -48,6 +49,7 @@ property "power.make_list: (no versions) no missing items" {
 local function versioned_define_list(min, max, versions, name, t)
 	local t = t or {}
 	t.name = name
+	t.kind = 0
 	t.min = min
 	t.max = max
 	t.versions = versions

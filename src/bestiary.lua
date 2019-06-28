@@ -31,7 +31,7 @@ function bestiary.make_set()
 		t.kind = enum.new_item(enum.monster, name)
 		t.hp = i * 5
 
-		local filter_f = function(p) return p.name == "light" end
+		local filter_f = function(p) return p.kind == enum.power.light end
 		local map_f = function(p) return p.factor end
 		local light_radius_list = base.map(base.filter(t.powers, filter_f), map_f)
 		t.light_radius = light_radius_list[1]
@@ -48,7 +48,8 @@ function bestiary.make(name, x, y)
 		light_radius = species.light_radius,
 		x = x,
 		y = y,
-		inventory = {}
+		inventory = {},
+		powers = base.copy(species.powers)
 	}
 	if species.inventory then
 		for i,v in ipairs(species.inventory) do

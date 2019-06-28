@@ -28,6 +28,15 @@ enum.default_reverse = {
 		"lantern",
 		"MAX_STATIC",
 		"MAX"
+	},
+	power = {
+		"light",
+		"warp",
+		"smash",
+		"tool",
+		"kick",
+		"punch",
+		"MAX"
 	}
 }
 
