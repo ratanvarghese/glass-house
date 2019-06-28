@@ -5,7 +5,7 @@ property "enum: end with MAX" {
 	generators = {},
 	numtests = 1,
 	check = function()
-		enum.init(enum.default_reverse)
+		enum.init(enum.default_inverted)
 		local list = {enum.cmd, enum.terrain, enum.tool, enum.monster}
 		for _, targ_enum in pairs(list) do
 			local max = 1
@@ -20,7 +20,7 @@ property "enum: end with MAX" {
 	end
 }
 
-local new_reverse = {
+local new_inverted = {
 	cmd = {
 		"rot",
 		"MAX"
@@ -42,12 +42,12 @@ local new_reverse = {
 		"MAX"
 	}
 }
-property "enum.init: accept new reverse" {
+property "enum.init: accept new inverted" {
 	generators = {},
 	numtests = 1,
 	check = function()
-		enum.init(new_reverse)
-		return base.equals(enum.reverse, new_reverse)
+		enum.init(new_inverted)
+		return base.equals(enum.inverted, new_inverted)
 	end
 }
 
@@ -55,9 +55,9 @@ property "enum.init: create new forward" {
 	generators = {},
 	numtests = 1,
 	check = function()
-		enum.init(new_reverse)
-		for k,v in pairs(new_reverse) do
-			if not base.equals(enum[k], base.reverse(v)) then
+		enum.init(new_inverted)
+		for k,v in pairs(new_inverted) do
+			if not base.equals(enum[k], base.invert(v)) then
 				return false
 			end
 		end
@@ -69,7 +69,7 @@ property "enum.init: error for banned changes" {
 	generators = {},
 	numtests = 1,
 	check = function()
-		return not pcall(function() enum.init({init = new_reverse.tool}) end)
+		return not pcall(function() enum.init({init = new_inverted.tool}) end)
 	end
 }
 
@@ -77,7 +77,7 @@ property "enum.add_item: no altering prior items" {
 	generators = {},
 	numtests = 1,
 	check = function()
-		enum.init(enum.default_reverse)
+		enum.init(enum.default_inverted)
 		local old_tool = base.copy(enum.tool)
 		enum.new_item(enum.tool, "Amulet of Yendor")
 		for k,v in pairs(old_tool) do
@@ -93,7 +93,7 @@ property "enum.add_item: add between MAX_STATIC and MAX" {
 	generators = {},
 	numtests = 1,
 	check = function()
-		enum.init(enum.default_reverse)
+		enum.init(enum.default_inverted)
 		local targ_k = "Amulet of Yendor"
 		enum.new_item(enum.tool, targ_k)
 		local targ_v = enum.tool[targ_k]
@@ -101,15 +101,15 @@ property "enum.add_item: add between MAX_STATIC and MAX" {
 	end
 }
 
-property "enum.add_item: alters reverse" {
+property "enum.add_item: alters inverted" {
 	generators = {},
 	numtests = 1,
 	check = function()
-		enum.init(enum.default_reverse)
+		enum.init(enum.default_inverted)
 		local targ_k = "Amulet of Yendor"
 		enum.new_item(enum.tool, targ_k)
 		local targ_v = enum.tool[targ_k]
-		return enum.reverse.tool[targ_v] == targ_k
+		return enum.inverted.tool[targ_v] == targ_k
 	end
 }
 
@@ -117,7 +117,7 @@ property "enum.add_item: no repeat items" {
 	generators = {},
 	numtests = 1,
 	check = function()
-		enum.init(enum.default_reverse)
+		enum.init(enum.default_inverted)
 		local targ_k = "Amulet of Yendor"
 		enum.new_item(enum.tool, targ_k)
 		return not pcall(function() enum.new_item(enum.tool, targ_k) end)

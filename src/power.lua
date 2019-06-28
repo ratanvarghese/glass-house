@@ -64,7 +64,18 @@ function power.make_all()
 end
 
 function power.max_factor(list, kind)
-	return nil
+	if not list then
+		return nil
+	end
+
+	local filter_f = function(t) return t.kind == kind end
+	local map_f = function(t) return t.factor end
+	local factor_list = base.map(base.filter(list, filter_f), map_f)
+	if base.is_empty(factor_list) then
+		return nil
+	else
+		return math.max(unpack(factor_list))
+	end
 end
 
 return power

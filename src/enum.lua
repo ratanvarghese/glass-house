@@ -2,7 +2,7 @@ local base = require("src.base")
 
 local enum = {}
 
-enum.default_reverse = {
+enum.default_inverted = {
 	cmd = {
 		"quit",
 		"north",
@@ -40,11 +40,11 @@ enum.default_reverse = {
 	}
 }
 
-function enum.init(reverse)
-	enum.reverse = base.copy(reverse)
-	for k,v in pairs(enum.reverse) do
-		assert(enum.default_reverse[k], "Tried to overwrite enum."..k)
-		enum[k] = base.reverse(v)
+function enum.init(inverted)
+	enum.inverted = base.copy(inverted)
+	for k,v in pairs(enum.inverted) do
+		assert(enum.default_inverted[k], "Tried to overwrite enum."..k)
+		enum[k] = base.invert(v)
 	end
 end
 
@@ -60,7 +60,7 @@ function enum.new_item(list, item_name)
 	list[item_name] = max
 	list.MAX = max + 1
 
-	for k,v in pairs(enum.reverse) do
+	for k,v in pairs(enum.inverted) do
 		if list == enum[k] then
 			table.insert(v, max, item_name)
 			break
@@ -70,5 +70,5 @@ function enum.new_item(list, item_name)
 	return max
 end
 
-enum.init(enum.default_reverse)
+enum.init(enum.default_inverted)
 return enum

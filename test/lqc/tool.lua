@@ -81,11 +81,11 @@ property "tool.pickup_from_array: pickup correct tool" {
 		local i = grid.get_idx(x, y)
 		local pile_array = {[i] = pile}
 		local out = tool.pickup_from_array(pile_array, tool_idx, x, y)
-		local pile_reverse = base.reverse(pile) --Must be after pickup
+		local pile_inverted = base.invert(pile) --Must be after pickup
 		if out ~= items[tool_idx] then
 			print(#items)
 		end
-		return out == items[tool_idx] and not pile_reverse[out] and #pile == 4
+		return out == items[tool_idx] and not pile_inverted[out] and #pile == 4
 	end
 }
 

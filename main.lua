@@ -16,7 +16,7 @@ math.randomseed(os.time())
 
 local state = file.load()
 if state then
-	enum.init(state.enum_reverse)
+	enum.init(state.enum_inverted)
 	bestiary.set = state.bestiary_set
 	level.current = state.current
 	level.register(level.current)
@@ -36,7 +36,7 @@ local ok, err = xpcall(function()
 	else
 		local state = {
 			current = level.current,
-			enum_reverse = enum.reverse,
+			enum_inverted = enum.inverted,
 			bestiary_set = bestiary.set
 		}
 		file.save(state)

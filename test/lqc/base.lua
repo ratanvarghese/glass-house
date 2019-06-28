@@ -20,11 +20,11 @@ property "base.true_f: return true" {
 	end
 }
 
-property "base.reverse: output values match input keys" {
+property "base.invert: output values match input keys" {
 	generators = { tbl() },
 	check = function(t)
-		local reverse = base.reverse(t)
-		for k,v in pairs(reverse) do
+		local inverted = base.invert(t)
+		for k,v in pairs(inverted) do
 			if t[v] ~= k then
 				return false
 			end
@@ -33,17 +33,17 @@ property "base.reverse: output values match input keys" {
 	end
 }
 
-property "base.reverse: all input values included as output keys" {
+property "base.invert: all input values included as output keys" {
 	generators = { tbl() },
 	check = function(t)
-		local reverse = base.reverse(t)
+		local inverted = base.invert(t)
 		local seek_repeats = {}
 		local found_repeats = {}
 		for k,v in pairs(t) do
-			if seek_repeats[v] and reverse[v] == k then
+			if seek_repeats[v] and inverted[v] == k then
 				found_repeats[v] = true
 			end
-			if reverse[v] ~= k then
+			if inverted[v] ~= k then
 				seek_repeats[v] = true
 			end
 		end

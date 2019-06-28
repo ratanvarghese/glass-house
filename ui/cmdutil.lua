@@ -45,11 +45,11 @@ function cmdutil.symbol_at(lvl, x, y)
 	end
 
 	if targ_enum == enum.terrain then
-		return symbols.terrain[enum.reverse.terrain[targ_kind]]
+		return symbols.terrain[enum.inverted.terrain[targ_kind]]
 	elseif targ_enum == enum.monster then
-		return symbols.monster[enum.reverse.monster[targ_kind]]
+		return symbols.monster[enum.inverted.monster[targ_kind]]
 	elseif targ_enum == enum.tool then
-		return symbols.tool[enum.reverse.tool[targ_kind]]
+		return symbols.tool[enum.inverted.tool[targ_kind]]
 	end
 
 	return symbols.err

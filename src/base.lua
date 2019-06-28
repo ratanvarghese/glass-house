@@ -8,7 +8,7 @@ function base.true_f()
 	return true
 end
 
-function base.reverse(t)
+function base.invert(t)
 	local res = {}
 	for k,v in pairs(t) do
 		res[v] = k
