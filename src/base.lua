@@ -16,19 +16,24 @@ function base.reverse(t)
 	return res
 end
 
-function base.map(t, f)
+function base.map(t, f, pad)
 	local res = {}
-	for k,v in pairs(t) do
-		res[k] = f(v)
+	for _,v in ipairs(t) do
+		local new_v = f(v)
+		if new_v == nil then
+			table.insert(res, pad)
+		else
+			table.insert(res, new_v)
+		end
 	end
 	return res
 end
 
 function base.filter(t, f)
 	local res = {}
-	for k,v in pairs(t) do
+	for _,v in ipairs(t) do
 		if f(v) then
-			res[k] = v
+			table.insert(res, v)
 		end
 	end
 	return res

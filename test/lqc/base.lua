@@ -67,20 +67,60 @@ local mapf = {
 }
 property "base.map: act on all values, without adding extras" {
 	generators = { tbl(), int(1, #mapf) },
-	check = function(t, i)
-		local f = mapf[i]
+	check = function(t, fi)
+		local f = mapf[fi]
 		local res = base.map(t, f)
-		for k,v in pairs(t) do
-			if not base.equals(res[k], f(v)) then
+
+		local offset = 0
+		local t_i = 0
+		for i,v in ipairs(res) do
+			while f(t[i+offset]) == nil do
+				offset = offset + 1
+				if (i + offset) > #t then
+					return false
+				end
+			end
+			t_i = i + offset
+			if not base.equals(v, f(t[t_i])) then
 				return false
 			end
 		end
-		for k,v in pairs(res) do
-			if not base.equals(v, f(t[k])) then
+
+		while t_i < #t do
+			t_i = t_i + 1
+			if f(t[t_i]) ~= nil then
 				return false
 			end
 		end
+
 		return true
+	end
+}
+
+property "base.map: padding" {
+	generators = { tbl(), int(1, #mapf), any() },
+	check = function(t, fi, pad)
+		local f = mapf[fi]
+		local pad = pad or false --pad == nil basically means no padding
+		local res = base.map(t, f, pad)
+		for i,v in ipairs(res) do
+			if f(t[i]) == nil and v ~= pad then
+				return false
+			elseif f(t[i]) ~= nil and not base.equals(v, f(t[i])) then
+				return false
+			end
+		end
+		return #res == #t
+	end,
+	when_fail = function(t, fi, pad)
+		local f = mapf[fi]
+		local pad = pad or false --pad == nil basically means no padding
+		local res = base.map(t, f, pad)
+		local max = math.max(#res, #t)
+		print("")
+		for i=1,max do
+			print("i:", i, "res[i]:", res[i], "t[i]:", t[i])
+		end
 	end
 }
 
@@ -94,15 +134,24 @@ property "base.filter: filter correct values" {
 	check = function(t, i)
 		local f = filterf[i]
 		local res = base.filter(t, f)
-		for k,v in pairs(t) do
-			if f(v) and res[k] == nil then
-				return false
-			elseif not f(v) and res[k] ~= nil then
+		local offset = 0
+		local t_i = 0
+		for i,v in ipairs(res) do
+			while not f(t[offset + i]) do
+				offset = offset + 1
+				if (offset + i) > #t then
+					return false
+				end
+			end
+			t_i = offset + i
+			if not base.equals(v, t[t_i]) then
 				return false
 			end
 		end
-		for k,v in pairs(res) do
-			if t[k] == nil or not f(t[k]) then
+
+		while t_i < #t do
+			t_i = t_i + 1
+			if f(t[t_i]) then
 				return false
 			end
 		end
