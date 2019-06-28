@@ -22,11 +22,7 @@ function level:reset_paths()
 	local player = self.denizens[self.player_id]
 	assert(player, "Player not found")
 	self.paths.to_player = self:paths_to(player.x, player.y)
-
-	local _, stair_x, stair_y = flood.search(player.x, player.y, nil, function(x, y, i)
-		return self.terrain[i].kind == enum.terrain.stair
-	end)
-	self.paths.to_stair = self:paths_to(stair_x, stair_y)
+	self.paths.to_stair = self:paths_to(self.stair_x, self.stair_y)
 end
 
 function level:light_area(radius, x, y)
@@ -150,6 +146,12 @@ function level.make(num)
 
 	local terrain, init_x, init_y = gen.cave(res)
 	res.terrain = terrain
+
+	local _, stair_x, stair_y = flood.search(init_x, init_y, nil, function(x, y, i)
+		return res.terrain[i].kind == enum.terrain.stair
+	end)
+	res.stair_x = stair_x
+	res.stair_y = stair_y
 
 	res.player_id = grid.get_idx(init_x, init_y)
 	for k in pairs(bestiary.set) do
