@@ -31,6 +31,13 @@ symbols.tool = {
 }
 cmdutil.symbols = symbols
 
+local symbol_mt = {
+	__index = function(t, k)
+		return k
+	end
+}
+setmetatable(symbols.monster, symbol_mt)
+
 function cmdutil.symbol_at(lvl, x, y)
 	local targ_kind, targ_enum = lvl:visible_kind_at(x, y)
 	if not targ_kind then

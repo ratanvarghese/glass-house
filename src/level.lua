@@ -151,7 +151,14 @@ function level.make(num)
 	res.terrain = terrain
 
 	res.player_id = grid.get_idx(init_x, init_y)
-	res:add_denizen(bestiary.make("player", init_x, init_y))
+	for k in pairs(bestiary.set) do
+		local x, y = init_x, init_y
+		if k ~= "player" then
+			x, y = grid.rn_xy()
+		end
+		res:add_denizen(bestiary.make(k, x, y))
+	end
+	--res:add_denizen(bestiary.make("player", init_x, init_y))
 
 	res:reset_light()
 	res:reset_paths()
