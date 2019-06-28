@@ -1,4 +1,5 @@
 local grid = require("src.grid")
+local enum = require("src.enum")
 local flood = require("src.flood")
 local level = require("src.level")
 local tool = require("src.tool")
@@ -6,8 +7,11 @@ local tool = require("src.tool")
 local mon = {}
 
 function mon.act(lvl, denizen)
-	--mon.wander(lvl, denizen)
-	mon.follow_player(lvl, denizen)
+	if lvl.light[lvl.player_id] then
+		mon.follow_player(lvl, denizen)
+	else
+		mon.wander(lvl, denizen)
+	end
 end
 
 function mon.wander(lvl, denizen)
@@ -15,10 +19,26 @@ function mon.wander(lvl, denizen)
 	lvl:move(denizen, denizen.x + d.x, denizen.y + d.y)
 end
 
-function mon.follow_player(lvl, denizen)
+local function simple_follow(lvl, denizen)
 	local _, x, y = flood.local_min(denizen.x, denizen.y, lvl.paths.to_player)
 	if (denizen.x ~= x or denizen.y ~= y) and not lvl:move(denizen, x, y) then
 		lvl:bump_hit(denizen, x, y, 1)
+	end
+end
+
+local function warp_follow(lvl, denizen, warp_factor)
+	local _, x, y = flood.local_min(denizen.x, denizen.y, lvl.paths.to_player, warp_factor)
+	if not lvl:move(denizen, x, y) then
+		simple_follow(lvl, denizen)
+	end
+end
+
+function mon.follow_player(lvl, denizen)
+	local warp_factor = denizen.powers[enum.power.warp]
+	if warp_factor then
+		warp_follow(lvl, denizen, warp_factor)
+	else
+		simple_follow(lvl, denizen)
 	end
 end
 

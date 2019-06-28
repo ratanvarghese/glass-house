@@ -43,9 +43,6 @@ function level:reset_light()
 	self.light = {}
 	for _,denizen in pairs(self.denizens) do
 		local default = denizen.powers[enum.power.light]
-		if denizen.kind == enum.monster.player then
-			default = default or 0
-		end
 		local radius = tool.light_from_list(denizen.inventory, default)
 		self:light_area(radius, denizen.x, denizen.y)
 	end
@@ -162,7 +159,6 @@ function level.make(num)
 		end
 		res:add_denizen(bestiary.make(k, x, y))
 	end
-	--res:add_denizen(bestiary.make("player", init_x, init_y))
 
 	res:reset_light()
 	res:reset_paths()
@@ -178,7 +174,9 @@ function level:visible_kind_at(x, y)
 	local tool_pile = self.tool_piles[i]
 	assert(type(tile)=="table", "Invalid tile at x="..x.." y="..y)
 
-	if light then
+	if i == self.player_id then
+		return denizen.kind, enum.monster
+	elseif light then
 		if denizen then
 			return denizen.kind, enum.monster
 		elseif tool_pile and #tool_pile > 0 then
