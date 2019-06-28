@@ -1,4 +1,5 @@
 local base = require("src.base")
+local enum = require("src.enum")
 local grid = require("src.grid")
 local tool = require("src.tool")
 
@@ -125,11 +126,11 @@ property "tool.light_from_list: return max" {
 	generators = { int(), int(), int(), int(), int(), int() },
 	check = function(r1, r2, r3, r4, r5, r_default)
 		local list = {
-			{light_radius = r1},
-			{light_radius = r2},
-			{light_radius = r3},
-			{light_radius = r4},
-			{light_radius = r5}
+			{powers={[enum.power.light] = r1}},
+			{powers={[enum.power.light] = r2}},
+			{powers={[enum.power.light] = r3}},
+			{powers={[enum.power.light] = r4}},
+			{powers={[enum.power.light] = r5}}
 		}
 		local res = tool.light_from_list(list, r_default)
 		return res == math.max(r1, r2, r3, r4, r5, r_default)
@@ -146,7 +147,7 @@ property "tool.light_from_list: use default on nil list" {
 property "tool.light_from_list: use default on list without light_radius" {
 	generators = { int() },
 	check = function(r)
-		local list = {{}, {}, {}, {}, {}}
+		local list = {{powers={}}, {powers={}}, {powers={}}, {powers={}}, {powers={}}}
 		return tool.light_from_list(list, r) == r
 	end
 }

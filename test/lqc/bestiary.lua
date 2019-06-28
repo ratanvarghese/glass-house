@@ -1,15 +1,18 @@
 local grid = require("src.grid")
 local base = require("src.base")
+local enum = require("src.enum")
 local tool = require("src.tool")
 local bestiary = require("src.bestiary")
 
 bestiary.set.centurion = {
 	kind = 100,
 	hp = 200,
-	light_radius = 300,
 	inventory = {
 		"lantern"
-	}
+	},
+	powers = {
+		[enum.power.light] = 10
+	},
 }
 
 bestiary.set.gladiator = {
@@ -34,7 +37,8 @@ property "bestiary.make: simple properties match" {
 		local name = test_names[name_i]
 		local res = bestiary.make(name, x, y)
 		for k,v in pairs(bestiary.set[name]) do
-			if k ~= "inventory" and res[k] ~= v then
+			if k ~= "inventory" and not base.equals(res[k], v) then
+				print(k, res[k], v)
 				return false
 			end
 		end

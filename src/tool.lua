@@ -6,19 +6,21 @@ local tool = {}
 
 tool.set = {}
 
+local LANTERN_RADIUS = 2
 tool.set.lantern = {
 	template = {
 		name = "lantern",
-		light_radius = 2,
-		max_radius = 2,
 		kind = enum.tool.lantern,
-		on = true
+		MAX_RADIUS = LANTERN_RADIUS,
+		powers = {
+			[enum.power.light] = LANTERN_RADIUS
+		}
 	},
 	equip = function(data, denizen)
-		if data.light_radius then
-			data.light_radius = nil
+		if data.powers[enum.power.light] then
+			data.powers[enum.power.light] = nil
 		else
-			data.light_radius = data.max_radius
+			data.powers[enum.power.light] = data.MAX_RADIUS
 		end
 	end
 }
@@ -67,20 +69,13 @@ function tool.drop_onto_array(pile_array, tool_to_drop, x, y)
 end
 
 function tool.light_from_list(list, default)
-	if not list then
-		return default
-	end
-
-	local filter_f = function(v) return v end
-	local map_f = function(v) return v.light_radius end
-	local radii = base.filter(base.map(list, map_f), filter_f)
+	local map_f = function(v) return v.powers[enum.power.light] end
+	local radii = list and base.map(list, map_f) or {}
+	table.insert(radii, default)
 	if base.is_empty(radii) then
-		return default
-	elseif not default then
-		return math.max(unpack(radii))
-	else
-		return math.max(default, unpack(radii))
+		return nil
 	end
+	return math.max(unpack(radii))
 end
 
 return tool

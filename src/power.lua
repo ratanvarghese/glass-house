@@ -58,24 +58,14 @@ function power.make_all()
 		local m = table.remove(all_movement, movement_i)
 		local f = table.remove(all_fighting, fighting_i)
 
-		table.insert(res, {p, m, f})
+		local t = {
+			[p.kind] = p.factor or true,
+			[m.kind] = m.factor or true,
+			[f.kind] = f.factor or true
+		}
+		table.insert(res, t)
 	end
 	return res
-end
-
-function power.max_factor(list, kind)
-	if not list then
-		return nil
-	end
-
-	local filter_f = function(t) return t.kind == kind end
-	local map_f = function(t) return t.factor end
-	local factor_list = base.map(base.filter(list, filter_f), map_f)
-	if base.is_empty(factor_list) then
-		return nil
-	else
-		return math.max(unpack(factor_list))
-	end
 end
 
 return power
