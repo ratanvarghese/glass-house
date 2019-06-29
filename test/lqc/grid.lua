@@ -331,6 +331,13 @@ property "grid.line: adjacent list elements are adjacent coordinates" {
 			end
 		end
 		return true
+	end,
+	when_fail = function(x1, x2, y1, y2)
+		local res = grid.line(x1, y1, x2, y2)
+		print("")
+		for i,v in ipairs(res) do
+			print("i:", i, "x:", v.x, "y:", v.y)
+		end
 	end
 }
 
@@ -346,5 +353,12 @@ property "grid.line: correct length" {
 		local dx = math.abs(x2 - x1)
 		local dy = math.abs(y2 - y1)
 		return #res == (dx + dy + 1)
+	end,
+	when_fail = function(x1, x2, y1, y2)
+		local res = grid.line(x1, y1, x2, y2)
+		print("")
+		for i,v in ipairs(res) do
+			print("i:", i, "x:", v.x, "y:", v.y)
+		end
 	end
 }

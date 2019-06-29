@@ -69,7 +69,42 @@ function grid.are_adjacent(x1, y1, x2, y2)
 end
 
 function grid.line(x1, y1, x2, y2)
-	return {{}}
+	--Bresenham's line algo, modified to avoid diagonal movement
+	--See http://www.roguebasin.com/index.php?title=Bresenham%27s_Line_Algorithm
+	local dx = x2 - x1
+	local dy = y2 - y1
+	local ix = dx > 0 and 1 or -1
+	local iy = dy > 0 and 1 or -1
+	local abs_2dx = 2 * math.abs(dx)
+	local abs_2dy = 2 * math.abs(dy)
+
+	local res = {{x = x1, y = y1}}
+	if abs_2dx >= abs_2dy then
+		local err = abs_2dy - abs_2dx / 2
+		while x1 ~= x2 do
+			if err > 0 or (err == 0 and ix > 0) then
+				err = err - abs_2dx
+				y1 = y1 + iy
+				table.insert(res, {x = x1, y = y1})
+			end
+			err = err + abs_2dy
+			x1 = x1 + ix
+			table.insert(res, {x = x1, y = y1})
+		end
+	else
+		local err = abs_2dx - abs_2dy / 2
+		while y1 ~= y2 do
+			if err > 0 or (err == 0 and iy > 0) then
+				err = err - abs_2dy
+				x1 = x1 + ix
+				table.insert(res, {x = x1, y = y1})
+			end
+			err = err + abs_2dx
+			y1 = y1 + iy
+			table.insert(res, {x = x1, y = y1})
+		end
+	end
+	return res
 end
 
 grid.not_edge_t = grid.make_full(function(x, y, i) return not grid.is_edge(x, y) end)
