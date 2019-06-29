@@ -38,10 +38,25 @@ local function warp_follow(lvl, denizen, warp_factor)
 	simple_follow(lvl, denizen)
 end
 
+local function smash_follow(lvl, denizen)
+	local p = lvl.denizens[lvl.player_id]
+	local line = grid.line(denizen.x, denizen.y, p.x, p.y)
+	local dest = line[2]
+	local dest_i = grid.get_idx(dest.x, dest.y)
+	if not lvl.denizens[dest_i] and lvl.terrain[dest_i].kind == enum.terrain.wall then
+		lvl.terrain[dest_i].kind = enum.terrain.floor
+		lvl:move(denizen, dest.x, dest.y)
+	else
+		simple_follow(lvl, denizen)
+	end
+end
+
 function mon.follow_player(lvl, denizen)
 	local warp_factor = denizen.powers[enum.power.warp]
 	if warp_factor then
 		warp_follow(lvl, denizen, warp_factor)
+	elseif denizen.powers[enum.power.smash] then
+		smash_follow(lvl, denizen)	
 	else
 		simple_follow(lvl, denizen)
 	end
