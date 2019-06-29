@@ -68,43 +68,41 @@ function grid.are_adjacent(x1, y1, x2, y2)
 	return (dx == 1 and dy == 0) or (dx == 0 and dy == 1)
 end
 
+local function bresenham(x1, y1, x2, y2, dx, dy, is_steep)
+	--Bresenham's line algo, modified to avoid diagonal movement
+	--See http://www.roguebasin.com/index.php?title=Bresenham%27s_Line_Algorithm
+	local ix = dx > 0 and 1 or -1
+	local iy = dy > 0 and 1 or -1
+	local abs_2dx = 2 * math.abs(dx)
+	local abs_2dy = 2 * math.abs(dy)
+	local function pt() return is_steep and {x = y1, y = x1} or {x = x1, y = y1} end
+	
+	local res = {}
+	table.insert(res, pt())
+	local err = abs_2dy - abs_2dx / 2
+	while x1 ~= x2 do
+		if err > 0 or (err == 0 and ix > 0) then
+			err = err - abs_2dx
+			y1 = y1 + iy
+			table.insert(res, pt())
+		end
+		err = err + abs_2dy
+		x1 = x1 + ix
+		table.insert(res, pt())
+	end
+	return res
+end
+
 function grid.line(x1, y1, x2, y2)
 	--Bresenham's line algo, modified to avoid diagonal movement
 	--See http://www.roguebasin.com/index.php?title=Bresenham%27s_Line_Algorithm
 	local dx = x2 - x1
 	local dy = y2 - y1
-	local ix = dx > 0 and 1 or -1
-	local iy = dy > 0 and 1 or -1
-	local abs_2dx = 2 * math.abs(dx)
-	local abs_2dy = 2 * math.abs(dy)
-
-	local res = {{x = x1, y = y1}}
-	if abs_2dx >= abs_2dy then
-		local err = abs_2dy - abs_2dx / 2
-		while x1 ~= x2 do
-			if err > 0 or (err == 0 and ix > 0) then
-				err = err - abs_2dx
-				y1 = y1 + iy
-				table.insert(res, {x = x1, y = y1})
-			end
-			err = err + abs_2dy
-			x1 = x1 + ix
-			table.insert(res, {x = x1, y = y1})
-		end
+	if math.abs(dx) < math.abs(dy) then
+		return bresenham(y1, x1, y2, x2, dy, dx, true)
 	else
-		local err = abs_2dx - abs_2dy / 2
-		while y1 ~= y2 do
-			if err > 0 or (err == 0 and iy > 0) then
-				err = err - abs_2dy
-				x1 = x1 + ix
-				table.insert(res, {x = x1, y = y1})
-			end
-			err = err + abs_2dx
-			y1 = y1 + iy
-			table.insert(res, {x = x1, y = y1})
-		end
+		return bresenham(x1, y1, x2, y2, dx, dy, false)
 	end
-	return res
 end
 
 grid.not_edge_t = grid.make_full(function(x, y, i) return not grid.is_edge(x, y) end)
