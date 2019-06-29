@@ -13,8 +13,8 @@ Glass House is an unfinished roguelike. Development is still ongoing.
 
 It is assumed the user is in a command line at the project root directory, and the user is testing using LuaJIT. 
 
-To test manually, run `luajit main.lua`.
-To test manually using stdio instead of TermFX, run `luajit main.lua -s`.
+To test manually, run `luajit src/main.lua`.
+To test manually using stdio instead of TermFX, run `luajit src/main.lua -s`.
 To run property-based tests, run `lqc test/lqc/*`.
 To run the fuzzer, run `luajit test/fuzz.lua`.
 
