@@ -62,6 +62,16 @@ function grid.rn_xy()
 	return x, y
 end
 
+function grid.are_adjacent(x1, y1, x2, y2)
+	local dx = math.abs(x2 - x1)
+	local dy = math.abs(y2 - y1)
+	return (dx == 1 and dy == 0) or (dx == 0 and dy == 1)
+end
+
+function grid.line(x1, y1, x2, y2)
+	return {{}}
+end
+
 grid.not_edge_t = grid.make_full(function(x, y, i) return not grid.is_edge(x, y) end)
 
 return grid

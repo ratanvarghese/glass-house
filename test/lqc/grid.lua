@@ -248,3 +248,103 @@ property "grid.rn_xy: y in range" {
 		return (y > 1) and (y < grid.MAX_Y) and (y == math.floor(y))
 	end
 }
+
+property "grid.are_adjacent: inclusive" {
+	generators = {
+		int(2, grid.MAX_X - 1),
+		int(2, grid.MAX_Y - 1),
+	},
+	check = function(x, y)
+		local res_1 = grid.are_adjacent(x, y, x+1, y)
+		local res_2 = grid.are_adjacent(x, y, x-1, y)
+		local res_3 = grid.are_adjacent(x, y, x, y+1)
+		local res_4 = grid.are_adjacent(x, y, x, y-1)
+		return res_1 and res_2 and res_3 and res_4
+	end
+}
+
+property "grid.are_adjacent: exclude repeated point" {
+	generators = {
+		int(2, grid.MAX_X - 1),
+		int(2, grid.MAX_Y - 1),
+	},
+	check = function(x, y)
+		return not grid.are_adjacent(x, y, x, y)
+	end
+}
+
+property "grid.are_adjacent: exclusive" {
+	generators = {
+		int(2, grid.MAX_X - 1),
+		int(2, grid.MAX_X - 1),
+		int(2, grid.MAX_Y - 1),
+		int(2, grid.MAX_Y - 1),
+	},
+	check = function(x1, x2, y1, y2)
+		if x1 == x2 and math.abs(y1 - y2) == 1 then
+			x2 = x2 + 1
+		elseif y1 == y2 and math.abs(x1 - x2) == 1 then
+			y2 = y2 + 1
+		end
+		return not grid.are_adjacent(x1, y1, x2, y2)
+	end
+}
+
+property "grid.line: start at x1, y1" {
+	generators = {
+		int(1, grid.MAX_X),
+		int(1, grid.MAX_X),
+		int(1, grid.MAX_Y),
+		int(1, grid.MAX_Y),
+	},
+	check = function(x1, x2, y1, y2)
+		local res = grid.line(x1, y1, x2, y2)
+		return res[1].x == x1 and res[1].y == y1
+	end
+}
+
+property "grid.line: end at x2, y2" {
+	generators = {
+		int(1, grid.MAX_X),
+		int(1, grid.MAX_X),
+		int(1, grid.MAX_Y),
+		int(1, grid.MAX_Y),
+	},
+	check = function(x1, x2, y1, y2)
+		local res = grid.line(x1, y1, x2, y2)
+		return res[#res].x == x2 and res[#res].y == y2
+	end
+}
+
+property "grid.line: adjacent list elements are adjacent coordinates" {
+	generators = {
+		int(1, grid.MAX_X),
+		int(1, grid.MAX_X),
+		int(1, grid.MAX_Y),
+		int(1, grid.MAX_Y),
+	},
+	check = function(x1, x2, y1, y2)
+		local res = grid.line(x1, y1, x2, y2)
+		for i,v in ipairs(res) do
+			if i > 1 and not grid.are_adjacent(res[i-1].x, res[i-1].y, v.x, v.y) then
+				return false
+			end
+		end
+		return true
+	end
+}
+
+property "grid.line: correct length" {
+	generators = {
+		int(1, grid.MAX_X),
+		int(1, grid.MAX_X),
+		int(1, grid.MAX_Y),
+		int(1, grid.MAX_Y),
+	},
+	check = function(x1, x2, y1, y2)
+		local res = grid.line(x1, y1, x2, y2)
+		local dx = math.abs(x2 - x1)
+		local dy = math.abs(y2 - y1)
+		return #res == (dx + dy + 1)
+	end
+}
