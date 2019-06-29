@@ -27,10 +27,15 @@ local function simple_follow(lvl, denizen)
 end
 
 local function warp_follow(lvl, denizen, warp_factor)
-	local _, x, y = flood.local_min(denizen.x, denizen.y, lvl.paths.to_player, warp_factor)
-	if not lvl:move(denizen, x, y) then
-		simple_follow(lvl, denizen)
+	local p = lvl.denizens[lvl.player_id]
+	local line = grid.line(denizen.x, denizen.y, p.x, p.y)
+	for line_i=warp_factor,1,-1 do
+		local pt = line[line_i]
+		if pt and lvl:move(denizen, pt.x, pt.y) then
+			return
+		end
 	end
+	simple_follow(lvl, denizen)
 end
 
 function mon.follow_player(lvl, denizen)
