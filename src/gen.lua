@@ -10,7 +10,7 @@ function gen.big_room()
 		if x == stair_x and y == stair_y then
 			s = enum.terrain.stair
 		elseif grid.is_edge(x, y) then
-			s = enum.terrain.wall
+			s = enum.terrain.tough_wall
 		end
 		return {kind = s}
 	end)
@@ -53,6 +53,8 @@ function gen.cave()
 		local s = enum.terrain.wall
 		if x == start_x and y == start_y then
 			s = enum.terrain.stair
+		elseif grid.is_edge(x, y) then
+			s = enum.terrain.tough_wall
 		elseif floors[i] then
 			s = enum.terrain.floor
 		end

@@ -21,6 +21,7 @@ symbols.err = ":"
 symbols.terrain = {
 	floor = ".",
 	wall = "#",
+	tough_wall = "#",
 	stair = "<"
 }
 symbols.monster = {

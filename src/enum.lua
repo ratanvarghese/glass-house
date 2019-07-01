@@ -16,6 +16,7 @@ enum.default_inverted = {
 	terrain = {
 		"floor",
 		"wall",
+		"tough_wall",
 		"stair",
 		"MAX"
 	},

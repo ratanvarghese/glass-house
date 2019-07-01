@@ -16,7 +16,12 @@ end
 
 function mon.wander(lvl, denizen)
 	local d = grid.rn_direction()
-	lvl:move(denizen, denizen.x + d.x, denizen.y + d.y)
+	local try_move = lvl:move(denizen, denizen.x + d.x, denizen.y + d.y)
+
+	if denizen.powers[enum.power.smash] and not try_move then
+		lvl:smash(denizen.x + d.x, denizen.y + d.y)
+		lvl:move(denizen, denizen.x + d.x, denizen.y + d.y)
+	end
 end
 
 local function simple_follow(lvl, denizen)
@@ -42,9 +47,7 @@ local function smash_follow(lvl, denizen)
 	local p = lvl.denizens[lvl.player_id]
 	local line = grid.line(denizen.x, denizen.y, p.x, p.y)
 	local dest = line[2]
-	local dest_i = grid.get_idx(dest.x, dest.y)
-	if not lvl.denizens[dest_i] and lvl.terrain[dest_i].kind == enum.terrain.wall then
-		lvl.terrain[dest_i].kind = enum.terrain.floor
+	if lvl:smash(dest.x, dest.y) then
 		lvl:move(denizen, dest.x, dest.y)
 	else
 		simple_follow(lvl, denizen)

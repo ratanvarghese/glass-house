@@ -96,7 +96,7 @@ function level:move(denizen, new_x, new_y)
 	local old_id = grid.get_idx(denizen.x, denizen.y)
 	local new_id = grid.get_idx(new_x, new_y)
 	local target = self.terrain[new_id]
-	if target.kind == enum.terrain.wall then
+	if target.kind == enum.terrain.wall or target.kind == enum.terrain.tough_wall then
 		if old_id == self.player_id then
 			self.memory[new_id] = true
 		end
@@ -117,6 +117,16 @@ function level:move(denizen, new_x, new_y)
 	end
 	self:reset_paths()
 	return true
+end
+
+function level:smash(x, y)
+	local i = grid.get_idx(x, y)
+	if not self.denizens[i] and self.terrain[i].kind == enum.terrain.wall then
+		self.terrain[i].kind = enum.terrain.floor
+		return true
+	else
+		return false
+	end
 end
 
 function level:add_denizen(dz)
