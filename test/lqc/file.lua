@@ -83,6 +83,31 @@ property "file.load: recover simple saved table" {
 	end
 }
 
+property "file.load: falsy if file doesn't exist" {
+	generators = {},
+	check = function()
+		local oldname = file.name
+		file.name = os.tmpname()
+		local state = file.load()
+		file.name = oldname
+		return not state
+	end
+}
+
+property "file.load: error if file calls function" {
+	generators = {},
+	check = function()
+		local oldname = file.name
+		file.name = os.tmpname()
+		local f = io.open(file.name, "w")
+		f:write("print('Hi')")
+		f:close()
+		local ok = pcall(file.load)
+		file.name = oldname
+		return not ok
+	end
+}
+
 property "file.remove_save: remove save" {
 	generators = { tbl() },
 	check = function(t)
@@ -97,3 +122,4 @@ property "file.remove_save: remove save" {
 		return not res
 	end
 }
+
