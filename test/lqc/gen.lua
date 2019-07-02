@@ -37,7 +37,7 @@ property "gen.big_room: terrain" {
 		local s = t[i].kind
 		if s == enum.terrain.stair or s == enum.terrain.floor then
 			return not grid.is_edge(x, y)
-		elseif s == enum.terrain.wall then
+		elseif s == enum.terrain.tough_wall then
 			return grid.is_edge(x, y)
 		else
 			return false
