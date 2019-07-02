@@ -24,6 +24,8 @@ function ui.draw_level(lvl)
 	for y,v in ipairs(rows) do
 		stdscr:mvaddstr(y, 1, v)
 	end
+	local px, py = lvl:player_xy()
+	stdscr:move(py, px)
 	stdscr:refresh()
 end
 
@@ -40,12 +42,16 @@ function ui.draw_paths(lvl, name)
 	for y,v in ipairs(rows) do
 		stdscr:mvaddstr(y + grid.MAX_Y + 1, 1, v)
 	end
+	local px, py = lvl:player_xy()
+	stdscr:move(py, px)
 	stdscr:refresh()
 end
 
 function ui.draw_stats(stats)
 	local hp_line = string.format("HP: %2d", stats.hp)
+	local cur_y,cur_x = stdscr:getyx()
 	stdscr:mvaddstr(1, grid.MAX_X + 2, hp_line)
+	stdscr:move(cur_y, cur_x)
 	stdscr:refresh()
 end
 
