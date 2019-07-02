@@ -92,11 +92,7 @@ end
 
 function mon.pickup_all_tools(pile_array, denizen)
 	local pile = tool.pickup_all_from_array(pile_array, denizen.x, denizen.y)
-	if not pile then
-		return
-	end
-
-	for i,v in ipairs(pile) do
+	for i,v in ipairs(pile or {}) do
 		table.insert(denizen.inventory, v)
 	end
 end

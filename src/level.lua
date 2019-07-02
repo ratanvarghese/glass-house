@@ -19,19 +19,16 @@ function level:paths_to(targ_x, targ_y)
 end
 
 function level:reset_paths()
-	local px, py = self:player_xy()
-	self.paths.to_player = self:paths_to(px, py)
+	self.paths.to_player = self:paths_to(self:player_xy())
 	self.paths.to_stair = self:paths_to(self.stair_x, self.stair_y)
 end
 
 function level:light_area(radius, x, y)
-	if not radius then
-		return
+	if radius then
+		local x1, y1, x2, y2 = x-radius, y-radius, x+radius, y+radius
+		grid.edit_rect(x1, y1, x2, y2, self.light, base.true_f)
+		grid.edit_rect(x1, y1, x2, y2, self.memory, base.true_f)
 	end
-
-	local x1, y1, x2, y2 = x-radius, y-radius, x+radius, y+radius 
-	grid.edit_rect(x1, y1, x2, y2, self.light, base.true_f)
-	grid.edit_rect(x1, y1, x2, y2, self.memory, base.true_f)
 end
 
 function level:reset_light()
@@ -50,6 +47,11 @@ end
 
 function level:set_light(b)
 	self.light = grid.make_full(function() return b end)
+end
+
+function level:add_denizen(dz)
+	self.denizens[grid.get_idx(dz.x, dz.y)] = dz
+	table.insert(self.denizens_in_order, dz)
 end
 
 function level:kill_denizen(id)
@@ -126,11 +128,6 @@ function level:smash(x, y)
 	else
 		return false
 	end
-end
-
-function level:add_denizen(dz)
-	self.denizens[grid.get_idx(dz.x, dz.y)] = dz
-	table.insert(self.denizens_in_order, dz)
 end
 
 function level.register(lvl)

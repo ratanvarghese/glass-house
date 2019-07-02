@@ -4,7 +4,7 @@ property "base.is_empty: true only if input empty" {
 	generators = { tbl() },
 	check = function(t)
 		local expected = true
-		for k,v in pairs(t) do
+		for k in pairs(t) do
 			expected = false
 			break
 		end

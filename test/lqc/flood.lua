@@ -83,8 +83,7 @@ property "flood.local_min: pick minimum value" {
 	generators = { int(1, grid.MAX_X), int(1, grid.MAX_Y), int(), int(), int(), int() },
 	check = function(x, y, v1, v2, v3, v4)
 		local my_grid = smallGrid(x, y, v1, v2, v3, v4)
-		local res_v = flood.local_min(x, y, my_grid)
-		return res_v == math.min(v1, v2, v3, v4)
+		return flood.local_min(x, y, my_grid) == math.min(v1, v2, v3, v4)
 	end,
 	when_fail = function(x, y, v1, v2, v3, v4)
 		local my_grid = smallGrid(x, y, v1, v2, v3, v4)

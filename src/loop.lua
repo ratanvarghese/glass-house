@@ -19,8 +19,8 @@ function loop.iter(ui)
 		end
 
 		if not level.current.kill_set[denizen] then
-			local i = level.current.denizens[grid.get_idx(denizen.x, denizen.y)]
-			assert(i == denizen, "ID error for denizen\n")
+			local d = level.current.denizens[grid.get_idx(denizen.x, denizen.y)]
+			assert(d == denizen, "ID error for denizen")
 
 			if denizen.kind == enum.monster.player then
 				local c, n = ui.get_input()
