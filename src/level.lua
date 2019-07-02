@@ -19,9 +19,8 @@ function level:paths_to(targ_x, targ_y)
 end
 
 function level:reset_paths()
-	local player = self.denizens[self.player_id]
-	assert(player, "Player not found")
-	self.paths.to_player = self:paths_to(player.x, player.y)
+	local px, py = self:player_xy()
+	self.paths.to_player = self:paths_to(px, py)
 	self.paths.to_stair = self:paths_to(self.stair_x, self.stair_y)
 end
 
@@ -205,6 +204,11 @@ end
 
 function level:denizen_on_terrain(denizen_id, terrain_kind)
 	return (self.terrain[denizen_id].kind == terrain_kind)
+end
+
+function level:player_xy()
+	local p = self.denizens[self.player_id]
+	return p.x, p.y
 end
 
 return level

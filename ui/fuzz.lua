@@ -40,13 +40,13 @@ function ui.get_input()
 		return ui.cmdlist[math.random(1, #ui.cmdlist)], 1
 	end
 
-	local p = level.current.denizens[level.current.player_id]
-	local _, x, y = flood.local_min(p.x, p.y, level.current.paths.to_stair)
-	if x == p.x+1 then
+	local px, py = level.current:player_xy()
+	local _, x, y = flood.local_min(px, py, level.current.paths.to_stair)
+	if x == px+1 then
 		return enum.cmd.east, 1
-	elseif x == p.x-1 then
+	elseif x == px-1 then
 		return enum.cmd.west, 1
-	elseif y == p.y+1 then
+	elseif y == py+1 then
 		return enum.cmd.south, 1
 	else
 		return enum.cmd.north, 1

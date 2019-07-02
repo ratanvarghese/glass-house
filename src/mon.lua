@@ -32,8 +32,8 @@ local function simple_follow(lvl, denizen)
 end
 
 local function warp_follow(lvl, denizen, warp_factor)
-	local p = lvl.denizens[lvl.player_id]
-	local line = grid.line(denizen.x, denizen.y, p.x, p.y)
+	local player_x, player_y = lvl:player_xy()
+	local line = grid.line(denizen.x, denizen.y, player_x, player_y)
 	for line_i=warp_factor,1,-1 do
 		local pt = line[line_i]
 		if pt and lvl:move(denizen, pt.x, pt.y) then
@@ -44,8 +44,8 @@ local function warp_follow(lvl, denizen, warp_factor)
 end
 
 local function smash_follow(lvl, denizen)
-	local p = lvl.denizens[lvl.player_id]
-	local line = grid.line(denizen.x, denizen.y, p.x, p.y)
+	local player_x, player_y = lvl:player_xy()
+	local line = grid.line(denizen.x, denizen.y, player_x, player_y)
 	local dest = line[2]
 	if lvl:smash(dest.x, dest.y) then
 		lvl:move(denizen, dest.x, dest.y)
