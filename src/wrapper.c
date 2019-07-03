@@ -1,5 +1,3 @@
-#include <stdio.h>
-
 #include <lauxlib.h>
 #include <lua.h>
 #include <lualib.h>
@@ -19,6 +17,5 @@ int main(int argc, char** argv) {
 
 	luaL_loadbuffer(L, luaJIT_BC_body, sizeof(luaJIT_BC_body), "glass-house");
 	lua_call(L, 0, 0);
-	lua_close(L);
 	return 0;
 }

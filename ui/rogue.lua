@@ -1,4 +1,4 @@
-local curses = require("curses")
+local ffi = require("ffi")
 
 local grid = require("src.grid")
 local enum = require("src.enum")
@@ -7,30 +7,48 @@ local cmdutil = require("ui.cmdutil")
 
 local ui = {}
 
-local stdscr = false
+ffi.cdef[[
+void* initscr();
+int cbreak();
+int noecho();
+int nonl();
+int clear();
+
+int endwin();
+
+int mvaddstr(int, int, const char*);
+int move(int, int);
+int refresh();
+int getch();
+
+]]
+
+local curses = ffi.load("ncursesw")
 
 function ui.init()
-	stdscr = curses.initscr()
+	curses.initscr()
 	curses.cbreak()
-	curses.echo(false)
-	curses.nl(false)
-	stdscr:clear()
+	curses.noecho()
+	curses.nonl()
+	curses.clear()
 end
 
 ui.shutdown = curses.endwin
 
+local px, py = 0, 0
+
 function ui.draw_level(lvl)
 	local rows = cmdutil.row_strings(cmdutil.symbol_grid(lvl))
 	for y,v in ipairs(rows) do
-		stdscr:mvaddstr(y, 1, v)
+		curses.mvaddstr(y, 1, v)
 	end
-	local px, py = lvl:player_xy()
-	stdscr:move(py, px)
-	stdscr:refresh()
+	px, py = lvl:player_xy()
+	curses.move(py, px)
+	curses.refresh()
 end
 
 local function get_key()
-	return string.char(stdscr:getch())
+	return string.char(curses.getch())
 end
 
 function ui.get_input()
@@ -40,26 +58,25 @@ end
 function ui.draw_paths(lvl, name)
 	local rows = cmdutil.row_strings(cmdutil.paths_grid(lvl, name))
 	for y,v in ipairs(rows) do
-		stdscr:mvaddstr(y + grid.MAX_Y + 1, 1, v)
+		curses.mvaddstr(y + grid.MAX_Y + 1, 1, v)
 	end
-	local px, py = lvl:player_xy()
-	stdscr:move(py, px)
-	stdscr:refresh()
+	px, py = lvl:player_xy()
+	curses.move(py, px)
+	curses.refresh()
 end
 
 function ui.draw_stats(stats)
 	local hp_line = string.format("HP: %2d", stats.hp)
-	local cur_y,cur_x = stdscr:getyx()
-	stdscr:mvaddstr(1, grid.MAX_X + 2, hp_line)
-	stdscr:move(cur_y, cur_x)
-	stdscr:refresh()
+	curses.mvaddstr(1, grid.MAX_X + 2, hp_line)
+	curses.move(py, px)
+	curses.refresh()
 end
 
 function ui.game_over(t)
-	stdscr:clear()
-	stdscr:mvaddstr(10, 10, t.msg)
-	stdscr:mvaddstr(12, 10, "Press any key to exit.")
-	stdscr:refresh()
+	curses.clear()
+	curses.mvaddstr(10, 10, t.msg)
+	curses.mvaddstr(12, 10, "Press any key to exit.")
+	curses.refresh()
 	get_key()
 end
 

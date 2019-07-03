@@ -9,7 +9,7 @@ local ui
 if arg[1] == "--stdio" or arg[1] == "-s" then
 	ui = require("ui.std")
 else
-	ui = require("ui.rogueffi")
+	ui = require("ui.rogue")
 end
 
 math.randomseed(os.time())
