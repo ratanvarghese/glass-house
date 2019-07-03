@@ -1,4 +1,4 @@
-local serpent = require("serpent")
+local serpent = require("lib.serpent")
 
 local file = {}
 

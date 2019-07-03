@@ -4,10 +4,21 @@ Glass House is an unfinished roguelike. Development is still ongoing.
 
 ## Requirements
 
-+ A Lua 5.1 interpreter: [LuaJIT](https://luajit.org) is recommended. Glass House *can* run on the standard Lua 5.1 interpreter, but is very slow. Other versions of Lua are not supported at all.
-+ [Serpent](https://luarocks.org/modules/paulclinger/serpent)
-+ [TermFX](https://luarocks.org/modules/gunnar_z/termfx) (for manual testing)
-+ [Lua Quickcheck](https://luarocks.org/modules/primordus/lua-quickcheck) (for property-based testing)
++ [LuaJIT](https://luajit.org)
+  + the LuaJIT executable is needed for manual testing
+  + the LuaJIT library is needed for building an executable
++ [NCurses](https://invisible-island.net/ncurses/) must be installed on your system
+  + Most modern UNIX-based systems already have it
++ [Lua Quickcheck](https://luarocks.org/modules/primordus/lua-quickcheck) is used for property-based testing
+
+Other dependencies are included within the repository.
+
+Currently all testing is occuring on Linux. Other operating systems are not supported yet. 
+
+## Building Executables
+
+To build an executable, navigate to the root directory and run `sh tools/build.sh`.
+All build products are placed in the `out` directory.
 
 ## Running Tests
 
@@ -26,10 +37,12 @@ Currently only ASCII 'graphics' are supported. The symbols might change in futur
 + ` ` is a dark floor
 + `.` is a lit floor
 + `<` is the staircase to the next level
-+ `A` is a monster
-+ `D` is also a monster
++ letters of the alphabet are monsters
 
 ## Current Features and Controls
+
+The monster species are procedurally generated. However there are only a small number of symbols and
+abilities for the game to pick from at the moment. 
 
 Controls are very likely to change in future commits.
 + Save and quit (`q`)
@@ -50,3 +63,5 @@ There currently isn't any win condition.
 ## License
 
 Glass House is licensed under the GPL. See the `LICENSE` file for details.
+
+This repository also contains the `serpent` library, which is provided under the MIT License. See `lib/serpent.lua` for details.

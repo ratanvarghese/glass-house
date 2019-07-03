@@ -2,3 +2,4 @@
 *.plan*
 *.swp
 .lqc
+out/*
