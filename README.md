@@ -17,7 +17,7 @@ Currently all testing is occuring on Linux. Other operating systems are not supp
 
 ## Building Executables
 
-To build an executable, navigate to the root directory and run `sh tools/build.sh`.
+To build an executable, navigate to the root directory and run `make`.
 All build products are placed in the `out` directory.
 
 ## Running Tests
