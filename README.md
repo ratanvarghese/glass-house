@@ -10,7 +10,6 @@ Glass House is an unfinished roguelike. Development is still ongoing.
 + [NCurses](https://invisible-island.net/ncurses/) must be installed on your system
   + Most modern UNIX-based systems already have it
 + [Lua Quickcheck](https://luarocks.org/modules/primordus/lua-quickcheck) is used for property-based testing
-+ [LuaSrcDiet](https://github.com/jirutka/luasrcdiet) is used to create minified script of Glass House. If you do not need to make such a script, consider setting the Makefile parameters to avoid using LuaSrcDiet.
 
 Other dependencies are included within the repository.
 
@@ -64,4 +63,6 @@ There currently isn't any win condition.
 
 Glass House is licensed under the GPL. See the `LICENSE` file for details.
 
-This repository also contains the `serpent` library, which is provided under the MIT License. See `lib/serpent.lua` for details.
+This repository also contains the following libraries and tools, which are provided under the MIT License. The licenses provided in the authors' repositories were copied to the top of the relevant files.
+ + [Serpent](https://github.com/pkulchenko/serpent), included in `lib/serpent.lua`
+ + [LuaSrcDiet](https://github.com/jirutka/luasrcdiet), included in `tools/diet.lua`

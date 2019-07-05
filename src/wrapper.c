@@ -15,7 +15,7 @@ int main(int argc, char** argv) {
 	}
 	lua_setglobal(L, "arg");
 
-	luaL_loadbuffer(L, luaJIT_BC_body, sizeof(luaJIT_BC_body), "glass-house");
+	luaL_loadstring(L, BUFFER);
 	lua_call(L, 0, 0);
 	return 0;
 }

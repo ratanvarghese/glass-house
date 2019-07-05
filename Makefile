@@ -14,6 +14,12 @@ BODYFILES=lib/*.lua src/*.lua ui/*.lua
 OUTDIR=out
 MKDIR=mkdir -p
 
+#Assembling script
+SHEBANG='\#!/usr/bin/env luajit'
+MINI=$(LJ) tools/diet.lua
+MINIFLAGS=--quiet --maximum -o
+MAKEH=$(LJ) tools/makeh.lua
+
 #Building binary
 CC=cc
 LIBLJ=-lluajit-5.1
@@ -22,13 +28,6 @@ LDLIBS=$(LIBLJ) -ldl -lm
 INCLUDELJ=-I/usr/include/luajit-2.1
 CINCLUDES=$(INCLUDELJ) -Iout
 CFLAGS=-rdynamic $(LDLIBS) $(CINCLUDES)
-
-#Assembling script
-SHEBANG='\#!/usr/bin/env luajit'
-MINI=luasrcdiet
-MINIFLAGS=--quiet --maximum -o
-#MINI=cp #Don't have luasrcdiet, and don't care about minification?
-#MINIFLAGS=
 
 .PHONY: dirs
 
@@ -44,14 +43,14 @@ $(OUTDIR):
 $(OUTDIR)/body.lua: dirs $(BODYFILES)
 	$(COMBINE) $(BODYFILES) > $(OUTDIR)/body.lua
 
-$(OUTDIR)/body.h: dirs $(OUTDIR)/body.lua
-	$(LJ) $(LJFLAGS) $(OUTDIR)/body.lua $(OUTDIR)/body.h
+$(OUTDIR)/mini.lua: dirs $(OUTDIR)/body.lua
+	$(MINI) $(OUTDIR)/body.lua $(MINIFLAGS) $(OUTDIR)/mini.lua
+
+$(OUTDIR)/body.h: dirs $(OUTDIR)/mini.lua
+	$(MAKEH) $(OUTDIR)/mini.lua > $(OUTDIR)/body.h
 
 $(OUTDIR)/$(BINNAME): dirs $(OUTDIR)/body.h
 	$(CC) src/wrapper.c $(CFLAGS) -o $(OUTDIR)/$(BINNAME)
-
-$(OUTDIR)/mini.lua: dirs $(OUTDIR)/body.lua
-	$(MINI) $(OUTDIR)/body.lua $(MINIFLAGS) $(OUTDIR)/mini.lua
 
 $(OUTDIR)/$(SCRIPTNAME): dirs $(OUTDIR)/mini.lua
 	echo $(SHEBANG) > $(OUTDIR)/$(SCRIPTNAME)
