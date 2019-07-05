@@ -6,10 +6,11 @@ Glass House is an unfinished roguelike. Development is still ongoing.
 
 + [LuaJIT](https://luajit.org)
   + the LuaJIT executable is needed for manual testing
-  + the LuaJIT library is needed for building an executable
+  + the LuaJIT library is needed to run a binary version of Glass House
 + [NCurses](https://invisible-island.net/ncurses/) must be installed on your system
   + Most modern UNIX-based systems already have it
 + [Lua Quickcheck](https://luarocks.org/modules/primordus/lua-quickcheck) is used for property-based testing
++ [LuaSrcDiet](https://github.com/jirutka/luasrcdiet) is used to create minified script of Glass House. If you do not need to make such a script, consider setting the Makefile parameters to avoid using LuaSrcDiet.
 
 Other dependencies are included within the repository.
 
@@ -17,8 +18,7 @@ Currently all testing is occuring on Linux. Other operating systems are not supp
 
 ## Building Executables
 
-To build an executable, navigate to the root directory and run `make`.
-All build products are placed in the `out` directory.
+Run `make bin` to make a binary, `make script` to make a minified script, or `make` to make both.
 
 ## Running Tests
 
