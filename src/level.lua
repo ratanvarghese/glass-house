@@ -162,7 +162,7 @@ function level.make(num)
 	res.player_id = grid.get_idx(init_x, init_y)
 	for k in pairs(bestiary.set) do
 		local x, y = init_x, init_y
-		if k ~= "player" then
+		if k ~= enum.monster.player then
 			x, y = grid.rn_xy()
 		end
 		res:add_denizen(bestiary.make(k, x, y))

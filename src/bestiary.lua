@@ -14,13 +14,14 @@ bestiary.names = {
 	"N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
 }
 
-bestiary.set.player = {
+bestiary.set[enum.monster.player] = {
 	kind = enum.monster.player,
 	hp = 1000,
 	inventory = {
 		"lantern"
 	},
-	powers = {}
+	powers = {},
+	name = "player"
 }
 
 function bestiary.make_set()
@@ -31,14 +32,16 @@ function bestiary.make_set()
 		t.powers = base.copy(v)
 		t.kind = enum.new_item(enum.monster, name)
 		t.hp = i * 5
+		t.name = name
 
-		bestiary.set[name] = t
+		bestiary.set[t.kind] = t
 	end
 end
 
-function bestiary.make(name, x, y)
-	local species = bestiary.set[name]
+function bestiary.make(kind, x, y)
+	local species = bestiary.set[kind]
 	local res = {
+		name = species.name,
 		kind = species.kind,
 		hp = species.hp,
 		x = x,
