@@ -51,6 +51,7 @@ $(OUTDIR)/$(SCRIPTNAME): $(OUTDIR)/mini.lua
 
 #Not strictly a build step, so not included in 'all'
 sanity: bin script
+	touch .save.glass
 	mv .save.glass .save.glass.bk
 	echo "q"| $(LJ) src/main.lua -s > $(OUTDIR)/o1.txt
 	cp .save.glass $(OUTDIR)/
