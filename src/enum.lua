@@ -43,6 +43,7 @@ enum.default_inverted = {
 		"heal",
 		"peaceful",
 		"clone",
+		"darkness",
 		"MAX"
 	}
 }

@@ -25,15 +25,22 @@ function level:reset_paths()
 	self.paths.to_stair = self:paths_to(self.stair_x, self.stair_y)
 end
 
-function level:light_area(radius, x, y)
-	if radius then
-		local x1, y1, x2, y2 = x-radius, y-radius, x+radius, y+radius
+function level:light_area(radius, x, y, dark, old_mem)
+	if not radius then return end
+	local x1, y1, x2, y2 = x-radius, y-radius, x+radius, y+radius
+	if dark then
+		grid.edit_rect(x1, y1, x2, y2, self.light, function() end)
+		grid.edit_rect(x1, y1, x2, y2, self.memory, function(x, y, i)
+			return old_mem[i]
+		end)
+	else
 		grid.edit_rect(x1, y1, x2, y2, self.light, base.true_f)
 		grid.edit_rect(x1, y1, x2, y2, self.memory, base.true_f)
 	end
 end
 
 function level:reset_light()
+	local old_mem = base.copy(self.memory)
 	self.light = {}
 	for _,denizen in pairs(self.denizens) do
 		local default = denizen.powers[enum.power.light]
@@ -45,6 +52,10 @@ function level:reset_light()
 		local radius = tool.light_from_list(pile)
 		self:light_area(radius, x, y)
 	end)
+	for _,denizen in pairs(self.denizens) do
+		local radius = denizen.powers[enum.power.darkness]
+		self:light_area(radius, denizen.x, denizen.y, true, old_mem)
+	end
 end
 
 function level:set_light(b)
