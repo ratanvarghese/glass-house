@@ -11,6 +11,7 @@ local loop = {}
 function loop.iter(ui)
 	local old_level = level.current
 	local old_stats = nil
+	level.current:check_adds()
 	for _, denizen in ipairs(level.current.denizens_in_order) do
 		ui.draw_level(level.current)
 
@@ -19,7 +20,7 @@ function loop.iter(ui)
 			ui.draw_stats(new_stats)
 		end
 
-		if not level.current.kill_set[denizen] then
+		if not level.current.kill_set[denizen] and not level.current.add_set[denizen] then
 			local d = level.current.denizens[grid.get_idx(denizen.x, denizen.y)]
 			assert(d == denizen, "ID error for denizen")
 

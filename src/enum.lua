@@ -42,6 +42,7 @@ enum.default_inverted = {
 		"vampiric",
 		"heal",
 		"peaceful",
+		"clone",
 		"MAX"
 	}
 }

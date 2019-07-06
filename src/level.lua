@@ -10,6 +10,7 @@ local bestiary = require("src.bestiary")
 local level = {}
 
 function level:walkable(x, y, i)
+	local i = i or grid.get_idx(x, y)
 	return (not self.denizens[i]) and (self.terrain[i].kind == enum.terrain.floor)
 end
 
@@ -51,8 +52,7 @@ function level:set_light(b)
 end
 
 function level:add_denizen(dz)
-	self.denizens[grid.get_idx(dz.x, dz.y)] = dz
-	table.insert(self.denizens_in_order, dz)
+	self.add_set[dz] = true
 end
 
 function level:kill_denizen(id)
@@ -79,6 +79,21 @@ function level:check_kills()
 		end
 	end
 	self.kill_set = {}
+end
+
+function level:check_adds()
+	for dz in pairs(self.add_set) do
+		if self:walkable(dz.x, dz.y) then
+			local i = grid.get_idx(dz.x, dz.y)
+			self.denizens[i] = dz
+			if i == self.player_id then
+				table.insert(self.denizens_in_order, 1, dz)
+			else
+				table.insert(self.denizens_in_order, dz)
+			end
+		end
+	end
+	self.add_set = {}
 end
 
 function level:move(denizen, new_x, new_y)
@@ -133,6 +148,7 @@ function level.make(num)
 		memory = {},
 		paths = {},
 		kill_set = {},
+		add_set = {},
 		tool_piles = {},
 		num = num,
 		game_over = false
@@ -156,6 +172,7 @@ function level.make(num)
 		end
 		res:add_denizen(bestiary.make(k, x, y))
 	end
+	res:check_adds()
 
 	res:reset_light()
 	res:reset_paths()

@@ -4,6 +4,7 @@ local flood = require("src.flood")
 local level = require("src.level")
 local tool = require("src.tool")
 local time = require("src.time")
+local bestiary = require("src.bestiary")
 
 local mon = {}
 
@@ -112,10 +113,32 @@ local function smash_follow(lvl, denizen)
 	end
 end
 
+local function clone_follow(lvl, denizen, clone_factor)
+	local player_x, player_y = lvl:player_xy()
+	local line = grid.line(denizen.x, denizen.y, player_x, player_y)
+	if #line > clone_factor or #line <= 2 or denizen.hp < 2 then
+		simple_follow(lvl, denizen)
+		return
+	end
+	local _, x, y = flood.local_min(denizen.x, denizen.y, lvl.paths.to_player)
+	if denizen.x == x and denizen.y == y then
+		time.spend_move(denizen.clock)
+		return
+	end
+	local clone = bestiary.make(denizen.kind, x, y)
+	clone.hp = math.floor(denizen.hp / 2)
+	denizen.hp = math.floor(denizen.hp / 2)
+	lvl:add_denizen(clone)
+	time.spend_move(denizen.clock)
+end
+
 function mon.follow_player(lvl, denizen)
 	local warp_factor = denizen.powers[enum.power.warp]
+	local clone_factor = denizen.powers[enum.power.clone]
 	if warp_factor then
 		warp_follow(lvl, denizen, warp_factor)
+	elseif clone_factor then
+		clone_follow(lvl, denizen, clone_factor)
 	elseif denizen.powers[enum.power.smash] then
 		smash_follow(lvl, denizen)	
 	else
