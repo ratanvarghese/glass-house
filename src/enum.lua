@@ -41,6 +41,7 @@ enum.default_inverted = {
 		"punch_strength",
 		"vampiric",
 		"heal",
+		"peaceful",
 		"MAX"
 	}
 }

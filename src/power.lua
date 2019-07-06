@@ -15,7 +15,8 @@ table.insert(power.define, {
 
 table.insert(power.define, {
 	{kind = enum.power.warp, min = 2, max = 10, versions = 3},
-	{kind = enum.power.smash}
+	{kind = enum.power.smash},
+	{kind = enum.power.peaceful}
 })
 
 table.insert(power.define, {

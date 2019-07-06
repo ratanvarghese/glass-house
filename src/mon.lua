@@ -8,7 +8,7 @@ local time = require("src.time")
 local mon = {}
 
 function mon.act(lvl, denizen)
-	if lvl.light[lvl.player_id] then
+	if lvl.light[lvl.player_id] and not denizen.powers[enum.power.peaceful] then
 		mon.follow_player(lvl, denizen)
 	else
 		mon.wander(lvl, denizen)
