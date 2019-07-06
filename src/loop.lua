@@ -1,6 +1,7 @@
 local base = require("src.base")
 local enum = require("src.enum")
 local grid = require("src.grid")
+local time = require("src.time")
 local player = require("src.player")
 local level = require("src.level")
 local mon = require("src.mon")
@@ -22,13 +23,15 @@ function loop.iter(ui)
 			local d = level.current.denizens[grid.get_idx(denizen.x, denizen.y)]
 			assert(d == denizen, "ID error for denizen")
 
-			if denizen.kind == enum.monster.player then
-				local c, n = ui.get_input()
-				if not player.handle_input(level.current, c, n) then
-					return false
+			if time.earn_credit(denizen.clock) then
+				if denizen.kind == enum.monster.player then
+					local c, n = ui.get_input()
+					if not player.handle_input(level.current, c, n) then
+						return false
+					end
+				else
+					mon.act(level.current, denizen)
 				end
-			else
-				mon.act(level.current, denizen)
 			end
 		end
 

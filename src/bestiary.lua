@@ -23,7 +23,7 @@ bestiary.set[enum.monster.player] = {
 	},
 	powers = {},
 	name = "player",
-	clock = time.make_actor(time.scale.PLAYER)
+	clock = time.make_clock(time.scale.PLAYER)
 }
 
 function bestiary.make_set()
@@ -35,7 +35,7 @@ function bestiary.make_set()
 		t.kind = enum.new_item(enum.monster, name)
 		t.hp = i * 5
 		t.name = name
-		t.clock = time.make_actor()
+		t.clock = time.make_clock()
 
 		if t.powers[enum.power.kick] then
 			t.powers[enum.power.kick_strength] = math.random(1, i*3)

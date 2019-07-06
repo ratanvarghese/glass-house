@@ -18,18 +18,18 @@ local function get_speed()
 	end
 end
 
-function time.make_actor(n)
+function time.make_clock(n)
 	local n = n or get_speed()
 	return {speed = n, move_credit = 0}
 end
 
-function time.earn_credit(actor)
-	actor.move_credit = actor.move_credit + actor.speed
-	return actor.move_credit > 0
+function time.earn_credit(clock)
+	clock.move_credit = clock.move_credit + clock.speed
+	return clock.move_credit > 0
 end
 
-function time.spend_move(actor)
-	actor.move_credit = actor.move_credit - time.scale.MOVE_COST
+function time.spend_move(clock)
+	clock.move_credit = clock.move_credit - time.scale.MOVE_COST
 end
 
 return time

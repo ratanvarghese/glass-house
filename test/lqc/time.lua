@@ -9,11 +9,11 @@ property "time.*: expected move speed" {
 	check = function(s1, iters, cost)
 		local old_cost = time.scale.MOVE_COST
 		time.scale.MOVE_COST = cost
-		local actor = time.make_actor(s1)
+		local clock = time.make_clock(s1)
 		local moves = 0
 		for i=1,iters do
-			if time.earn_credit(actor) then
-				time.spend_move(actor)
+			if time.earn_credit(clock) then
+				time.spend_move(clock)
 				moves = moves + 1
 			end
 		end
@@ -24,19 +24,19 @@ property "time.*: expected move speed" {
 		print("---------------")
 		local old_cost = time.scale.MOVE_COST
 		time.scale.MOVE_COST = cost
-		local actor = time.make_actor(s1)
+		local clock = time.make_clock(s1)
 		local moves = 0
 		for i=1,iters do
 			io.write("i = ", i, ":\t")
-			io.write("credit = ", actor.move_credit, "\t")
-			if time.earn_credit(actor) then
+			io.write("credit = ", clock.move_credit, "\t")
+			if time.earn_credit(clock) then
 				io.write("\tm\t")
-				time.spend_move(actor)
+				time.spend_move(clock)
 				moves = moves + 1
 			else
 				io.write("\t\t")
 			end
-			io.write("credit = ", actor.move_credit, "\n")
+			io.write("credit = ", clock.move_credit, "\n")
 		end
 		time.scale.MOVE_COST = old_cost
 		print("speed:", s1)
@@ -53,7 +53,7 @@ local function make_freq(count)
 		freq[i] = 0
 	end
 	for i=1,count do
-		local s = time.make_actor().speed
+		local s = time.make_clock().speed
 		freq[s] = freq[s] + 1
 	end
 	return freq
@@ -63,28 +63,28 @@ end
 	It's okay if these distribution tests sometimes fail.
 	However it should be a minority of cases.
 --]]
-property "time.make_actor (distribution): immobiles exist" {
+property "time.make_clock (distribution): immobiles exist" {
 	generators = {},
 	check = function()
 		return make_freq(100)[0] > 0
 	end
 }
 
-property "time.make_actor (distribution): max speeds exist" {
+property "time.make_clock (distribution): max speeds exist" {
 	generators = {},
 	check = function()
 		return make_freq(100)[time.scale.MAX] > 0
 	end
 }
 
-property "time.make_actor (distribution): player speeds exist" {
+property "time.make_clock (distribution): player speeds exist" {
 	generators = {},
 	check = function()
 		return make_freq(100)[time.scale.PLAYER] > 0
 	end
 }
 
-property "time.make_actor (distribution): middling speeds dominate" {
+property "time.make_clock (distribution): middling speeds dominate" {
 	generators = {},
 	check = function()
 		local freq = make_freq(100)
