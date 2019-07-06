@@ -22,7 +22,7 @@ function player.try_move(lvl, p, d)
 		mon.pickup_all_tools(lvl.tool_piles, p)
 		player.climb_stairs(lvl)
 	else
-		lvl:bump_hit(p, nx, ny, 1)
+		mon.bump_hit(lvl, p, nx, ny)
 	end
 end
 

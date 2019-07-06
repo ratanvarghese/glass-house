@@ -24,10 +24,32 @@ function mon.wander(lvl, denizen)
 	end
 end
 
+function mon.bump_hit(lvl, source, targ_x, targ_y)
+	local targ_id = grid.get_idx(targ_x, targ_y)
+	local targ = lvl.denizens[targ_id]
+	if not targ then
+		return false
+	end
+
+	local damage = 1
+	if source.kind == enum.monster.player then
+		damage = 2
+	end
+
+	targ.hp = targ.hp - damage
+	if targ.hp <= 0 then
+		lvl:kill_denizen(targ_id)
+	end
+	if source.powers[enum.power.vampiric] then
+		source.hp = math.min(source.hp + damage, source.max_hp)
+	end
+	return true
+end
+
 local function simple_follow(lvl, denizen)
 	local _, x, y = flood.local_min(denizen.x, denizen.y, lvl.paths.to_player)
 	if (denizen.x ~= x or denizen.y ~= y) and not lvl:move(denizen, x, y) then
-		lvl:bump_hit(denizen, x, y, 1)
+		mon.bump_hit(lvl, denizen, x, y)
 	end
 end
 

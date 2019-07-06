@@ -80,22 +80,6 @@ function level:check_kills()
 	self.kill_set = {}
 end
 
-function level:bump_hit(source, targ_x, targ_y, damage)
-	local targ_id = grid.get_idx(targ_x, targ_y)
-	local targ = self.denizens[targ_id]
-	if not targ then
-		return false
-	end
-	targ.hp = targ.hp - damage
-	if targ.hp <= 0 then
-		self:kill_denizen(targ_id)
-	end
-	if source.powers[enum.power.vampiric] then
-		source.hp = math.min(source.hp + damage, source.max_hp)
-	end
-	return true
-end
-
 function level:move(denizen, new_x, new_y)
 	local old_id = grid.get_idx(denizen.x, denizen.y)
 	local new_id = grid.get_idx(new_x, new_y)
