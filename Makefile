@@ -51,6 +51,7 @@ $(OUTDIR)/$(SCRIPTNAME): $(OUTDIR)/mini.lua
 
 #Not strictly a build step, so not included in 'all'
 sanity: bin script
+	mv .save.glass .save.glass.bk
 	echo "q"| $(LJ) src/main.lua -s > $(OUTDIR)/o1.txt
 	cp .save.glass $(OUTDIR)/
 	cd $(OUTDIR); \
@@ -58,6 +59,8 @@ sanity: bin script
 	echo "q" | ./$(SCRIPTNAME) -s > o3.txt
 	diff $(OUTDIR)/o1.txt $(OUTDIR)/o2.txt
 	diff $(OUTDIR)/o1.txt $(OUTDIR)/o3.txt
+	rm .save.glass
+	mv .save.glass.bk .save.glass
 
 clean:
 	rm -rf $(OUTDIR)/*
