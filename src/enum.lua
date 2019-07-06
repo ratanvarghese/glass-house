@@ -37,6 +37,7 @@ enum.default_inverted = {
 		"tool",
 		"kick",
 		"punch",
+		"vampiric",
 		"MAX"
 	}
 }

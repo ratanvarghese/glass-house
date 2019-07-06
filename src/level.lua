@@ -90,6 +90,9 @@ function level:bump_hit(source, targ_x, targ_y, damage)
 	if targ.hp <= 0 then
 		self:kill_denizen(targ_id)
 	end
+	if source.powers[enum.power.vampiric] then
+		source.hp = source.hp + damage
+	end
 	return true
 end
 

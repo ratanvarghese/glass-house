@@ -9,6 +9,7 @@ power.define = {}
 
 table.insert(power.define, {
 	{kind = enum.power.light, min = 2, max = 5, versions = 2},
+	{kind = enum.power.vampiric}
 })
 
 table.insert(power.define, {
