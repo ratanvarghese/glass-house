@@ -32,8 +32,15 @@ function bestiary.make_set()
 		t.powers = base.copy(v)
 		t.kind = enum.new_item(enum.monster, name)
 		t.hp = i * 5
-		t.max_hp = t.hp
 		t.name = name
+
+		if t.powers[enum.power.kick] then
+			t.powers[enum.power.kick_strength] = math.random(1, i*3)
+		end
+
+		if t.powers[enum.power.punch] then
+			t.powers[enum.power.punch_strength] = math.random(1, i)
+		end
 
 		bestiary.set[t.kind] = t
 	end
@@ -45,7 +52,7 @@ function bestiary.make(kind, x, y)
 		name = species.name,
 		kind = species.kind,
 		hp = species.hp,
-		max_hp = species.max_hp,
+		max_hp = species.hp,
 		x = x,
 		y = y,
 		inventory = {},

@@ -24,6 +24,37 @@ function mon.wander(lvl, denizen)
 	end
 end
 
+local function calc_damage(source)
+	local possible_damage = {1}
+	if source.kind == enum.monster.player then
+		table.insert(possible_damage, 2)
+	end
+	if source.powers[enum.power.kick] then
+		table.insert(possible_damage, source.powers[enum.power.kick_strength])
+	end
+	if source.powers[enum.power.punch] then
+		table.insert(possible_damage, source.powers[enum.power.punch_strength])
+	end
+	return math.max(unpack(possible_damage))
+end
+
+
+local function calc_hits(source)
+	local possible_hits = {1}
+	table.insert(possible_hits, source.powers[enum.power.kick])
+	table.insert(possible_hits, source.powers[enum.power.punch])
+	return math.max(unpack(possible_hits))
+end
+
+function mon.hit_or_heal(targ, damage)
+	local old_hp = targ.hp
+	local new_hp = targ.hp - damage
+	if new_hp < 0 then new_hp = 0 end
+	if new_hp > targ.max_hp then new_hp = targ.max_hp end
+	targ.hp = new_hp
+	return math.abs(old_hp - new_hp)
+end
+
 function mon.bump_hit(lvl, source, targ_x, targ_y)
 	local targ_id = grid.get_idx(targ_x, targ_y)
 	local targ = lvl.denizens[targ_id]
@@ -31,17 +62,17 @@ function mon.bump_hit(lvl, source, targ_x, targ_y)
 		return false
 	end
 
-	local damage = 1
-	if source.kind == enum.monster.player then
-		damage = 2
-	end
-
-	targ.hp = targ.hp - damage
-	if targ.hp <= 0 then
-		lvl:kill_denizen(targ_id)
-	end
-	if source.powers[enum.power.vampiric] then
-		source.hp = math.min(source.hp + damage, source.max_hp)
+	local predicted = calc_damage(source)
+	local hits = calc_hits(source)
+	for i=1,hits do
+		local actual = mon.hit_or_heal(targ, predicted)
+		if source.powers[enum.power.vampiric] then
+			mon.hit_or_heal(source, -actual)
+		end
+		if targ.hp <= 0 then
+			lvl:kill_denizen(targ_id)
+			break
+		end
 	end
 	return true
 end
@@ -56,7 +87,7 @@ end
 local function warp_follow(lvl, denizen, warp_factor)
 	local player_x, player_y = lvl:player_xy()
 	local line = grid.line(denizen.x, denizen.y, player_x, player_y)
-	for line_i=warp_factor,1,-1 do
+	for line_i=warp_factor,2,-1 do
 		local pt = line[line_i]
 		if pt and lvl:move(denizen, pt.x, pt.y) then
 			return
