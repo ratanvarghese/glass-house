@@ -66,7 +66,7 @@ function ui.draw_paths(lvl, name)
 end
 
 function ui.draw_stats(stats)
-	local hp_line = string.format("HP: %2d", stats.hp)
+	local hp_line = string.format("HP: %4d", stats.hp)
 	curses.mvaddstr(1, grid.MAX_X + 2, hp_line)
 	curses.move(py, px)
 	curses.refresh()
