@@ -3,6 +3,7 @@ local enum = require("src.enum")
 local flood = require("src.flood")
 local level = require("src.level")
 local tool = require("src.tool")
+local time = require("src.time")
 
 local mon = {}
 
@@ -58,6 +59,7 @@ end
 function mon.bump_hit(lvl, source, targ_x, targ_y)
 	local targ_id = grid.get_idx(targ_x, targ_y)
 	local targ = lvl.denizens[targ_id]
+	time.spend_move(source.clock) --Regardless of whether or not there's a target!
 	if not targ then
 		return false
 	end
@@ -128,6 +130,7 @@ function mon.drop_tool(pile_array, denizen, tool_idx)
 
 	local tool_to_drop = table.remove(denizen.inventory, tool_idx)
 	tool.drop_onto_array(pile_array, tool_to_drop, denizen.x, denizen.y)
+	time.spend_move(denizen.clock)
 	return true
 end
 
@@ -143,13 +146,18 @@ function mon.pickup_tool(pile_array, denizen, tool_idx)
 	else
 		denizen.inventory = {targ_tool}
 	end
+	time.spend_move(denizen.clock)
 	return true
 end
 
 function mon.pickup_all_tools(pile_array, denizen)
-	local pile = tool.pickup_all_from_array(pile_array, denizen.x, denizen.y)
-	for i,v in ipairs(pile or {}) do
+	local pile = tool.pickup_all_from_array(pile_array, denizen.x, denizen.y) or {}
+	local n = #pile
+	for i,v in ipairs(pile) do
 		table.insert(denizen.inventory, v)
+	end
+	if n > 0 then
+		time.spend_move(denizen.clock)
 	end
 end
 

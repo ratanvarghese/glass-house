@@ -1,6 +1,7 @@
 local base = require("src.base")
 local enum = require("src.enum")
 local grid = require("src.grid")
+local time = require("src.time")
 local gen = require("src.gen")
 local tool = require("src.tool")
 local flood = require("src.flood")
@@ -104,6 +105,7 @@ function level:move(denizen, new_x, new_y)
 		self.player_id = new_id
 	end
 	self:reset_paths()
+	time.spend_move(denizen.clock)
 	return true
 end
 

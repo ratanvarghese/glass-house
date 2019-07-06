@@ -1,5 +1,6 @@
 local base = require("src.base")
 local enum = require("src.enum")
+local time = require("src.time")
 local tool = require("src.tool")
 local power = require("src.power")
 
@@ -21,7 +22,8 @@ bestiary.set[enum.monster.player] = {
 		"lantern"
 	},
 	powers = {},
-	name = "player"
+	name = "player",
+	clock = time.make_actor(time.scale.PLAYER)
 }
 
 function bestiary.make_set()
@@ -33,6 +35,7 @@ function bestiary.make_set()
 		t.kind = enum.new_item(enum.monster, name)
 		t.hp = i * 5
 		t.name = name
+		t.clock = time.make_actor()
 
 		if t.powers[enum.power.kick] then
 			t.powers[enum.power.kick_strength] = math.random(1, i*3)
@@ -56,7 +59,8 @@ function bestiary.make(kind, x, y)
 		x = x,
 		y = y,
 		inventory = {},
-		powers = base.copy(species.powers)
+		powers = base.copy(species.powers),
+		clock = base.copy(species.clock)
 	}
 	if species.inventory then
 		for i,v in ipairs(species.inventory) do
