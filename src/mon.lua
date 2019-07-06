@@ -52,7 +52,7 @@ function mon.hit_or_heal(targ, damage)
 	if new_hp < 0 then new_hp = 0 end
 	if new_hp > targ.max_hp then new_hp = targ.max_hp end
 	targ.hp = new_hp
-	return math.abs(old_hp - new_hp)
+	return old_hp - new_hp
 end
 
 function mon.bump_hit(lvl, source, targ_x, targ_y)
@@ -63,6 +63,9 @@ function mon.bump_hit(lvl, source, targ_x, targ_y)
 	end
 
 	local predicted = calc_damage(source)
+	if source.powers[enum.power.heal] then
+		predicted = -predicted
+	end
 	local hits = calc_hits(source)
 	for i=1,hits do
 		local actual = mon.hit_or_heal(targ, predicted)
