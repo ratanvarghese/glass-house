@@ -1,4 +1,4 @@
-local serpent = require("serpent")
+local serpent = require("lib.serpent")
 
 local conf_i = 0
 local conf_arg = arg[conf_i + 1]
