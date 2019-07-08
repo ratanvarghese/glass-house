@@ -113,10 +113,24 @@ local function smash_follow(lvl, denizen)
 	end
 end
 
-local function clone_follow(lvl, denizen, clone_factor)
+local function do_clone(lvl, denizen, x, y)
+	local clone = bestiary.make(denizen.kind, x, y)
+	clone.hp = math.floor(denizen.hp / 2)
+	denizen.hp = math.floor(denizen.hp / 2)
+	lvl:add_denizen(clone)
+	time.spend_move(denizen.clock)
+end
+
+local function do_summon(lvl, denizen, x, y)
+	local kind = enum.rn_item(enum.monster, true)
+	lvl:add_denizen(bestiary.make(kind, x, y))
+	time.spend_move(denizen.clock)
+end
+
+local function spawn_follow(lvl, denizen, factor, clone)
 	local player_x, player_y = lvl:player_xy()
 	local line = grid.line(denizen.x, denizen.y, player_x, player_y)
-	if #line > clone_factor or #line <= 2 or denizen.hp < 2 then
+	if #line > factor or #line <= 2 or (clone and denizen.hp < 2) then
 		simple_follow(lvl, denizen)
 		return
 	end
@@ -125,20 +139,23 @@ local function clone_follow(lvl, denizen, clone_factor)
 		time.spend_move(denizen.clock)
 		return
 	end
-	local clone = bestiary.make(denizen.kind, x, y)
-	clone.hp = math.floor(denizen.hp / 2)
-	denizen.hp = math.floor(denizen.hp / 2)
-	lvl:add_denizen(clone)
-	time.spend_move(denizen.clock)
+	if clone then
+		do_clone(lvl, denizen, x, y)
+	else
+		do_summon(lvl, denizen, x, y)
+	end
 end
 
 function mon.follow_player(lvl, denizen)
 	local warp_factor = denizen.powers[enum.power.warp]
 	local clone_factor = denizen.powers[enum.power.clone]
+	local summon_factor = denizen.powers[enum.power.summon]
 	if warp_factor then
 		warp_follow(lvl, denizen, warp_factor)
 	elseif clone_factor then
-		clone_follow(lvl, denizen, clone_factor)
+		spawn_follow(lvl, denizen, clone_factor, true)
+	elseif summon_factor then
+		spawn_follow(lvl, denizen, summon_factor, false)
 	elseif denizen.powers[enum.power.smash] then
 		smash_follow(lvl, denizen)	
 	else
