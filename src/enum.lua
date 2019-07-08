@@ -45,6 +45,11 @@ enum.default_inverted = {
 		"clone",
 		"darkness",
 		"summon",
+		"slow",
+		"MAX"
+	},
+	countdowns = {
+		"slow",
 		"MAX"
 	}
 }

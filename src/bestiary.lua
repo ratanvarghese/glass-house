@@ -60,7 +60,8 @@ function bestiary.make(kind, x, y)
 		y = y,
 		inventory = {},
 		powers = base.copy(species.powers),
-		clock = base.copy(species.clock)
+		clock = base.copy(species.clock),
+		countdowns = {}
 	}
 	if species.inventory then
 		for i,v in ipairs(species.inventory) do

@@ -24,7 +24,8 @@ function loop.iter(ui)
 			local d = level.current.denizens[grid.get_idx(denizen.x, denizen.y)]
 			assert(d == denizen, "ID error for denizen")
 
-			if time.earn_credit(denizen.clock) then
+			local is_slow = denizen.countdowns[enum.countdowns.slow]
+			if time.earn_credit(denizen.clock, is_slow) then
 				if denizen.kind == enum.monster.player then
 					local c, n = ui.get_input()
 					if not player.handle_input(level.current, c, n) then
@@ -34,6 +35,7 @@ function loop.iter(ui)
 					mon.act(level.current, denizen)
 				end
 			end
+			mon.update_countdowns(denizen)
 		end
 
 		if level.current.game_over then

@@ -8,7 +8,31 @@ local bestiary = require("src.bestiary")
 
 local mon = {}
 
+function mon.update_countdowns(denizen)
+	local nc = {}
+	for k,v in pairs(denizen.countdowns) do
+		if v > 1 then
+			nc[k] = v - 1
+		end
+	end
+	denizen.countdowns = nc
+end
+
 function mon.act(lvl, denizen)
+	local slow_factor = denizen.powers[enum.power.slow]
+	if slow_factor then
+		local x1 = denizen.x - slow_factor
+		local x2 = denizen.x + slow_factor
+		local y1 = denizen.y - slow_factor
+		local y2 = denizen.y + slow_factor
+		grid.make_rect(x1, y1, x2, y2, function(x, y, i)
+			local dz = lvl.denizens[i]
+			if not dz then return end
+			if dz.powers[enum.power.slow] then return end
+			dz.countdowns[enum.countdowns.slow] = 2
+		end)
+	end
+
 	if lvl.light[lvl.player_id] and not denizen.powers[enum.power.peaceful] then
 		mon.follow_player(lvl, denizen)
 	else
