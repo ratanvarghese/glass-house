@@ -48,7 +48,7 @@ enum.default_inverted = {
 		"slow",
 		"MAX"
 	},
-	countdowns = {
+	countdown = {
 		"slow",
 		"MAX"
 	}

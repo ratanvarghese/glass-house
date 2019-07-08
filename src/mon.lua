@@ -29,7 +29,7 @@ function mon.act(lvl, denizen)
 			local dz = lvl.denizens[i]
 			if not dz then return end
 			if dz.powers[enum.power.slow] then return end
-			dz.countdowns[enum.countdowns.slow] = 2
+			dz.countdowns[enum.countdown.slow] = 2
 		end)
 	end
 
