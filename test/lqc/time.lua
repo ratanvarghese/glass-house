@@ -47,6 +47,63 @@ property "time.*: expected move speed" {
 	end
 }
 
+property "time.*: expected move speed when slow" {
+	generators = {
+		int(0, time.scale.MAX),
+		int(1, time.scale.MAX*4),
+		int(1, time.scale.MAX),
+		int(1, time.scale.MAX)
+	},
+	check = function(s1, iters, cost, slow_factor)
+		local old_slow = time.scale.SLOW_FACTOR
+		time.scale.SLOW_FACTOR = slow_factor
+		local old_cost = time.scale.MOVE_COST
+		time.scale.MOVE_COST = cost
+		local clock = time.make_clock(s1)
+		local moves = 0
+		for i=1,iters do
+			if time.earn_credit(clock, true) then
+				time.spend_move(clock)
+				moves = moves + 1
+			end
+		end
+		time.scale.MOVE_COST = old_cost
+		time.scale.SLOW_FACTOR = old_slow
+		local n_speed = math.ceil(s1/slow_factor)
+		return moves == math.min(iters, math.ceil((n_speed/cost)*iters))
+	end,
+	when_fail = function(s1, iters, cost, slow_factor)
+		print("---------------")
+		local old_slow = time.scale.SLOW_FACTOR
+		time.scale.SLOW_FACTOR = slow_factor
+		local old_cost = time.scale.MOVE_COST
+		time.scale.MOVE_COST = cost
+		local clock = time.make_clock(s1)
+		local moves = 0
+		for i=1,iters do
+			io.write("i = ", i, ":\t")
+			io.write("credit = ", clock.move_credit, "\t")
+			if time.earn_credit(clock, true) then
+				io.write("\tm\t")
+				time.spend_move(clock)
+				moves = moves + 1
+			else
+				io.write("\t\t")
+			end
+			io.write("credit = ", clock.move_credit, "\n")
+		end
+		time.scale.MOVE_COST = old_cost
+		time.scale.SLOW_FACTOR = old_slow
+		print("speed:", s1)
+		print("iters:", iters)
+		print("cost:", cost)
+		print("slow:", slow_factor)
+		print("actual moves:", moves)
+		local n_speed = math.ceil(s1/slow_factor)
+		print("predicted moves:", math.min(iters, math.ceil((n_speed/cost)*iters)))
+	end
+}
+
 local function make_freq(count)
 	local freq = {}
 	for i=0,time.scale.MAX do
