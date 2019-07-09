@@ -99,6 +99,14 @@ function mon.bump_hit(lvl, source, targ_x, targ_y)
 		end
 	end
 
+	if source.powers[enum.power.steal] and #targ.inventory > 0 then
+		local stolen_idx = math.random(1, #targ.inventory)
+		local stolen = table.remove(targ.inventory, stolen_idx)
+		table.insert(source.inventory, stolen)
+		lvl:reset_light()
+		return false		
+	end
+
 	local source_id = grid.get_idx(source.x, source.y)
 	if targ.powers[enum.power.displace] or source.powers[enum.power.displace] then
 		assert(lvl.denizens[source_id] == source, "couldn't find source on level")

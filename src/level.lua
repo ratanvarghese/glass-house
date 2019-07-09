@@ -101,6 +101,12 @@ function level:kill_denizen(id)
 		local victim = self.denizens[id]
 		self.kill_set[victim] = true --Remove from denizens_in_order later
 		self.denizens[id] = nil
+
+		local drop_pile = self.tool_piles[id] or {}
+		for i,v in pairs(victim.inventory) do
+			table.insert(drop_pile, v)
+		end
+		self.tool_piles[id] = drop_pile
 	end
 	self:reset_light()
 	self:reset_paths()
