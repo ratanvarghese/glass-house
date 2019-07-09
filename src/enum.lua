@@ -47,6 +47,7 @@ enum.default_inverted = {
 		"summon",
 		"slow",
 		"sticky",
+		"displace",
 		"MAX"
 	},
 	countdown = {

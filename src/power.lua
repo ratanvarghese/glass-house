@@ -14,6 +14,7 @@ table.insert(power.define, {
 	{kind = enum.power.heal},
 	{kind = enum.power.slow, min = 2, max = 5, versions = 1},
 	{kind = enum.power.sticky},
+	{kind = enum.power.displace}
 })
 
 table.insert(power.define, {
