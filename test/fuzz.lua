@@ -22,7 +22,16 @@ function ui.draw_level(lvl)
 	ui.screen = cmdutil.symbol_grid(lvl)
 
 	local player_s = ui.screen[lvl.player_id]
-	assert(player_s == cmdutil.symbols.monster.player, "Can't find player")
+	local bad_symbols = {
+		[cmdutil.symbols.dark] = true,
+		[cmdutil.symbols.err] = true,
+		[cmdutil.symbols.terrain.floor] = true,
+		[cmdutil.symbols.terrain.wall] = true,
+		[cmdutil.symbols.terrain.tough_wall] = true,
+		[cmdutil.symbols.terrain.stair] = true,
+		[cmdutil.symbols.tool.lantern] = true,
+	}
+	assert(not bad_symbols[player_s], "Can't find player") --Player can be bodysnatched
 
 	grid.make_full(function(x, y, i)
 		local ne = ui.screen[i] ~= cmdutil.symbols.err

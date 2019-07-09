@@ -99,8 +99,8 @@ function mon.bump_hit(lvl, source, targ_x, targ_y)
 		end
 	end
 
+	local source_id = grid.get_idx(source.x, source.y)
 	if targ.powers[enum.power.displace] or source.powers[enum.power.displace] then
-		local source_id = grid.get_idx(source.x, source.y)
 		assert(lvl.denizens[source_id] == source, "couldn't find source on level")
 		assert(lvl.denizens[targ_id] == targ, "couldn't find targ on level")
 		targ.x, source.x = source.x, targ.x
@@ -113,6 +113,17 @@ function mon.bump_hit(lvl, source, targ_x, targ_y)
 			lvl.player_id = source_id
 		end
 		return false
+	end
+
+	if source.powers[enum.power.bodysnatch] then
+		if targ_id == lvl.player_id then 
+			lvl.player_id = source_id
+			return false
+		end
+		if source_id == lvl.player_id then
+			lvl.player_id = targ_id
+			return false
+		end
 	end
 
 	local predicted = calc_damage(source)
