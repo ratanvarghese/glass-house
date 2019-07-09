@@ -12,6 +12,11 @@ else
 	ui = require("ui.rogue")
 end
 
+local BIG = false
+if arg[1] == "--big" or arg[1] == "-b" then
+	BIG = true
+end
+
 math.randomseed(os.time())
 
 local state = file.load()
@@ -22,7 +27,7 @@ if state then
 	level.register(level.current)
 else
 	bestiary.make_set()
-	level.current = level.make(1)
+	level.current = level.make(1, BIG)
 end
 
 ui.init()

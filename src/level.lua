@@ -187,7 +187,7 @@ function level.register(lvl)
 	setmetatable(lvl, mt)
 end
 
-function level.make(num)
+function level.make(num, big_room)
 	local res = {
 		light = {},
 		terrain = {},
@@ -203,7 +203,8 @@ function level.make(num)
 	}
 	level.register(res)
 
-	local terrain, init_x, init_y = gen.cave(res)
+	local gen_f = big_room and gen.big_room or gen.cave
+	local terrain, init_x, init_y = gen_f()
 	res.terrain = terrain
 
 	local _, stair_x, stair_y = flood.search(init_x, init_y, nil, function(x, y, i)
