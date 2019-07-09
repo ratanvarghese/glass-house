@@ -20,9 +20,35 @@ function level:paths_to(targ_x, targ_y)
 	end))
 end
 
+function level:paths_to_denizens(DZ_DIST)
+	local to_denizens = {}
+	for i,dz in pairs(self.denizens) do
+		local dz_paths = flood.gradient(dz.x, dz.y, grid.make_full(function(x, y, i)
+			if self.terrain[i].kind ~= enum.terrain.floor then
+				return false
+			elseif math.abs(x - dz.x) > DZ_DIST then
+				return false
+			elseif math.abs(y - dz.y) > DZ_DIST then
+				return false
+			else
+				return true
+			end
+		end))
+		for pi,pv in pairs(dz_paths) do
+			if to_denizens[pi] then
+				to_denizens[pi] = math.min(to_denizens[pi], dz_paths[pi])
+			else
+				to_denizens[pi] = dz_paths[pi]
+			end
+		end
+	end
+	return to_denizens
+end
+
 function level:reset_paths()
 	self.paths.to_player = self:paths_to(self:player_xy())
 	self.paths.to_stair = self:paths_to(self.stair_x, self.stair_y)
+	self.paths.to_denizens = self:paths_to_denizens(4)
 end
 
 function level:light_area(radius, x, y, dark, old_mem)
