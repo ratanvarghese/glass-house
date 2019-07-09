@@ -2,8 +2,10 @@ local base = require("src.base")
 local grid = require("src.grid")
 local level = require("src.level")
 local ui = require("ui.std")
+local bestiary = require("src.bestiary")
 
 math.randomseed(os.time())
+bestiary.make_set()
 level.current = level.make(1)
 level.current:set_light(true)
 
