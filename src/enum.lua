@@ -46,10 +46,15 @@ enum.default_inverted = {
 		"darkness",
 		"summon",
 		"slow",
+		"sticky",
 		"MAX"
 	},
 	countdown = {
 		"slow",
+		"MAX"
+	},
+	relations = {
+		"stuck_to",
 		"MAX"
 	}
 }

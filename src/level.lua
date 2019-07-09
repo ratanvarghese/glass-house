@@ -108,9 +108,20 @@ function level:check_adds()
 end
 
 function level:move(denizen, new_x, new_y)
-	local old_id = grid.get_idx(denizen.x, denizen.y)
 	local new_id = grid.get_idx(new_x, new_y)
 	local target = self.terrain[new_id]
+	local stuck_to = denizen.relations[enum.relations.stuck_to]
+	if stuck_to and stuck_to ~= target then
+		local stuck_id = grid.get_idx(stuck_to.x, stuck_to.y)
+		if self.denizens[stuck_id] then
+			time.spend_move(denizen.clock)
+			return false
+		else
+			denizen.relations[enum.relations.stuck_to] = nil
+		end
+	end
+
+	local old_id = grid.get_idx(denizen.x, denizen.y)
 	if target.kind == enum.terrain.wall or target.kind == enum.terrain.tough_wall then
 		if old_id == self.player_id then
 			self.memory[new_id] = true

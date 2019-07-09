@@ -13,6 +13,7 @@ table.insert(power.define, {
 	{kind = enum.power.vampiric},
 	{kind = enum.power.heal},
 	{kind = enum.power.slow, min = 2, max = 5, versions = 1},
+	{kind = enum.power.sticky},
 })
 
 table.insert(power.define, {

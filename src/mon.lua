@@ -88,6 +88,16 @@ function mon.bump_hit(lvl, source, targ_x, targ_y)
 	if not targ then
 		return false
 	end
+	
+	local stuck_to = source.relations[enum.relations.stuck_to]
+	if stuck_to and stuck_to ~= targ then
+		local stuck_id = grid.get_idx(stuck_to.x, stuck_to.y)
+		if lvl.denizens[stuck_id] then
+			return false
+		else
+			source.relations[enum.relations.stuck_to] = nil
+		end
+	end
 
 	local predicted = calc_damage(source)
 	if source.powers[enum.power.heal] then
@@ -102,6 +112,13 @@ function mon.bump_hit(lvl, source, targ_x, targ_y)
 		if targ.hp <= 0 then
 			lvl:kill_denizen(targ_id)
 			break
+		end
+		local src_sticky = source.powers[enum.power.sticky]
+		local targ_sticky = targ.powers[enum.power.sticky]
+		if src_sticky and not targ_sticky then
+			targ.relations[enum.relations.stuck_to] = source
+		elseif targ_sticky and not src_sticky then
+			source.relations[enum.relations.stuck_to] = targ
 		end
 	end
 	return true
