@@ -2,64 +2,70 @@ local base = require("src.base")
 
 local enum = {}
 
-enum.default_inverted = {
-	cmd = {
-		"quit",
-		"north",
-		"south",
-		"east",
-		"west",
-		"drop",
-		"equip",
-		"MAX"
-	},
-	terrain = {
-		"floor",
-		"wall",
-		"tough_wall",
-		"stair",
-		"MAX"
-	},
-	monster = {
-		"player",
-		"MAX_STATIC",
-		"MAX"
-	},
-	tool = {
-		"lantern",
-		"MAX_STATIC",
-		"MAX"
-	},
-	power = {
-		"light",
-		"warp",
-		"smash",
-		"tool",
-		"kick",
-		"kick_strength",
-		"punch",
-		"punch_strength",
-		"vampiric",
-		"heal",
-		"peaceful",
-		"clone",
-		"darkness",
-		"summon",
-		"slow",
-		"sticky",
-		"displace",
-		"bodysnatch",
-		"steal",
-		"MAX"
-	},
-	countdown = {
-		"slow",
-		"MAX"
-	},
-	relations = {
-		"stuck_to",
-		"MAX"
-	}
+enum.default_inverted = {}
+enum.default_inverted.cmd = {
+	"quit",
+	"north",
+	"south",
+	"east",
+	"west",
+	"drop",
+	"equip",
+	"MAX"
+}
+enum.default_inverted.terrain = {
+	"floor",
+	"wall",
+	"tough_wall",
+	"stair",
+	"MAX"
+}
+enum.default_inverted.monster = {
+	"player",
+	"MAX_STATIC",
+	"MAX"
+}
+enum.default_inverted.tool = {
+	"lantern",
+	"MAX_STATIC",
+	"MAX"
+}
+enum.default_inverted.power = {
+	"light",
+	"warp",
+	"smash",
+	"tool",
+	"kick",
+	"kick_strength",
+	"punch",
+	"punch_strength",
+	"vampiric",
+	"heal",
+	"peaceful",
+	"clone",
+	"darkness",
+	"summon",
+	"slow",
+	"sticky",
+	"displace",
+	"bodysnatch",
+	"steal",
+	"hot",
+	"cold",
+	"MAX"
+}
+enum.default_inverted.countdown = {
+	"slow",
+	"MAX"
+}
+enum.default_inverted.relations = {
+	"stuck_to",
+	"MAX"
+}
+enum.default_inverted.display = {
+	"hot",
+	"cold",
+	"MAX"
 }
 
 function enum.init(inverted)

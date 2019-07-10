@@ -23,7 +23,8 @@ bestiary.set[enum.monster.player] = {
 	},
 	powers = {},
 	name = "player",
-	clock = time.make_clock(time.scale.PLAYER)
+	clock = time.make_clock(time.scale.PLAYER),
+	display = {}
 }
 
 function bestiary.make_set()
@@ -36,6 +37,7 @@ function bestiary.make_set()
 		t.hp = i * 5
 		t.name = name
 		t.clock = time.make_clock()
+		t.display = {}
 
 		if t.powers[enum.power.kick] then
 			t.powers[enum.power.kick_strength] = math.random(1, i*3)
@@ -43,6 +45,15 @@ function bestiary.make_set()
 
 		if t.powers[enum.power.punch] then
 			t.powers[enum.power.punch_strength] = math.random(1, i)
+		end
+
+		if t.powers[enum.power.cold] then
+			t.display[enum.display.cold] = true
+		end
+
+		if t.powers[enum.power.hot] then
+			t.display[enum.display.hot] = true
+			t.powers[enum.power.light] = 1
 		end
 
 		bestiary.set[t.kind] = t
@@ -61,6 +72,7 @@ function bestiary.make(kind, x, y)
 		inventory = {},
 		powers = base.copy(species.powers),
 		clock = base.copy(species.clock),
+		display = base.copy(species.display),
 		countdowns = {},
 		relations = {}
 	}

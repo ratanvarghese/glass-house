@@ -68,11 +68,21 @@ function cmdutil.symbol_at(lvl, x, y)
 end
 
 function cmdutil.color_at(lvl, x, y, i)
-	if i == lvl.player_id then
-		return cmdutil.colors.white, true
-	else
-		return cmdutil.colors.white
+	local invert = (i == lvl.player_id)
+	local c = cmdutil.colors.white
+	local dz = lvl.denizens[i]
+	if dz then
+		local hot = dz.display[enum.display.hot]
+		local cold = dz.display[enum.display.cold]
+		if hot and cold then
+			c = cmdutil.colors.yellow
+		elseif hot then
+			c = cmdutil.colors.red
+		elseif cold then
+			c = cmdutil.colors.cyan
+		end
 	end
+	return c, invert
 end
 
 function cmdutil.paths_grid(lvl, name)

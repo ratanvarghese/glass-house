@@ -64,6 +64,21 @@ local function calc_damage(source)
 	return math.max(unpack(possible_damage))
 end
 
+local function modifier(source, target)
+	local s_cold = source.powers[enum.power.cold]
+	local t_cold = target.powers[enum.power.cold]
+	local s_hot = source.powers[enum.power.hot]
+	local t_hot = target.powers[enum.power.hot]
+	if (s_cold and t_hot) or (s_hot and t_cold) then --Must be first to punish (t_cold and t_hot)
+		return 4
+	elseif (s_cold and t_cold) or (s_hot and t_hot) then
+		return 0
+	elseif s_cold or s_hot then
+		return 2
+	else
+		return 1
+	end
+end
 
 local function calc_hits(source)
 	local possible_hits = {1}
@@ -134,7 +149,7 @@ function mon.bump_hit(lvl, source, targ_x, targ_y)
 		end
 	end
 
-	local predicted = calc_damage(source)
+	local predicted = calc_damage(source) * modifier(source, targ)
 	if source.powers[enum.power.heal] then
 		predicted = -predicted
 	end

@@ -76,10 +76,10 @@ function ui.draw_level(lvl)
 		if reverse then
 			c = c + REVERSE_OFFSET
 		end
-		local pair = curses.COLOR_PAIR(c)
-		curses.attron(pair)
+		local attr = curses.COLOR_PAIR(c)
+		curses.attron(attr)
 		curses.mvaddstr(y, x, cmdutil.symbol_at(lvl, x, y))
-		curses.attroff(pair)
+		curses.attroff(attr)
 	end)
 	curses.refresh()
 end
