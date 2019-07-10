@@ -15,6 +15,8 @@ int nonl();
 int clear();
 int curs_set(int);
 int start_color();
+int use_default_colors();
+int bkgd();
 bool has_colors();
 bool can_change_color();
 int init_pair(short, short, short);
@@ -55,11 +57,12 @@ function ui.init()
 	curses.curs_set(0)
 	if curses.has_colors() and curses.can_change_color() then
 		curses.start_color()
+		curses.use_default_colors()
 		for k,v in pairs(cmdutil.colors) do
 			local fg = color_codes[v]
-			local bg = color_codes[cmdutil.colors.black]
+			local bg = -1
 			curses.init_pair(v, fg, bg)
-			curses.init_pair(v + REVERSE_OFFSET, bg, fg)
+			curses.init_pair(v + REVERSE_OFFSET, color_codes[cmdutil.colors.black], fg)
 		end
 		COLOR = true
 	end
