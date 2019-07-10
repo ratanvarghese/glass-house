@@ -32,7 +32,8 @@ table.insert(power.define, {
 	{kind = enum.power.tool},
 	{kind = enum.power.kick, min = 1, max = 4, versions = 2},
 	{kind = enum.power.punch, min = 1, max = 10, versions = 3},
-	{kind = enum.power.steal}
+	{kind = enum.power.steal},
+	{kind = enum.power.jump}
 })
 
 function power.make_list(define_list)

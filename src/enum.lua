@@ -52,6 +52,7 @@ enum.default_inverted.power = {
 	"steal",
 	"hot",
 	"cold",
+	"jump",
 	"MAX"
 }
 enum.default_inverted.countdown = {
