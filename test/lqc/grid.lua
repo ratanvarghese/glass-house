@@ -362,3 +362,88 @@ property "grid.line: correct length" {
 		end
 	end
 }
+
+property "grid.knight_jumps: correct length" {
+	generators = {
+		int(1, grid.MAX_X),
+		int(1, grid.MAX_Y)
+	},
+	check = function(x, y)
+		local jumps = grid.knight_jumps()[grid.get_idx(x, y)]
+		local x_from_edge = math.min(x, grid.MAX_X - x + 1)
+		local y_from_edge = math.min(y, grid.MAX_Y - y + 1)
+		if x_from_edge == 1 and y_from_edge == 1 then
+			return #jumps == 2
+		elseif x_from_edge == 1 and y_from_edge == 2 then
+			return #jumps == 3
+		elseif x_from_edge == 2 and y_from_edge == 1 then
+			return #jumps == 3
+		elseif x_from_edge == 1 or y_from_edge == 1 then
+			return #jumps == 4
+		elseif x_from_edge == 2 and y_from_edge == 2 then
+			return #jumps == 4
+		elseif x_from_edge == 2 or y_from_edge == 2 then
+			return #jumps == 6
+		else
+			return #jumps == 8
+		end
+	end,
+	when_fail = function(x, y)
+		local jumps = grid.knight_jumps()[grid.get_idx(x, y)]
+		print("\nx:", x, "y:", y)
+		for _,v in ipairs(jumps) do
+			print("jx:", v.x, "jy:", v.y)
+		end
+	end
+}
+
+property "grid.knight_jumps: elements have valid x,y" {
+	generators = {
+		int(1, grid.MAX_X),
+		int(1, grid.MAX_Y),
+		int(1, 8)
+	},
+	check = function(x, y, ji)
+		local jumps = grid.knight_jumps()[grid.get_idx(x, y)]
+		if ji > #jumps then ji = #jumps end
+		local j = jumps[ji]
+		local abs_dx, abs_dy = math.abs(j.x - x), math.abs(j.y - y)
+		if abs_dx == 2 then
+			return abs_dy == 1
+		elseif abs_dx == 1 then
+			return abs_dy == 2
+		else
+			return false
+		end
+	end
+}
+
+property "grid.knight_jumps: elements have valid i" {
+	generators = {
+		int(1, grid.MAX_X),
+		int(1, grid.MAX_Y),
+		int(1, 8)
+	},
+	check = function(x, y, ji)
+		local jumps = grid.knight_jumps()[grid.get_idx(x, y)]
+		if ji > #jumps then ji = #jumps end
+		local j = jumps[ji]
+		return j.i == grid.get_idx(j.x, j.y)
+	end
+
+}
+
+property "grid.knight_jumps: elements distinct" {
+	generators = {
+		int(1, grid.MAX_X),
+		int(1, grid.MAX_Y),
+		int(1, 8),
+		int(1, 8)
+	},
+	check = function(x, y, ji_1, ji_2)
+		local jumps = grid.knight_jumps()[grid.get_idx(x, y)]
+		if ji_1 > #jumps then ji_1 = 1 end
+		if ji_2 > #jumps then ji_2 = #jumps end
+		return (ji_1 == ji_2) == base.equals(jumps[ji_1], jumps[ji_2])
+	end
+}

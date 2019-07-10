@@ -105,6 +105,32 @@ function grid.line(x1, y1, x2, y2)
 	end
 end
 
+function grid.knight_jumps()
+	local d_list = {
+		{x=2, y=1},
+		{x=1, y=2},
+		{x=-2, y=1},
+		{x=-1, y=2},
+		{x=2, y=-1},
+		{x=-1, y=-2},
+		{x=-2, y=-1},
+		{x=1, y=-2},
+	}
+	return grid.make_full(function(x, y, i)
+		local res = {}
+		for _,d in pairs(d_list) do
+			local nx = x + d.x
+			local ny = y + d.y
+			if nx >= 1 and nx <= grid.MAX_X and ny >= 1 and ny <= grid.MAX_Y then
+				local ni = grid.get_idx(nx, ny)
+				table.insert(res, {x=nx, y=ny, i=ni})
+			end
+		end
+		return res
+	end)
+end
+
+
 grid.not_edge_t = grid.make_full(function(x, y, i) return not grid.is_edge(x, y) end)
 
 return grid
