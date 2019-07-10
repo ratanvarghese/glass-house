@@ -69,8 +69,8 @@ ui.shutdown = curses.endwin
 
 function ui.draw_level(lvl)
 	grid.make_full(function(x, y, i)
-		local c = cmdutil.color_at(lvl, x, y, i)
-		if i == lvl.player_id then
+		local c, reverse = cmdutil.color_at(lvl, x, y, i)
+		if reverse then
 			c = c + REVERSE_OFFSET
 		end
 		local pair = curses.COLOR_PAIR(c)

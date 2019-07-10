@@ -68,9 +68,8 @@ function cmdutil.symbol_at(lvl, x, y)
 end
 
 function cmdutil.color_at(lvl, x, y, i)
-	local i = i or grid.get_idx(x, y)
-	if lvl.denizens[i] then
-		return cmdutil.colors.blue
+	if i == lvl.player_id then
+		return cmdutil.colors.white, true
 	else
 		return cmdutil.colors.white
 	end
