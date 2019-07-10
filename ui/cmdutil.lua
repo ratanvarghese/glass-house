@@ -15,6 +15,17 @@ cmdutil.keys = {
 	["1"] = "equip"
 }
 
+cmdutil.colors = {
+	black = 0,
+	red = 1,
+	green = 2,
+	yellow = 3,
+	blue = 4,
+	magenta = 5,
+	cyan = 6,
+	white = 7
+}
+
 local symbols = {}
 symbols.dark = " "
 symbols.err = ":"
@@ -54,6 +65,15 @@ function cmdutil.symbol_at(lvl, x, y)
 	end
 
 	return symbols.err
+end
+
+function cmdutil.color_at(lvl, x, y, i)
+	local i = i or grid.get_idx(x, y)
+	if lvl.denizens[i] then
+		return cmdutil.colors.blue
+	else
+		return cmdutil.colors.white
+	end
 end
 
 function cmdutil.paths_grid(lvl, name)
