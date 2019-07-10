@@ -9,6 +9,8 @@ local bestiary = require("src.bestiary")
 
 local level = {}
 
+level.knight_jumps = grid.knight_jumps()
+
 function level:walkable(x, y, i)
 	local i = i or grid.get_idx(x, y)
 	return (not self.denizens[i]) and (self.terrain[i].kind == enum.terrain.floor)

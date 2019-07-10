@@ -1,3 +1,4 @@
+local base = require("src.base")
 local grid = require("src.grid")
 local enum = require("src.enum")
 local flood = require("src.flood")
@@ -40,7 +41,32 @@ function mon.act(lvl, denizen)
 	end
 end
 
+local function jump_follow(lvl, denizen, wander)
+	local start_i = grid.get_idx(denizen.x, denizen.y)
+	local jumps = base.filter(lvl.knight_jumps[start_i], function(j)
+		return lvl:walkable(j.x, j.y, j.i)
+	end)
+	if #jumps == 0 then
+		return
+	end
+	if wander then
+		local ji = math.random(1, #jumps)
+		jumps[ji], jumps[1] = jumps[1], jumps[ji]
+	else
+		table.sort(jumps, function(j1, j2)
+			local p1 = lvl.paths.to_player[j1.i] or math.huge
+			local p2 = lvl.paths.to_player[j2.i] or math.huge
+			return p1 < p2
+		end)
+	end
+	lvl:move(denizen, jumps[1].x, jumps[1].y)
+end
+
 function mon.wander(lvl, denizen)
+	if denizen.powers[enum.power.jump] then
+		jump_follow(lvl, denizen, true)
+		return
+	end
 	local d = grid.rn_direction()
 	local try_move = lvl:move(denizen, denizen.x + d.x, denizen.y + d.y)
 
@@ -241,7 +267,9 @@ function mon.follow_player(lvl, denizen)
 	local warp_factor = denizen.powers[enum.power.warp]
 	local clone_factor = denizen.powers[enum.power.clone]
 	local summon_factor = denizen.powers[enum.power.summon]
-	if warp_factor then
+	if denizen.powers[enum.power.jump] then
+		jump_follow(lvl, denizen)
+	elseif warp_factor then
 		warp_follow(lvl, denizen, warp_factor)
 	elseif clone_factor then
 		spawn_follow(lvl, denizen, clone_factor, true)
