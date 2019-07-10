@@ -182,7 +182,7 @@ local function smash_follow(lvl, denizen)
 	local player_x, player_y = lvl:player_xy()
 	local line = grid.line(denizen.x, denizen.y, player_x, player_y)
 	local dest = line[2]
-	if lvl:smash(dest.x, dest.y) then
+	if dest and lvl:smash(dest.x, dest.y) then
 		lvl:move(denizen, dest.x, dest.y)
 	else
 		simple_follow(lvl, denizen)
