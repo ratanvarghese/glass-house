@@ -61,7 +61,7 @@ There currently isn't any win condition.
 
 ## License
 
-Glass House is licensed under the GPL. See the `LICENSE` file for details.
+Until further notice, this software is copyright (2019) Ratan Varghese, all rights reserved.
 
 This repository also contains the following libraries and tools, which are provided under the MIT License. The licenses provided in the authors' repositories were copied to the top of the relevant files.
  + [Serpent](https://github.com/pkulchenko/serpent), included in `lib/serpent.lua`
