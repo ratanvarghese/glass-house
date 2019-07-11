@@ -80,7 +80,7 @@ local function jump_follow(lvl, denizen, wander)
 			As it happened, I didn't want it to.
 		--]]
 		for i in pairs(jumps[1].covered) do
-			mon.bump_hit(lvl, denizen, nil, nil, i)
+			mon.bump_hit(lvl, denizen, nil, nil, i, true)
 		end
 	end
 	lvl:move(denizen, jumps[1].x, jumps[1].y)
@@ -146,10 +146,12 @@ function mon.hit_or_heal(targ, damage)
 	return old_hp - new_hp
 end
 
-function mon.bump_hit(lvl, source, targ_x, targ_y, targ_id)
+function mon.bump_hit(lvl, source, targ_x, targ_y, targ_id, free)
 	local targ_id = targ_id or grid.get_idx(targ_x, targ_y)
 	local targ = lvl.denizens[targ_id]
-	time.spend_move(source.clock) --Regardless of whether or not there's a target!
+	if not free then
+		time.spend_move(source.clock) --Regardless of whether or not there's a target!
+	end
 	if not targ then
 		return false
 	end
