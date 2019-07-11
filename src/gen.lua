@@ -58,7 +58,7 @@ function gen.cave()
 		elseif floors[i] then
 			s = enum.terrain.floor
 		end
-		return {kind = s}
+		return {kind = s, x=x, y=y, i=i}
 	end)
 	return terrain, end_x, end_y
 end
