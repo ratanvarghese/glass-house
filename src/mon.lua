@@ -58,6 +58,30 @@ local function jump_follow(lvl, denizen, wander)
 			local p2 = lvl.paths.to_player[j2.i] or math.huge
 			return p1 < p2
 		end)
+
+		--[[
+			Long ago, when I was a small child, I visited a friend's house
+			and we played chess. His knight jumped over one of my pieces, and he
+			took the piece off the board. I don't remember the exact words of the
+			conversation that followed, but it went something like this...
+
+			"Knights don't kill pieces they jump over," I said.
+			"Yes they do," my friend responded.
+			"No they don't," I said.
+			"My dad says they do. Do you want to ask my dad about it?" he said.
+
+			As it happened, I did not want to ask his dad about it, so I didn't inquire
+			further. I tried to move my pieces around the board with this "house rule"
+			in mind until I needed my knight to jump over one of my own pieces.
+
+			"If I jump over my own piece, will it die?" I said.
+			"It can, but only if you want it to," my friend responded.
+
+			As it happened, I didn't want it to.
+		--]]
+		for i in pairs(jumps[1].covered) do
+			mon.bump_hit(lvl, denizen, nil, nil, i)
+		end
 	end
 	lvl:move(denizen, jumps[1].x, jumps[1].y)
 end
@@ -122,8 +146,8 @@ function mon.hit_or_heal(targ, damage)
 	return old_hp - new_hp
 end
 
-function mon.bump_hit(lvl, source, targ_x, targ_y)
-	local targ_id = grid.get_idx(targ_x, targ_y)
+function mon.bump_hit(lvl, source, targ_x, targ_y, targ_id)
+	local targ_id = targ_id or grid.get_idx(targ_x, targ_y)
 	local targ = lvl.denizens[targ_id]
 	time.spend_move(source.clock) --Regardless of whether or not there's a target!
 	if not targ then
