@@ -105,29 +105,47 @@ function grid.line(x1, y1, x2, y2)
 	end
 end
 
-function grid.knight_jumps()
+local prev_jumps = false
+function grid.knight_jumps(refresh)
 	local d_list = {
-		{x=2, y=1},
-		{x=1, y=2},
-		{x=-2, y=1},
-		{x=-1, y=2},
-		{x=2, y=-1},
-		{x=-1, y=-2},
-		{x=-2, y=-1},
-		{x=1, y=-2},
+		{x=2, y=1, middle={x=1}},
+		{x=1, y=2, middle={y=1}},
+		{x=-2, y=1, middle={x=-1}},
+		{x=-1, y=2, middle={y=1}},
+		{x=2, y=-1, middle={x=1}},
+		{x=-1, y=-2, middle={y=-1}},
+		{x=-2, y=-1, middle={x=-1}},
+		{x=1, y=-2, middle={y=-1}},
 	}
-	return grid.make_full(function(x, y, i)
+	if not refresh and prev_jumps then
+		return prev_jumps
+	end
+	prev_jumps = grid.make_full(function(x, y, i)
 		local res = {}
 		for _,d in pairs(d_list) do
 			local nx = x + d.x
 			local ny = y + d.y
 			if nx >= 1 and nx <= grid.MAX_X and ny >= 1 and ny <= grid.MAX_Y then
 				local ni = grid.get_idx(nx, ny)
-				table.insert(res, {x=nx, y=ny, i=ni})
+				local covered = {
+					[grid.get_idx(x, ny)] = true,
+					[grid.get_idx(nx, y)] = true
+				}
+				if d.middle.x then
+					local mid_x = x + d.middle.x
+					covered[grid.get_idx(mid_x, y)] = true
+					covered[grid.get_idx(mid_x, ny)] = true
+				elseif d.middle.y then
+					local mid_y = y + d.middle.y
+					covered[grid.get_idx(x, mid_y)] = true
+					covered[grid.get_idx(nx, mid_y)] = true
+				end
+				table.insert(res, {x=nx, y=ny, i=ni, covered=covered})
 			end
 		end
 		return res
 	end)
+	return prev_jumps
 end
 
 

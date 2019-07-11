@@ -430,7 +430,6 @@ property "grid.knight_jumps: elements have valid i" {
 		local j = jumps[ji]
 		return j.i == grid.get_idx(j.x, j.y)
 	end
-
 }
 
 property "grid.knight_jumps: elements distinct" {
@@ -445,5 +444,54 @@ property "grid.knight_jumps: elements distinct" {
 		if ji_1 > #jumps then ji_1 = 1 end
 		if ji_2 > #jumps then ji_2 = #jumps end
 		return (ji_1 == ji_2) == base.equals(jumps[ji_1], jumps[ji_2])
+	end
+}
+
+property "grid.knight_jumps: consistent content" {
+	generators = { bool(), bool() },
+	numtests = 8, --This is a slow test
+	check = function(refresh1, refresh2)
+		local t1 = grid.knight_jumps(refresh1)
+		local t2 = grid.knight_jumps(refresh2)
+		return base.equals(t1, t2)
+	end
+}
+
+property "grid.knight_jumps: refresh" {
+	generators = { bool() },
+	numtests = 8, --This is a slow test
+	check = function(refresh)
+		local t1 = grid.knight_jumps(true)
+		local t2 = grid.knight_jumps(refresh)
+		return (not refresh) == (t1 == t2)
+	end
+}
+
+property "grid.knight: covered" {
+	generators = {
+		int(1, grid.MAX_X),
+		int(1, grid.MAX_Y),
+		int(1, 8)
+	},
+	check = function(x, y, ji)
+		local origin_i = grid.get_idx(x, y)
+		local jumps = grid.knight_jumps()[origin_i]
+		if ji > #jumps then ji = #jumps end
+		local j = jumps[ji]
+		local lines = {
+			grid.line(x, y, j.x, y),
+			grid.line(x, y, x, j.y),
+			grid.line(j.x, j.y, j.x, y),
+			grid.line(j.x, j.y, x, j.y)
+		}
+		local predicted = {}
+		for _,line in ipairs(lines) do
+			for _,p in ipairs(line) do
+				predicted[grid.get_idx(p.x, p.y)] = true
+			end
+		end
+		predicted[origin_i] = nil
+		predicted[j.i] = nil
+		return base.equals(j.covered, predicted)
 	end
 }
