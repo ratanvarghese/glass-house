@@ -42,6 +42,14 @@ property "grid.get_idx: error on bool" {
 	end
 }
 
+property "grid.get_xy: reverse of grid.get_idx" {
+	generators = { int(1, grid.MAX_X), int(1, grid.MAX_Y) },
+	check = function(x, y)
+		local nx, ny = grid.get_xy(grid.get_idx(x, y))
+		return x == nx and y == ny
+	end
+}
+
 property "grid.is_edge: across y" {
 	generators = { int(1, grid.MAX_Y) },
 	check = function(y)

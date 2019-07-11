@@ -19,6 +19,12 @@ function grid.get_idx(x, y)
 	return (y*grid.MAX_X) + x
 end
 
+function grid.get_xy(i)
+	local x = i % grid.MAX_X
+	local y = (i - x) / grid.MAX_X
+	return x, y
+end
+
 function grid.is_edge(x, y)
 	return x == 1 or x == grid.MAX_X or y == 1 or y == grid.MAX_Y
 end
