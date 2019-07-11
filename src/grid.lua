@@ -19,8 +19,17 @@ function grid.get_idx(x, y)
 	return (y*grid.MAX_X) + x
 end
 
-function grid.get_xy(i)
+local function get_x(i)
 	local x = i % grid.MAX_X
+	if x == 0 then
+		return grid.MAX_X
+	else
+		return x
+	end
+end
+
+function grid.get_xy(i)
+	local x = get_x(i)
 	local y = (i - x) / grid.MAX_X
 	return x, y
 end
