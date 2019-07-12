@@ -50,16 +50,40 @@ function grid.make_full(f)
 	return res
 end
 
+local function iter(invariant, i)
+	local x, y = grid.get_xy(i)
+	local nx, ny, ni = x+1, y, i+1
+	if nx > invariant.x2 then
+		nx = invariant.x1
+		ny = ny + 1
+		ni = grid.get_idx(nx, ny)
+	end
+	if ni > invariant.max then
+		return nil, nil, nil, nil
+	else
+		return ni, nx, ny, invariant.t[ni]
+	end
+end
+
+local function points(t, x1, y1, x2, y2)
+	local t = t or {}
+	local x1 = math.max(x1 or 1, 1)
+	local y1 = math.max(y1 or 1, 1)
+	local x2 = math.min(x2 or grid.MAX_X, grid.MAX_X)
+	local y2 = math.min(y2 or grid.MAX_Y, grid.MAX_Y)
+	local min = grid.get_idx(x1, y1)
+	local max = grid.get_idx(x2, y2)
+
+	local f = iter
+	local invariant = {t=t, max=max, x1=x1, y1=y1, x2=x2, y2=y2}
+	local initial = (min-1)
+
+	return f, invariant, initial
+end
+
 function grid.edit_rect(x1, y1, x2, y2, t, f)
-	local min_x = math.max(x1, 1)
-	local max_x = math.min(x2, grid.MAX_X)
-	local min_y = math.max(y1, 1)
-	local max_y = math.min(y2, grid.MAX_Y)
-	for y = min_y,max_y do
-		for x = min_x,max_x do
-			local i = grid.get_idx(x, y)
-			t[i] = f(x, y, i)
-		end
+	for i,x,y in points(nil, x1, y1, x2, y2) do
+		t[i] = f(x, y, i)
 	end
 end
 
