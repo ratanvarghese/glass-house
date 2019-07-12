@@ -65,7 +65,7 @@ local function iter(invariant, i)
 	end
 end
 
-local function points(t, x1, y1, x2, y2)
+function grid.points(t, x1, y1, x2, y2)
 	local t = t or {}
 	local x1 = math.max(x1 or 1, 1)
 	local y1 = math.max(y1 or 1, 1)
@@ -82,7 +82,7 @@ local function points(t, x1, y1, x2, y2)
 end
 
 function grid.edit_rect(x1, y1, x2, y2, t, f)
-	for i,x,y in points(nil, x1, y1, x2, y2) do
+	for i,x,y in grid.points(nil, x1, y1, x2, y2) do
 		t[i] = f(x, y, i)
 	end
 end

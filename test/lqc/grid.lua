@@ -71,6 +71,120 @@ property "grid.is_edge: restricted to edge" {
 	end
 }
 
+property "grid.points: handle all points with default arguments" {
+	generators = {
+		int(1, grid.MAX_X),
+		int(1, grid.MAX_Y),
+	},
+	check = function(x1, y1)
+		local t = {}
+		for i in grid.points() do
+			t[i] = true
+		end
+		return t[grid.get_idx(x1, y1)]
+	end
+
+}
+
+property "grid.points: handle all points if given arguments" {
+	generators = {
+		int(1, grid.MAX_X),
+		int(1, grid.MAX_X),
+		int(1, grid.MAX_X),
+		int(1, grid.MAX_Y),
+		int(1, grid.MAX_Y),
+		int(1, grid.MAX_Y),
+	},
+	check = function(x1, x2, x3, y1, y2, y3)
+		local x_asc = {x1, x2, x3}
+		table.sort(x_asc)
+		local y_asc = {y1, y2, y3}
+		table.sort(y_asc)
+		local t = {}
+		for i in grid.points(nil, x_asc[1], y_asc[1], x_asc[3], y_asc[3]) do
+			t[i] = true
+		end
+		return t[grid.get_idx(x_asc[2], y_asc[2])]
+	end
+
+}
+
+property "grid.points: no extra points" {
+	generators = {
+		int(1, grid.MAX_X),
+		int(1, grid.MAX_X),
+		int(1, grid.MAX_X),
+		int(1, grid.MAX_Y),
+		int(1, grid.MAX_Y),
+		int(1, grid.MAX_Y)
+	},
+	check = function(x1, x2, x3, y1, y2, y3)
+		local x_asc, y_asc = {x1, x2, x3}, {y1, y2, y3}
+		table.sort(x_asc)
+		table.sort(y_asc)
+		local t = {}
+		for i in grid.points(nil, x_asc[1], y_asc[1], x_asc[2], y_asc[2]) do
+			t[i] = true
+		end
+		local id_2 = grid.get_idx(x_asc[2], y_asc[2])
+		local id_3 = grid.get_idx(x_asc[3], y_asc[3])
+		if id_2 ~= id_3 then
+			return not t[id_3]
+		else
+			return true
+		end
+	end
+}
+
+property "grid.points: correct order" {
+	generators = {
+		int(1, grid.MAX_X),
+		int(1, grid.MAX_X),
+		int(1, grid.MAX_Y),
+		int(1, grid.MAX_Y),
+	},
+	check = function(x1, x2, y1, y2)
+		local x_asc, y_asc = {x1, x2}, {y1, y2}
+		table.sort(x_asc)
+		table.sort(y_asc)
+		local got_small_pt = false
+		for _,x,y in grid.points() do
+			if x == x_asc[1] and y == y_asc[1] then
+				got_small_pt = true
+			end
+			if x == x_asc[2] and y == y_asc[2] and not got_small_pt then
+				return false
+			end
+		end
+		return true
+	end
+}
+
+property "grid.points: get v" {
+	generators = {
+		int(1, grid.MAX_X),
+		int(1, grid.MAX_X),
+		int(1, grid.MAX_Y),
+		int(1, grid.MAX_Y),
+		any(),
+		any()
+	},
+	check = function(x1, x2, y1, y2, v1, v2)
+		local t = {
+			[grid.get_idx(x1, y1)] = v1,
+			[grid.get_idx(x2, y2)] = v2
+		}
+		for _,x,y,v in grid.points(t) do
+			if x == x1 and y == y1 and v ~= v1 then
+				return false
+			elseif x == x2 and y == y2 and v ~= v2 then
+				return false
+			end
+		end
+		return true
+	end
+}
+
 property "grid.make_rect: handles all points" {
 	generators = {
 		int(1, grid.MAX_X),
