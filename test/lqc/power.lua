@@ -1,4 +1,5 @@
 local base = require("src.base")
+local enum = require("src.enum")
 local power = require("src.power")
 
 local function versionless_define_list(max, prefix)
@@ -152,5 +153,21 @@ property "power.make_list: (versions) correct number of results" {
 		local define_list = versioned_define_list(min, max, versions, name)
 		local res = power.make_list(define_list)
 		return #res == versions
+	end
+}
+
+property "power.make_all: valid entries" {
+	generators = { int(1, power.MAX_LEN) },
+	check = function(species_i)
+		local res = power.make_all()
+		local species_i = math.min(species_i, #res)
+		for k,v in ipairs(res[species_i]) do
+			if not enum.inverted.power[k] then
+				return false
+			elseif type(v) ~= "number" and v ~= true then
+				return false
+			end
+		end
+		return true
 	end
 }
