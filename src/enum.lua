@@ -75,6 +75,7 @@ function enum.init(inverted)
 		assert(enum.default_inverted[k], "Tried to overwrite enum."..k)
 		enum[k] = base.invert(v)
 	end
+	return enum
 end
 
 function enum.new_item(list, item_name)
@@ -114,5 +115,4 @@ function enum.rn_item(list, dynamic_only)
 	return valid[math.random(1, #valid)]
 end
 
-enum.init(enum.default_inverted)
-return enum
+return enum.init(enum.default_inverted)
