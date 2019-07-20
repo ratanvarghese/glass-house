@@ -95,7 +95,9 @@ property "act: 'possible' and 'utility' modes do not alter state" {
 		local m = use_utility and enum.actmode.utility or enum.actmode.possible
 		local w, source, targ_i = mini_world(cave, trap, x, y)
 		f(m, w, source, targ_i)
-		return w._terrain_writes == 0 and w._denizen_writes == 0 and w._entity_adds == 0
+		local no_terrain_writes = (w._terrain_ctrl.writes == 0)
+		local no_denizens_writes = (w._denizens_ctrl.writes == 0)
+		return no_terrain_writes and no_denizens_writes and w._entity_adds == 0
 	end,
 	when_fail = function(use_utility, ...)
 		local m = use_utility and enum.actmode.utility or enum.actmode.possible
