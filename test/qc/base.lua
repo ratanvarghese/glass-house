@@ -236,10 +236,10 @@ local function powgen(x, y)
 	return _f, _s, _var
 end
 
-property "base.gen_tbl: include all values from custom generator without adding extras" {
+property "base.extend_tbl: include all values from custom generator without adding extras" {
 	generators = { int(1, 4), int(1, 4) },
 	check = function(x, y)
-		local res = base.gen_tbl(powgen, x, y)
+		local res = base.extend_tbl({}, powgen(x, y))
 		local count = 0
 		for k,v in pairs(res) do
 			if k < 1 or k > y or math.floor(k) ~= k then
@@ -253,16 +253,52 @@ property "base.gen_tbl: include all values from custom generator without adding 
 	end
 }
 
-property "base.gen_arr: act on all values from custom generator in order without adding extras" {
+property "base.extend_tbl: extend existing table" {
+	generators = { tbl(), int(1, 4), int(1, 4) },
+	check = function(old_t, x, y)
+		local t = base.copy(old_t)
+		base.extend_tbl(t, powgen(x, y))
+		local count = 0
+		for k,v in pairs(t) do
+			if type(k) == "number" and k >= 1 and k <= y and math.floor(k) == k then
+				if v ~= math.pow(x, k) then
+					return false
+				end
+			elseif not base.equals(v, old_t[k]) then
+				return false
+			end
+			count = count + 1
+		end
+		return count <= (#old_t + y)
+	end
+}
+
+property "base.extend_arr: in order" {
 	generators = { int(1, 4), int(1, 4) },
 	check = function(x, y)
-		local res = base.gen_arr(powgen, x, y)
+		local res = base.extend_arr({}, powgen(x, y))
 		for i,v in ipairs(res) do
 			if v ~= math.pow(x, i) then
 				return false
 			end
 		end
 		return #res == y
+	end
+}
+
+property "base.extend_arr: extend existing array" {
+	generators = { tbl(), int(1, 4), int(1, 4) },
+	check = function(old_t, x, y)
+		local t = base.copy(old_t)
+		base.extend_arr(t, powgen(x, y))
+		for i,v in ipairs(t) do
+			if i <= #old_t and not base.equals(v,old_t[i]) then
+				return false
+			elseif i > #old_t and v ~= math.pow(x, i-#old_t) then
+				return false
+			end
+		end
+		return #t == (#old_t + y)
 	end
 }
 
@@ -281,11 +317,11 @@ local function oddnil(n)
 	return _f, _s, _var
 end
 
-property "base.gen_arr: exclude nil values" {
+property "base.extend_arr: exclude nil values" {
 	generators = { int(1, 100) },
 	check = function(half_n)
 		local n = half_n * 2
-		local res = base.gen_arr(oddnil, n)
+		local res = base.extend_arr({}, oddnil(n))
 		for i,v in ipairs(res) do
 			if v ~= n then
 				return false

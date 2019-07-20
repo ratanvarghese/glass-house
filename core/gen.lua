@@ -17,8 +17,8 @@ function gen.big_room()
 	for i,x,y in grid.points() do
 		terrain[i] = tough_or_floor(grid.is_edge(x, y))
 	end
-	local x_list = base.gen_arr(base.rn_distinct, 2, grid.MAX_X-1, 2)
-	local y_list = base.gen_arr(base.rn_distinct, 2, grid.MAX_Y-1, 2)
+	local x_list = base.extend_arr({}, base.rn_distinct(2, grid.MAX_X-1, 2))
+	local y_list = base.extend_arr({}, base.rn_distinct(2, grid.MAX_Y-1, 2))
 	terrain[grid.get_idx(x_list[1], y_list[1])].kind = enum.terrain.stair
 	return terrain, grid.get_idx(x_list[2], y_list[2])
 end
