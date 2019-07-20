@@ -21,29 +21,46 @@ function base.error_handler(msg)
 	return msg.."\n"..debug.traceback()
 end
 
-function base.equals(a, b)
-	local type1, type2 = type(a), type(b)
-	if type1 ~= type2 then
-		return false
-	elseif type1 ~= "table" and type2 ~= "table" then
-		return a == b
-	elseif #a ~= #b then
-		return false
+--Based on https://stackoverflow.com/questions/25922437/how-can-i-deep-compare-2-lua-tables-which-may-or-may-not-have-tables-as-keys
+function base.equals(x, y, done)
+	local done = done or {}
+	local tx, ty = type(x), type(y)
+	if tx ~= ty then return false end
+	if tx ~= "table" then return x == y end
+
+	if done[x] then return done[x] == y end
+	done[x] = y
+
+	local y_keys = {}
+	for ky in pairs(y) do
+		y_keys[ky] = true
 	end
 
-	for k,v in pairs(a) do
-		if not base.equals(v, b[k]) then
+	for kx, vx in pairs(x) do
+		local vy
+		if type(kx) == "table" then
+			local found
+			for ky in pairs(y_keys) do
+				if base.equals(kx, ky, done) then
+					found = ky
+					break
+				end
+			end
+			if found == nil then
+				return false
+			else
+				y_keys[found] = nil
+				vy = y[found]
+			end
+		else
+			y_keys[kx] = nil
+			vy = y[kx]
+		end
+		if not base.equals(vx, vy, done) then
 			return false
 		end
 	end
-
-	for k,v in pairs(b) do
-		if a[k] == nil then
-			return false
-		end
-	end
-
-	return true
+	return base.is_empty(y_keys)
 end
 
 --Based on http://stackoverflow.com/questions/640642

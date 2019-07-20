@@ -108,6 +108,55 @@ property "base.equals: obviously unequal values" {
 	end
 }
 
+property "base.equals: equal table keys, equal values" {
+	generators = { tbl(), any() },
+	check = function(a, av)
+		local b = {}
+		for k,v in pairs(a) do b[k] = v end
+		return base.equals({[a]=av}, {[b]=av})
+	end
+}
+
+property "base.equals: equal table keys, unequal values" {
+	generators = { tbl(), any(), any() },
+	check = function(a, av, bv)
+		if base.equals(av, bv) then
+			av = true
+			bv = false
+		end
+		local b = {}
+		for k,v in pairs(a) do b[k] = v end
+		return not base.equals({[a]=av}, {[b]=bv})
+	end
+
+}
+
+property "base.equals: unequal table keys, equal values" {
+	generators = { tbl(), tbl(), any() },
+	check = function(a, b, av)
+		if base.equals(a, b) then
+			a = {}
+			b = {1}
+		end
+		return not base.equals({[a]=av}, {[b]=av})
+	end
+}
+
+property "base.equals: unequal table keys, unequal values" {
+	generators = { tbl(), tbl(), any(), any() },
+	check = function(a, b, av, bv)
+		if base.equals(a, b) then
+			a = {}
+			b = {1}
+		end
+		if base.equals(av, bv) then
+			av = true
+			bv = false
+		end
+		return not base.equals({[a]=av}, {[b]=bv})
+	end
+}
+
 property "base.copy: base.equals(original, copy)" {
 	generators = { any() },
 	check = function(a)
