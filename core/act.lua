@@ -106,7 +106,7 @@ function mundane_pursue.attempt(world, source, target_i)
 	if not world.light[target_i] then
 		return false
 	end
-	local min, min_i = grid.adjacent_min(source.pos, world.walk_paths[target_i])
+	local min, min_i = grid.adjacent_extreme(source.pos, world.walk_paths[target_i])
 	if min >= math.huge or min < 1 then
 		return false
 	end
@@ -114,10 +114,59 @@ function mundane_pursue.attempt(world, source, target_i)
 	return true
 end
 
+local mundane_flee = {}
+function mundane_flee.options(paths, source_pos)
+	local options = {
+		grid.travel(source_pos, 1, enum.cmd.north),
+		grid.travel(source_pos, 1, enum.cmd.south),
+		grid.travel(source_pos, 1, enum.cmd.east),
+		grid.travel(source_pos, 1, enum.cmd.west)
+	}
+
+	local max_p = #options
+	for i=max_p,1,-1 do
+		local pos = options[i]
+		if not paths[pos] then
+			table.remove(options, i)
+		end
+	end
+	return options
+end
+
+function mundane_flee.possible(world, source, target_i)
+	if not world.light[target_i] then
+		return false
+	else
+		local options = mundane_flee.options(world.walk_paths[target_i], source.pos)
+		return #options > 0
+	end
+end
+
+function mundane_flee.utility(world, source, target_i)
+	if mundane_flee.possible(world, source, target_i) then
+		return 1--grid.MAX_X + grid.MAX_Y - grid.distance(source.pos, target_i)
+	else
+		return 0
+	end
+end
+
+function mundane_flee.attempt(world, source, target_i)
+	if not world.light[target_i] then
+		return false
+	end
+	local max, max_i = grid.adjacent_extreme(source.pos, world.walk_paths[target_i], true)
+	if max <= -math.huge then
+		return false
+	end
+	move_denizen(world, source, max_i)
+	return true
+end
+
 function act.init()
 	act[enum.power.mundane] = {
 		wander = modesplit(mundane_wander),
-		pursue = modesplit(mundane_pursue)
+		pursue = modesplit(mundane_pursue),
+		flee = modesplit(mundane_flee)
 	}
 
 	for k,v in pairs(act) do

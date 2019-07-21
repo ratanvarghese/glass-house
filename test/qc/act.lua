@@ -286,8 +286,8 @@ property "act[enum.power.mundane] wander: attempt if obviously impossible" {
 
 property "act[enum.power.mundane] pursue: possible" {
 	generators = {
-		int(2, grid.MAX_X-1),
-		int(2, grid.MAX_Y-1),
+		int(3, grid.MAX_X-2),
+		int(3, grid.MAX_Y-2),
 		bool()
 	},
 	check = function(x, y, cave)
@@ -315,8 +315,8 @@ property "act[enum.power.mundane] pursue: possible" {
 
 property "act[enum.power.mundane] pursue: utility" {
 	generators = {
-		int(2, grid.MAX_X-1),
-		int(2, grid.MAX_Y-1),
+		int(3, grid.MAX_X-2),
+		int(3, grid.MAX_Y-2),
 		bool()
 	},
 	check = function(x, y, cave)
@@ -330,8 +330,8 @@ property "act[enum.power.mundane] pursue: utility" {
 
 property "act[enum.power.mundane] pursue: attempt with obvious result" {
 	generators = {
-		int(2, grid.MAX_X-1),
-		int(2, grid.MAX_Y-1),
+		int(3, grid.MAX_X-2),
+		int(3, grid.MAX_Y-2),
 	},
 	check = function(x, y)
 		local f = act[enum.power.mundane].pursue
@@ -377,4 +377,94 @@ property "act[enum.power.mundane] pursue: attempt with obvious result" {
 	end
 }
 
+property "act[enum.power.mundane] flee: possible" {
+	generators = {
+		int(3, grid.MAX_X-2),
+		int(3, grid.MAX_Y-2),
+		bool()
+	},
+	check = function(x, y, cave)
+		local f = act[enum.power.mundane].flee
+		local w, source, targ_i = mini_world(cave, true, x, y)
+		local target_lit = w.light[targ_i]
+		local can_progress = false
+		local options = {
+			grid.travel(source.pos, 1, enum.cmd.north),
+			grid.travel(source.pos, 1, enum.cmd.south),
+			grid.travel(source.pos, 1, enum.cmd.east),
+			grid.travel(source.pos, 1, enum.cmd.west)
+		}
+		for _,v in ipairs(options) do
+			if w.walk_paths[targ_i][v] then
+				can_progress = true
+				break
+			end
+		end
+		local res = f(enum.actmode.possible, w, source, targ_i)
+		return res == (target_lit and can_progress)
+	end
+}
 
+property "act[enum.power.mundane] flee: utility" {
+	generators = {
+		int(2, grid.MAX_X-1),
+		int(2, grid.MAX_Y-1),
+		bool()
+	},
+	check = function(x, y, cave)
+		local f = act[enum.power.mundane].flee
+		local w, source, targ_i = mini_world(cave, true, x, y)
+		local old_pos = source.pos
+		local res = f(enum.actmode.utility, w, source, targ_i)
+		return res <= grid.MAX_X + grid.MAX_Y - grid.distance(old_pos, targ_i)
+	end
+}
+
+property "act[enum.power.mundane] flee: attempt with obvious result" {
+	generators = {
+		int(3, grid.MAX_X-2),
+		int(3, grid.MAX_Y-2),
+	},
+	check = function(x, y)
+		local f = act[enum.power.mundane].flee
+		local w, source, targ_i = mini_world(false, true, x, y)
+		local old_distance = grid.distance(source.pos, targ_i)
+		local res = f(enum.actmode.attempt, w, source, targ_i)
+		local new_distance = grid.distance(source.pos, targ_i)
+		if w.light[targ_i] then
+			return res and new_distance == (old_distance + 1)
+		else
+			return not res and new_distance == old_distance
+		end
+	end,
+	when_fail = function(x, y)
+		local f = act[enum.power.mundane].flee
+		local w, source, targ_i = mini_world(false, true, x, y)
+		local old_distance = grid.distance(source.pos, targ_i)
+		local res = f(enum.actmode.attempt, w, source, targ_i)
+		local new_distance = grid.distance(source.pos, targ_i)
+		if x < grid.MAX_X and x > 1 and y < grid.MAX_Y and y > 1 then
+			print("")
+			print("x:", x, "y:", y)
+			print("targ_i:", targ_i)
+			local tx, ty = grid.get_xy(targ_i)
+			print("tx:", tx, "ty:", ty)
+			print("target lit?", w.light[targ_i])
+			print("old_distance:", old_distance)
+			print("new_distance:", new_distance)
+			print("res:", res)
+			print("pass cond:", old_distance > 1 and w.light[targ_i])
+			io.write("\n")
+			for i,x,y,t in grid.points(w._terrain) do
+				if w.denizens[i] then
+					io.write(i == source.pos and "@" or "A")
+				else
+					io.write(t.kind == enum.terrain.floor and "." or "#")
+				end
+				if x == grid.MAX_X then
+					io.write("\n")
+				end
+			end
+		end
+	end
+}

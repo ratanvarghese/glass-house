@@ -29,9 +29,9 @@ function mock.world(make_cave)
 		res._light[i] = (math.random(1, 2) == 2)
 	end
 
-	res.light, res._light_ctrl = proxy.write_to_alt(res._light)
-	res.terrain, res._terrain_ctrl = proxy.write_to_alt(res._terrain)
-	res.denizens, res._denizens_ctrl = proxy.write_to_alt(res._denizens)
+	res.light, res._light_ctrl = proxy.read_write(res._light) --Expect writing nil
+	res.terrain, res._terrain_ctrl = proxy.write_to_alt(res._terrain) --Protect shared data
+	res.denizens, res._denizens_ctrl = proxy.read_write(res._denizens) --Expect writing nil
 	res.addEntity = function(world, e)
 		world._entities[e] = true
 		world._entity_adds = world._entity_adds + 1

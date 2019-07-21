@@ -115,19 +115,21 @@ function grid.line(i1, i2)
 	end
 end
 
-function grid.adjacent_min(i, t)
-	local min = math.huge
-	local min_i = nil
+function grid.adjacent_extreme(i, t, domax)
+	local current = domax and -math.huge or math.huge
+	local current_i = nil
 
 	for d in pairs(grid.directions) do
 		local new_i = grid.travel(i, 1, d)
 		local new_v = t[new_i]
-		if new_v and new_v < min then
-			min = new_v
-			min_i = new_i
+		if new_v then
+			if (domax and new_v > current) or (not domax and new_v < current) then
+				current = new_v
+				current_i = new_i
+			end
 		end
 	end
-	return min, min_i
+	return current, current_i
 end
 
 function grid.distance(i1, i2)

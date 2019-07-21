@@ -385,45 +385,65 @@ local function smallGrid(x, y, v1, v2, v3, v4)
 		[grid.get_idx(x-1,y)] = v4
 	}
 end
-property "grid.adjacent_min: pick minimum value" {
-	generators = { int(2, grid.MAX_X-1), int(2, grid.MAX_Y-1), int(), int(), int(), int() },
-	check = function(x, y, v1, v2, v3, v4)
+property "grid.adjacent_extreme: pick correct value" {
+	generators = {
+		int(2, grid.MAX_X-1),
+		int(2, grid.MAX_Y-1),
+		int(),
+		int(),
+		int(),
+		int(),
+		bool()
+	 },
+	check = function(x, y, v1, v2, v3, v4, domax)
 		local my_grid = smallGrid(x, y, v1, v2, v3, v4)
 		local i = grid.get_idx(x, y)
-		return grid.adjacent_min(i, my_grid) == math.min(v1, v2, v3, v4)
+		local cmp = domax and math.max or math.min
+		return grid.adjacent_extreme(i, my_grid, domax) == cmp(v1, v2, v3, v4)
 	end,
-	when_fail = function(x, y, v1, v2, v3, v4)
+	when_fail = function(x, y, v1, v2, v3, v4, domax)
 		local my_grid = smallGrid(x, y, v1, v2, v3, v4)
-		local expected = math.min(v1, v2, v3, v4)
+		local cmp = domax and math.max or math.min
+		local expected = cmp(v1, v2, v3, v4)
 		local i = grid.get_idx(x, y) 
-		local actual = grid.adjacent_min(i, my_grid)
+		local actual = grid.adjacent_extreme(i, my_grid, domax)
 		print("Expected: ", expected)
 		print("Actual: ", actual)
 	end
 }
-property "grid.adjacent_min: pick minimum coordinates" {
-	generators = { int(2, grid.MAX_X-1), int(2, grid.MAX_Y-1), int(), int(), int(), int() },
-	check = function(x, y, v1, v2, v3, v4)
+property "grid.adjacent_extreme: pick correct coordinates" {
+	generators = {
+		int(2, grid.MAX_X-1),
+		int(2, grid.MAX_Y-1),
+		int(),
+		int(),
+		int(),
+		int(),
+		bool()
+	 },
+	check = function(x, y, v1, v2, v3, v4, domax)
 		local my_grid = smallGrid(x, y, v1, v2, v3, v4)
 		local i = grid.get_idx(x, y)
-		local _, res_i = grid.adjacent_min(i, my_grid)
-		return my_grid[res_i] == math.min(v1, v2, v3, v4)
+		local cmp = domax and math.max or math.min
+		local _, res_i = grid.adjacent_extreme(i, my_grid, domax)
+		return my_grid[res_i] == cmp(v1, v2, v3, v4)
 	end,
 	when_fail = function(x, y, v1, v2, v3, v4)
 		local my_grid = smallGrid(x, y, v1, v2, v3, v4)
-		local expected = math.min(v1, v2, v3, v4)
+		local cmp = domax and math.max or math.min
+		local expected = cmp(v1, v2, v3, v4)
 		local i = grid.get_idx(x, y)
-		local res, res_i = grid.adjacent_min(i, my_grid)
+		local res, res_i = grid.adjacent_extreme(i, my_grid, domax)
 		print("res: ", res)
 		print("res_i: ", res_i)
 	end
 }
-property "grid.adjacent_min: return number as default result" {
-	generators = { int(2, grid.MAX_X-1), int(2, grid.MAX_Y-1) },
-	check = function(x, y)
+property "grid.adjacent_extreme: return number as default result" {
+	generators = { int(2, grid.MAX_X-1), int(2, grid.MAX_Y-1), bool() },
+	check = function(x, y, domax)
 		local my_grid = {} --Empty, so must use default value
 		local i = grid.get_idx(x, y)
-		return type(grid.adjacent_min(i, my_grid)) == "number"
+		return type(grid.adjacent_extreme(i, my_grid, domax)) == "number"
 	end
 }
 
