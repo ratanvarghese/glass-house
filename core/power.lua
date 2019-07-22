@@ -4,6 +4,7 @@ local enum = require("core.enum")
 local power = {}
 
 power.MAX_LEN = 52 -- 2*(length of English alphabet)
+power.DEFAULT = -1
 
 power.define = {}
 
@@ -49,7 +50,9 @@ function power.make_list(define_list)
 				table.insert(res, p)
 			end
 		else
-			table.insert(res, base.copy(v))
+			local p = base.copy(v)
+			p.factor = power.DEFAULT
+			table.insert(res, p)
 		end
 	end
 	return res
