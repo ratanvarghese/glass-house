@@ -19,8 +19,8 @@ function gen.big_room()
 	end
 	local x_list = base.extend_arr({}, base.rn_distinct(2, grid.MAX_X-1, 2))
 	local y_list = base.extend_arr({}, base.rn_distinct(2, grid.MAX_Y-1, 2))
-	terrain[grid.get_idx(x_list[1], y_list[1])].kind = enum.terrain.stair
-	return terrain, grid.get_idx(x_list[2], y_list[2])
+	terrain[grid.get_pos(x_list[1], y_list[1])].kind = enum.terrain.stair
+	return terrain, grid.get_pos(x_list[2], y_list[2])
 end
 
 local function boolean_walker(max_steps, start_i, clipn)
@@ -52,7 +52,7 @@ function gen.cave()
 	local clipn = 1
 	local x = math.random(1+clipn, grid.MAX_X-clipn)
 	local y = math.random(1+clipn, grid.MAX_Y-clipn)
-	local start_i = grid.get_idx(x, y)
+	local start_i = grid.get_pos(x, y)
 	local floors, end_i = boolean_walker(gen.CAVE_STEPS, start_i, clipn)
 	local terrain = {}
 	for i,x,y,v in grid.points(floors) do

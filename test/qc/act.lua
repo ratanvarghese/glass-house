@@ -16,7 +16,7 @@ local function mini_world(cave, swap, x, y)
 	local x = x or math.floor(grid.MAX_X/2)
 	local y = y or math.floor(grid.MAX_Y/2)
 	local w = mock.world(cave)
-	local targ_i = grid.get_idx(x, y)
+	local targ_i = grid.get_pos(x, y)
 	local source_i = w._start_i
 	if swap then
 		targ_i, source_i = source_i, targ_i

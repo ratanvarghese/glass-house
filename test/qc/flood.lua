@@ -10,16 +10,16 @@ property "flood.gradient: correct number of steps" {
 		int(2, grid.MAX_Y-1)
 	},
 	check = function(targ_x, targ_y, start_x, start_y)
-		local targ_i = grid.get_idx(targ_x, targ_y)
-		local start_i = grid.get_idx(start_x, start_y)
+		local targ_i = grid.get_pos(targ_x, targ_y)
+		local start_i = grid.get_pos(start_x, start_y)
 		local t = flood.gradient(targ_i)
 		local expected = math.abs(targ_x - start_x) + math.abs(targ_y - start_y)
 		local actual = t[start_i] - t[targ_i]
 		return expected == actual
 	end,
 	when_fail = function(targ_x, targ_y, start_x, start_y)
-		local targ_i = grid.get_idx(targ_x, targ_y)
-		local start_i = grid.get_idx(start_x, start_y)
+		local targ_i = grid.get_pos(targ_x, targ_y)
+		local start_i = grid.get_pos(start_x, start_y)
 		local t = flood.gradient(targ_i)
 		local expected = math.abs(targ_x - start_x) + math.abs(targ_y - start_y)
 		local actual = t[start_i] - t[targ_i]
@@ -52,8 +52,8 @@ property "flood.search: finds target" {
 		int(2, grid.MAX_Y-1)
 	},
 	check = function(targ_x, targ_y, dummy_x, dummy_y)
-		local targ_i = grid.get_idx(targ_x, targ_y)
-		local dummy_i = grid.get_idx(dummy_x, dummy_y)
+		local targ_i = grid.get_pos(targ_x, targ_y)
+		local dummy_i = grid.get_pos(dummy_x, dummy_y)
 		local t = {[dummy_i] = math.huge, [targ_i] = 0} --Order matters if dummy_i == targ_i
 		local f = function(i)
 			return t[i] == 0
@@ -69,7 +69,7 @@ property "flood.search: return false if no target" {
 		int(2, grid.MAX_Y-1),
 	},
 	check = function(dummy_x, dummy_y)
-		local dummy_i = grid.get_idx(dummy_x, dummy_y)
+		local dummy_i = grid.get_pos(dummy_x, dummy_y)
 		local t = {[dummy_i] = math.huge} 
 		local f = function(i)
 			return t[i] == 0

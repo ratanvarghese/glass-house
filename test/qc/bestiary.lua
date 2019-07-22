@@ -34,7 +34,7 @@ property "bestiary.make: pos and kind match input" {
 	check = function(x, y, kind_i)
 		local old_set = bestiary.set
 		bestiary.set = test_set
-		local pos = grid.get_idx(x, y)
+		local pos = grid.get_pos(x, y)
 		local kind = test_kinds[kind_i]
 		local res = bestiary.make(kind, pos)
 		bestiary_set = old_set
@@ -48,7 +48,7 @@ property "bestiary.make: simple components match" {
 		local old_set = bestiary.set
 		bestiary.set = test_set
 		local kind = test_kinds[kind_i]
-		local res = bestiary.make(kind, grid.get_idx(x, y))
+		local res = bestiary.make(kind, grid.get_pos(x, y))
 		local ignore_k = {inventory = true, health = true, power = true}
 		for k,v in pairs(bestiary.set[kind]) do
 			if not ignore_k[k] and not base.equals(res[k], v) then
@@ -67,7 +67,7 @@ property "bestiary.make: health component" {
 		local old_set = bestiary.set
 		bestiary.set = test_set
 		local kind = test_kinds[kind_i]
-		local res = bestiary.make(kind, grid.get_idx(x, y))
+		local res = bestiary.make(kind, grid.get_pos(x, y))
 		local species = bestiary.set[kind]
 		bestiary_set = old_set
 		return res.health.now == res.health.max and res.health.max == species.health.max
@@ -80,7 +80,7 @@ property "bestiary.make: power component" {
 		local old_set = bestiary.set
 		bestiary.set = test_set
 		local kind = test_kinds[kind_i]
-		local res = bestiary.make(kind, grid.get_idx(x, y))
+		local res = bestiary.make(kind, grid.get_pos(x, y))
 		local expected_power = base.copy(bestiary.set[kind].power)
 		expected_power[enum.power.mundane] = power.DEFAULT
 		bestiary_set = old_set
@@ -94,7 +94,7 @@ property "bestiary.make: inventory are tool objects" {
 		local old_set = bestiary.set
 		bestiary.set = test_set
 		local kind = test_kinds[kind_i]
-		local res = bestiary.make(kind, grid.get_idx(x, y))
+		local res = bestiary.make(kind, grid.get_pos(x, y))
 		if bestiary.set[kind].inventory then
 			for i,v in ipairs(bestiary.set[kind].inventory) do
 				local obj = tool.make(v)

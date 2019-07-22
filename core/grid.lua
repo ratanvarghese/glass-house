@@ -3,7 +3,7 @@ local enum = require("core.enum")
 
 local grid = {}
 
-function grid.get_idx(x, y)
+function grid.get_pos(x, y)
 	return (y*grid.MAX_X) + x
 end
 
@@ -39,7 +39,7 @@ local function points_iter(invariant, i)
 	if nx > invariant.x2 then
 		nx = invariant.x1
 		ny = ny + 1
-		ni = grid.get_idx(nx, ny)
+		ni = grid.get_pos(nx, ny)
 	end
 	if ni > invariant.max then
 		return nil, nil, nil, nil
@@ -50,8 +50,8 @@ end
 
 function grid.points(t, i1, i2)
 	local t = t or {}
-	local i1 = i1 or grid.get_idx(1, 1)
-	local i2 = i2 or grid.get_idx(grid.MAX_X, grid.MAX_Y)
+	local i1 = i1 or grid.get_pos(1, 1)
+	local i2 = i2 or grid.get_pos(grid.MAX_X, grid.MAX_Y)
 	local x1, y1 = grid.get_xy(i1)
 	local x2, y2 = grid.get_xy(i2)
 
@@ -71,7 +71,7 @@ function grid.travel(start_i, distance, direction, clipn)
 	local end_x, end_y
 	local end_x = start_x + (d.x*distance)
 	local end_y = start_y + (d.y*distance)
-	return grid.get_idx(grid.clip(end_x, end_y, clipn))
+	return grid.get_pos(grid.clip(end_x, end_y, clipn))
 end
 
 local function bresenham(x1, y1, x2, y2, dx, dy, is_steep)
@@ -82,7 +82,7 @@ local function bresenham(x1, y1, x2, y2, dx, dy, is_steep)
 	local abs_2dx = 2 * math.abs(dx)
 	local abs_2dy = 2 * math.abs(dy)
 	local function pt()
-		return is_steep and grid.get_idx(y1, x1) or grid.get_idx(x1, y1)
+		return is_steep and grid.get_pos(y1, x1) or grid.get_pos(x1, y1)
 	end
 	
 	local res = {}

@@ -35,7 +35,7 @@ property "gen.big_room: terrain" {
 	generators = { int(1, grid.MAX_X), int(1, grid.MAX_Y) },
 	check = function(x, y)
 		local t = gen.big_room()
-		local i = grid.get_idx(x, y)
+		local i = grid.get_pos(x, y)
 		local s = t[i].kind
 		if s == enum.terrain.stair or s == enum.terrain.floor then
 			return not grid.is_edge(x, y)

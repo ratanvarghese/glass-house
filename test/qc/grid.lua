@@ -23,13 +23,13 @@ property "grid.init: error on bad input" {
 	end
 }
 
-local unique_idx_set = {}
-property "grid.get_idx: unique idx" {
+local unique_pos_set = {}
+property "grid.get_pos: unique pos" {
 	generators = { int(1, grid.MAX_X), int(1, grid.MAX_Y) },
 	check = function(x, y)
-		local i = grid.get_idx(x, y)
-		local alreadyFound = unique_idx_set[i]
-		unique_idx_set[i] = {x=x, y=y}
+		local i = grid.get_pos(x, y)
+		local alreadyFound = unique_pos_set[i]
+		unique_pos_set[i] = {x=x, y=y}
 		if alreadyFound then
 			return alreadyFound.x == x and alreadyFound.y == y
 		else
@@ -38,10 +38,10 @@ property "grid.get_idx: unique idx" {
 	end
 }
 
-property "grid.get_xy: reverse of grid.get_idx" {
+property "grid.get_xy: reverse of grid.get_pos" {
 	generators = { int(1, grid.MAX_X), int(1, grid.MAX_Y) },
 	check = function(x, y)
-		local nx, ny = grid.get_xy(grid.get_idx(x, y))
+		local nx, ny = grid.get_xy(grid.get_pos(x, y))
 		return nx == x and ny == y
 	end
 }
@@ -112,7 +112,7 @@ property "grid.points: handle all points with default arguments" {
 		for i in grid.points() do
 			t[i] = true
 		end
-		return t[grid.get_idx(x1, y1)]
+		return t[grid.get_pos(x1, y1)]
 	end
 
 }
@@ -131,9 +131,9 @@ property "grid.points: handle all points if given arguments" {
 		table.sort(x_asc)
 		table.sort(y_asc)
 		local i_asc = {
-			grid.get_idx(x_asc[1], y_asc[1]),
-			grid.get_idx(x_asc[2], y_asc[2]),
-			grid.get_idx(x_asc[3], y_asc[3])
+			grid.get_pos(x_asc[1], y_asc[1]),
+			grid.get_pos(x_asc[2], y_asc[2]),
+			grid.get_pos(x_asc[3], y_asc[3])
 		}
 		local t = {}
 		for i in grid.points(nil, i_asc[1], i_asc[3]) do
@@ -158,9 +158,9 @@ property "grid.points: no extra points" {
 		table.sort(x_asc)
 		table.sort(y_asc)
 		local i_asc = {
-			grid.get_idx(x_asc[1], y_asc[1]),
-			grid.get_idx(x_asc[2], y_asc[2]),
-			grid.get_idx(x_asc[3], y_asc[3])
+			grid.get_pos(x_asc[1], y_asc[1]),
+			grid.get_pos(x_asc[2], y_asc[2]),
+			grid.get_pos(x_asc[3], y_asc[3])
 		}
 		local t = {}
 		for i in grid.points(nil, i_asc[1], i_asc[2]) do
@@ -212,8 +212,8 @@ property "grid.points: get v" {
 			return true
 		end
 		local t = {
-			[grid.get_idx(x1, y1)] = v1,
-			[grid.get_idx(x2, y2)] = v2
+			[grid.get_pos(x1, y1)] = v1,
+			[grid.get_pos(x2, y2)] = v2
 		}
 		for _,x,y,v in grid.points(t) do
 			if x == x1 and y == y1 and v ~= v1 then
@@ -238,7 +238,7 @@ property "grid.travel: correct destination" {
 	},
 	check = function(x, y, distance, omit_distance, clipn, omit_clipn, direction_i)
 		local direction = grid.direction_list[direction_i]
-		local start_i = grid.get_idx(x, y)
+		local start_i = grid.get_pos(x, y)
 		if omit_distance then
 			distance = nil
 		end
@@ -278,7 +278,7 @@ property "grid.travel: omit direction" {
 		if omit_distance then
 			distance = nil
 		end
-		local start_i = grid.get_idx(x, y)
+		local start_i = grid.get_pos(x, y)
 		local res_i = grid.travel(start_i, distance)
 		local expected = {
 			[grid.travel(start_i, distance, enum.cmd.north)] = true,
@@ -298,8 +298,8 @@ property "grid.line: start at i1" {
 		int(1, grid.MAX_Y),
 	},
 	check = function(x1, x2, y1, y2)
-		local i1 = grid.get_idx(x1, y1)
-		local i2 = grid.get_idx(x2, y2)
+		local i1 = grid.get_pos(x1, y1)
+		local i2 = grid.get_pos(x2, y2)
 		local res = grid.line(i1, i2)
 		return res[1] == i1
 	end
@@ -313,8 +313,8 @@ property "grid.line: end at i2" {
 		int(1, grid.MAX_Y),
 	},
 	check = function(x1, x2, y1, y2)
-		local i1 = grid.get_idx(x1, y1)
-		local i2 = grid.get_idx(x2, y2)
+		local i1 = grid.get_pos(x1, y1)
+		local i2 = grid.get_pos(x2, y2)
 		local res = grid.line(i1, i2)
 		return res[#res] == i2
 	end
@@ -329,8 +329,8 @@ property "grid.line: adjacent list elements are adjacent coordinates" {
 		int(2, grid.MAX_X + grid.MAX_Y)
 	},
 	check = function(x1, x2, y1, y2, list_i)
-		local i1 = grid.get_idx(x1, y1)
-		local i2 = grid.get_idx(x2, y2)
+		local i1 = grid.get_pos(x1, y1)
+		local i2 = grid.get_pos(x2, y2)
 		local res = grid.line(i1, i2)
 		if #res < 2 then
 			return true
@@ -342,8 +342,8 @@ property "grid.line: adjacent list elements are adjacent coordinates" {
 		return grid.distance(p1, p2) == 1
 	end,
 	when_fail = function(x1, x2, y1, y2)
-		local i1 = grid.get_idx(x1, y1)
-		local i2 = grid.get_idx(x2, y2)
+		local i1 = grid.get_pos(x1, y1)
+		local i2 = grid.get_pos(x2, y2)
 		local res = grid.line(i1, i2)
 		print("")
 		for i,v in ipairs(res) do
@@ -361,14 +361,14 @@ property "grid.line: correct length" {
 		int(1, grid.MAX_Y),
 	},
 	check = function(x1, x2, y1, y2)
-		local i1 = grid.get_idx(x1, y1)
-		local i2 = grid.get_idx(x2, y2)
+		local i1 = grid.get_pos(x1, y1)
+		local i2 = grid.get_pos(x2, y2)
 		local res = grid.line(i1, i2)
 		return #res == (grid.distance(i1, i2) + 1)
 	end,
 	when_fail = function(x1, x2, y1, y2)
-		local i1 = grid.get_idx(x1, y1)
-		local i2 = grid.get_idx(x2, y2)
+		local i1 = grid.get_pos(x1, y1)
+		local i2 = grid.get_pos(x2, y2)
 		local res = grid.line(i1, i2)
 		print("")
 		for i,v in ipairs(res) do
@@ -379,10 +379,10 @@ property "grid.line: correct length" {
 
 local function smallGrid(x, y, v1, v2, v3, v4)
 	return {
-		[grid.get_idx(x,y+1)] = v1,
-		[grid.get_idx(x,y-1)] = v2,
-		[grid.get_idx(x+1,y)] = v3,
-		[grid.get_idx(x-1,y)] = v4
+		[grid.get_pos(x,y+1)] = v1,
+		[grid.get_pos(x,y-1)] = v2,
+		[grid.get_pos(x+1,y)] = v3,
+		[grid.get_pos(x-1,y)] = v4
 	}
 end
 property "grid.adjacent_extreme: pick correct value" {
@@ -397,7 +397,7 @@ property "grid.adjacent_extreme: pick correct value" {
 	 },
 	check = function(x, y, v1, v2, v3, v4, domax)
 		local my_grid = smallGrid(x, y, v1, v2, v3, v4)
-		local i = grid.get_idx(x, y)
+		local i = grid.get_pos(x, y)
 		local cmp = domax and math.max or math.min
 		return grid.adjacent_extreme(i, my_grid, domax) == cmp(v1, v2, v3, v4)
 	end,
@@ -405,7 +405,7 @@ property "grid.adjacent_extreme: pick correct value" {
 		local my_grid = smallGrid(x, y, v1, v2, v3, v4)
 		local cmp = domax and math.max or math.min
 		local expected = cmp(v1, v2, v3, v4)
-		local i = grid.get_idx(x, y) 
+		local i = grid.get_pos(x, y) 
 		local actual = grid.adjacent_extreme(i, my_grid, domax)
 		print("Expected: ", expected)
 		print("Actual: ", actual)
@@ -423,7 +423,7 @@ property "grid.adjacent_extreme: pick correct coordinates" {
 	 },
 	check = function(x, y, v1, v2, v3, v4, domax)
 		local my_grid = smallGrid(x, y, v1, v2, v3, v4)
-		local i = grid.get_idx(x, y)
+		local i = grid.get_pos(x, y)
 		local cmp = domax and math.max or math.min
 		local _, res_i = grid.adjacent_extreme(i, my_grid, domax)
 		return my_grid[res_i] == cmp(v1, v2, v3, v4)
@@ -432,7 +432,7 @@ property "grid.adjacent_extreme: pick correct coordinates" {
 		local my_grid = smallGrid(x, y, v1, v2, v3, v4)
 		local cmp = domax and math.max or math.min
 		local expected = cmp(v1, v2, v3, v4)
-		local i = grid.get_idx(x, y)
+		local i = grid.get_pos(x, y)
 		local res, res_i = grid.adjacent_extreme(i, my_grid, domax)
 		print("res: ", res)
 		print("res_i: ", res_i)
@@ -442,7 +442,7 @@ property "grid.adjacent_extreme: return number as default result" {
 	generators = { int(2, grid.MAX_X-1), int(2, grid.MAX_Y-1), bool() },
 	check = function(x, y, domax)
 		local my_grid = {} --Empty, so must use default value
-		local i = grid.get_idx(x, y)
+		local i = grid.get_pos(x, y)
 		return type(grid.adjacent_extreme(i, my_grid, domax)) == "number"
 	end
 }
@@ -457,8 +457,8 @@ property "grid.distance: expected distance" {
 	check = function(x, dx, y, dy)
 		local dx = base.clip(dx, 0, grid.MAX_X - x)
 		local dy = base.clip(dy, 0, grid.MAX_Y - y)
-		local i1 = grid.get_idx(x, y)
-		local i2 = grid.get_idx(x + dx, y + dy)
+		local i1 = grid.get_pos(x, y)
+		local i2 = grid.get_pos(x + dx, y + dy)
 		local res = grid.distance(i1, i2)
 		return res == (dx + dy)
 	end
@@ -472,8 +472,8 @@ property "grid.distance: same result with arguments reversed" {
 		int(1, grid.MAX_Y)
 	},
 	check = function(x1, x2, y1, y2)
-		local i1 = grid.get_idx(x1, y1)
-		local i2 = grid.get_idx(x2, y2)
+		local i1 = grid.get_pos(x1, y1)
+		local i2 = grid.get_pos(x2, y2)
 		return grid.distance(i1, i2) == grid.distance(i2, i1)
 	end
 }
