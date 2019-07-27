@@ -65,7 +65,7 @@ function common.symbol_at(world, pos)
 end
 
 function common.color_at(world, pos)
-	local invert = (i == world.player_pos)
+	local invert = (pos == world.player_pos)
 	local c = common.colors.white
 	local dz = world.denizens[pos]
 	if dz and dz.display then
