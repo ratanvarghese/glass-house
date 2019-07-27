@@ -89,8 +89,8 @@ function decide.process(system, e, dt)
 			if t.inventory and #t.inventory > 0 then
 				e.inventory = e.inventory or {}
 				table.insert(e.inventory, table.remove(t.inventory))
-				world.addEntity(world, t)
-				world.addEntity(world, e)
+				system.world.addEntity(system.world, t)
+				system.world.addEntity(system.world, e)
 			end
 		end
 	end
