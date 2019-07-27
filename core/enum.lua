@@ -128,4 +128,16 @@ function enum.rn_item(list, dynamic_only)
 	return valid[math.random(1, #valid)]
 end
 
+function enum.selectf(enumlist, t)
+	local alt_t = {}
+	for k,v in pairs(enumlist) do
+		alt_t[v] = t[k]
+	end
+	return function(mode, ...)
+		local f = alt_t[mode]
+		assert(f, "Bad mode")
+		return f(...)
+	end
+end
+
 return enum.init(enum.default_inverted)

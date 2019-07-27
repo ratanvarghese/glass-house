@@ -1,28 +1,8 @@
-local serpent = require("lib.serpent")
-
 local base = require("core.base")
 local enum = require("core.enum")
 local grid = require("core.grid")
-local path = require("core.path")
 
 local act = {}
-
-local function modesplit(t)
-	local possible_f = t.possible
-	local utility_f = t.utility
-	local attempt_f = t.attempt
-	return function(mode, ...)
-		if mode == enum.actmode.possible then
-			return possible_f(...)
-		elseif mode == enum.actmode.utility then
-			return utility_f(...)
-		elseif mode == enum.actmode.attempt then
-			return attempt_f(...)
-		else
-			error("Bad mode")
-		end
-	end
-end
 
 local function move_denizen(world, d, new_pos)
 	assert(not world.denizens[new_pos], "Attempt to move denizen onto denizen")
@@ -163,7 +143,7 @@ function mundane_flee.attempt(world, source, target_i)
 		return false
 	end
 	local max, max_i = grid.adjacent_extreme(source.pos, world.walk_paths[target_i], true)
-	if max <= -math.huge then
+	if max <= 0 then
 		return false
 	end
 	move_denizen(world, source, max_i)
@@ -172,9 +152,9 @@ end
 
 function act.init()
 	act[enum.power.mundane] = {
-		wander = modesplit(mundane_wander),
-		pursue = modesplit(mundane_pursue),
-		flee = modesplit(mundane_flee)
+		wander = enum.selectf(enum.actmode, mundane_wander),
+		pursue = enum.selectf(enum.actmode, mundane_pursue),
+		flee = enum.selectf(enum.actmode, mundane_flee)
 	}
 
 	for k,v in pairs(act) do
