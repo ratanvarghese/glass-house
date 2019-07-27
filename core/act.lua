@@ -22,18 +22,10 @@ end
 
 local mundane_wander = {}
 function mundane_wander.options(world, source_pos)
-	local options = {
-		grid.travel(source_pos, 1, enum.cmd.north),
-		grid.travel(source_pos, 1, enum.cmd.south),
-		grid.travel(source_pos, 1, enum.cmd.east),
-		grid.travel(source_pos, 1, enum.cmd.west)
-	}
-
-	local max_p = #options
-	for i=max_p,1,-1 do
-		local pos = options[i]
-		if world.denizens[pos] or world.terrain[pos].kind ~= enum.terrain.floor then
-			table.remove(options, i)
+	local options = {}
+	for _,pos in grid.destinations(source_pos) do
+		if not world.denizens[pos] and world.terrain[pos].kind == enum.terrain.floor then
+			table.insert(options, pos)
 		end
 	end
 	return options
@@ -57,18 +49,10 @@ end
 
 local mundane_pursue = {}
 function mundane_pursue.options(paths, source_pos)
-	local options = {
-		grid.travel(source_pos, 1, enum.cmd.north),
-		grid.travel(source_pos, 1, enum.cmd.south),
-		grid.travel(source_pos, 1, enum.cmd.east),
-		grid.travel(source_pos, 1, enum.cmd.west)
-	}
-
-	local max_p = #options
-	for i=max_p,1,-1 do
-		local pos = options[i]
-		if not paths[pos] then
-			table.remove(options, i)
+	local options = {}
+	for _,pos in grid.destinations(source_pos) do
+		if paths[pos] then
+			table.insert(options, pos)
 		end
 	end
 	return options
@@ -104,18 +88,10 @@ end
 
 local mundane_flee = {}
 function mundane_flee.options(paths, source_pos)
-	local options = {
-		grid.travel(source_pos, 1, enum.cmd.north),
-		grid.travel(source_pos, 1, enum.cmd.south),
-		grid.travel(source_pos, 1, enum.cmd.east),
-		grid.travel(source_pos, 1, enum.cmd.west)
-	}
-
-	local max_p = #options
-	for i=max_p,1,-1 do
-		local pos = options[i]
-		if not paths[pos] then
-			table.remove(options, i)
+	local options = {}
+	for _,pos in grid.destinations(source_pos) do
+		if paths[pos] then
+			table.insert(options, pos)
 		end
 	end
 	return options

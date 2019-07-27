@@ -138,6 +138,27 @@ function grid.distance(i1, i2)
 	return math.abs(y2 - y1) + math.abs(x2 - x1)
 end
 
+function grid.destinations_iter(_s, _var)
+	local dk = next(_s.dt, _var)
+	if dk == nil then
+		return nil
+	end
+	local dv = _s.dt[dk]
+	local x = _s.x + dv.x
+	local y = _s.y + dv.y
+	if x < 1 or x > grid.MAX_X or y < 1 or y > grid.MAX_Y then
+		return grid.destinations_iter(_s, dk)
+	else
+		return dk, grid.get_pos(grid.clip(x, y))
+	end
+end
+
+function grid.destinations(start, dt)
+	local dt = dt or grid.directions
+	local x, y = grid.get_xy(start)
+	return grid.destinations_iter, {x=x, y=y, dt=dt}, nil
+end
+
 function grid.init(max_x, max_y)
 	assert(type(max_x) == "number", "No max_x")
 	assert(type(max_y) == "number", "No max_y")

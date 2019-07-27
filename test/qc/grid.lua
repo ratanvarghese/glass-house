@@ -477,3 +477,83 @@ property "grid.distance: same result with arguments reversed" {
 		return grid.distance(i1, i2) == grid.distance(i2, i1)
 	end
 }
+
+property "grid.destinations: correct distance for default direction list" {
+	generators = {
+		int(1, grid.MAX_X),
+		int(1, grid.MAX_Y)
+	},
+	check = function(x, y)
+		local start = grid.get_pos(x, y)
+		local count = 0
+		for _,pos in grid.destinations(start) do
+			if grid.distance(start, pos) ~= 1 then
+				return false
+			end
+			count = count + 1
+		end
+		return count <= 4 and count >= 2
+	end
+}
+
+property "grid.destinations: skip out-of-bounds results" {
+	generators = {
+		int(1, grid.MAX_X),
+		int(1, grid.MAX_Y)
+	},
+	check = function(x, y)
+		local x = (x < grid.MAX_X) and 1 or grid.MAX_X
+		local y = (y < grid.MAX_Y) and 1 or grid.MAX_Y
+		local start = grid.get_pos(x, y)
+		local count = 0
+		for _,pos in grid.destinations(start) do
+			local dest_x, dest_y = grid.get_xy(pos)
+			if dest_x < 1 or dest_x > grid.MAX_X or dest_y < 1 or dest_y > grid.MAX_Y then
+				return false
+			elseif grid.distance(start, pos) ~= 1 then
+				return false
+			end
+			count = count + 1
+		end
+		return count == 2
+	end
+}
+
+property "grid.destinations: custom direction table" {
+	generators = {
+		int(1, grid.MAX_X),
+		int(1, grid.MAX_Y),
+		int(0, 3)
+	},
+	check = function(dx, dy, dlen)
+		local dlist = {
+			{x = dx, y = 0},
+			{x = 0, y = dy},
+			{x = dx, y = dy}
+		}
+		local old_dlen = #dlist
+		for i=old_dlen,dlen+1,-1 do
+			dlist[i] = nil
+		end
+		local start = grid.get_pos(1, 1)
+		local count = 0
+		for _,pos in grid.destinations(start, dlist) do
+			local dest_x, dest_y = grid.get_xy(pos)
+			if dest_x ~= (dx + 1) and dest_x ~= 1 then
+				return false
+			elseif dest_y ~= (dy + 1) and dest_y ~= 1 then
+				return false
+			end
+			count = count + 1
+		end
+		if dx == grid.MAX_X and dy == grid.MAX_Y then
+			return count == 0
+		elseif dx == grid.MAX_X then
+			return (dlen > 1) and 1 or 0
+		elseif dy == grid.MAX_Y then
+			return (dlen > 0) and 1 or 0
+		else
+			return count == dlen
+		end
+	end
+}
