@@ -10,7 +10,6 @@ local mock = {}
 local big_room, big_room_start_i = gen.big_room()
 local cave, cave_start_i = gen.cave()
 
-
 function mock.world(make_cave)
 	local res = {
 		_denizens = {},
@@ -59,6 +58,21 @@ function mock.world(make_cave)
 		table.insert(world._regens, n)
 	end
 	return res
+end
+
+function mock.mini_world(cave, swap, x, y)
+	local x = x or math.floor(grid.MAX_X/2)
+	local y = y or math.floor(grid.MAX_Y/2)
+	local w = mock.world(cave)
+	local targ_i = grid.get_pos(x, y)
+	local source_i = w._start_i
+	if swap then
+		targ_i, source_i = source_i, targ_i
+	end
+	local source = {pos=source_i}
+	w._denizens[source_i] = source
+	w._setup_walk_paths(w, source_i, targ_i)
+	return w, source, targ_i
 end
 
 return mock
