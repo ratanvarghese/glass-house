@@ -3,6 +3,7 @@ local enum = require("core.enum")
 
 local act_common = require("core.act.common")
 local act_mundane = require("core.act.mundane")
+local act_usetool = require("core.act.usetool")
 
 local act = {}
 
@@ -11,6 +12,11 @@ function act.init()
 		wander = enum.selectf(enum.actmode, act_mundane.wander),
 		pursue = enum.selectf(enum.actmode, act_mundane.pursue),
 		flee = enum.selectf(enum.actmode, act_mundane.flee)
+	}
+	act[enum.power.tool] = {
+		pickup = enum.selectf(enum.actmode, act_usetool.pickup),
+		drop = enum.selectf(enum.actmode, act_usetool.drop),
+		equip = enum.selectf(enum.actmode, act_usetool.equip)
 	}
 
 	for k,v in pairs(act) do

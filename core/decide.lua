@@ -18,27 +18,9 @@ function decide.player(e, world, cmd, n)
 	elseif cmd == enum.cmd.exit then
 		decide.exit(world, false)
 	elseif cmd == enum.cmd.equip then
-		if n and e.inventory and e.inventory[n] then
-			return function(dummy, world, e, dummy2)
-				tool.equip(e.inventory[n], e)
-				return true
-			end
-		else
-			return function() end
-		end
+		return act[enum.power.tool].equip, (n or 1)
 	elseif cmd == enum.cmd.drop then
-		if e.inventory and #e.inventory > 0 then
-			return function(dummy, world, e, dummy2)
-				local t = world.terrain[e.pos]
-				if not t.inventory then t.inventory = {} end
-				table.insert(t.inventory, table.remove(e.inventory))
-				world.addEntity(world, t)
-				world.addEntity(world, e)
-				return true
-			end
-		else
-			return function() end
-		end
+		return act[enum.power.tool].drop, (n or 1)
 	else
 		error("Sorry, that command is not implemented")
 	end
@@ -85,13 +67,8 @@ function decide.process(system, e, dt)
 			clock.spend_credit(e.clock)
 		end
 		if e.decide == enum.decidemode.player and e.pos ~= old_pos then
-			local t = system.world.terrain[e.pos]
-			if t.inventory and #t.inventory > 0 then
-				e.inventory = e.inventory or {}
-				table.insert(e.inventory, table.remove(t.inventory))
-				system.world.addEntity(system.world, t)
-				system.world.addEntity(system.world, e)
-			end
+			local f = act[enum.power.tool].pickup
+			f(enum.actmode.attempt, system.world, e, 1)
 		end
 	end
 end
