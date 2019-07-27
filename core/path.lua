@@ -6,19 +6,18 @@ local proxy = require("core.proxy")
 
 local path = {}
 
-function path.walk_to(target, world)
-	local function walkable(pos)
-		local t_kind = world.terrain[pos].kind
-		local good_t = t_kind ~= enum.terrain.wall and t_kind ~= enum.terrain.tough_wall
+function path.walkable(world, pos)
+		local terrain_kind = world.terrain[pos].kind
+		local good_t = (terrain_kind == enum.terrain.floor) or (terrain_kind == enum.terrain.stair)
 		return good_t and not world.denizens[pos]
-	end
-
-	return flood.gradient(target, walkable)
 end
 
 function path.reset_all(system)
-	local w = system.world
-	w.walk_paths = proxy.memoize(function(target) return path.walk_to(target, w) end)
+	system.world.walk_paths = proxy.memoize(function(target)
+		return flood.gradient(target, function(pos)
+			return path.walkable(system.world, pos)
+		end)
+	end)
 end
 
 function path.make_system()
