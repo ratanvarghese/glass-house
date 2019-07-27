@@ -1,6 +1,9 @@
+local serpent = require("lib.serpent")
+
 local base = require("core.base")
 local enum = require("core.enum")
 local grid = require("core.grid")
+local path = require("core.path")
 
 local act = {}
 
@@ -22,10 +25,18 @@ local function modesplit(t)
 end
 
 local function move_denizen(world, d, new_pos)
+	assert(not world.denizens[new_pos], "Attempt to move denizen onto denizen")
 	local old_pos = d.pos
 	d.pos = new_pos
 	world.denizens[old_pos] = nil
 	world.denizens[d.pos] = d
+	if d.decide == enum.decidemode.player then
+		world.player_pos = d.pos
+		if world.terrain[d.pos].kind == enum.terrain.stair then
+			world.regen(world, world.num+1)
+			return
+		end
+	end
 	world.addEntity(world, d)
 end
 
@@ -84,18 +95,12 @@ function mundane_pursue.options(paths, source_pos)
 end
 
 function mundane_pursue.possible(world, source, target_i)
-	if not world.light[target_i] then
-		return false
-	elseif grid.distance(source.pos, target_i) <= 1 then
-		return false
-	else
-		local options = mundane_pursue.options(world.walk_paths[target_i], source.pos)
-		return #options > 0
-	end
+	local options = mundane_pursue.options(world.walk_paths[target_i], source.pos)
+	return #options > 0
 end
 
 function mundane_pursue.utility(world, source, target_i)
-	if mundane_pursue.possible(world, source, target_i) then
+	if mundane_pursue.possible(world, source, target_i) and world.light[target_i] then
 		return grid.distance(source.pos, target_i)
 	else
 		return 0
@@ -103,11 +108,14 @@ function mundane_pursue.utility(world, source, target_i)
 end
 
 function mundane_pursue.attempt(world, source, target_i)
-	if not world.light[target_i] then
-		return false
+	if source.pos == target_i then
+		return true
 	end
 	local min, min_i = grid.adjacent_extreme(source.pos, world.walk_paths[target_i])
-	if min >= math.huge or min < 1 then
+	if min >= math.huge then
+		return false
+	end
+	if grid.distance(source.pos, target_i) == 1 and min_i ~= target_i then
 		return false
 	end
 	move_denizen(world, source, min_i)

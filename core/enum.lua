@@ -5,6 +5,7 @@ local enum = {}
 enum.default_inverted = {}
 enum.default_inverted.cmd = {
 	"quit",
+	"exit",
 	"north",
 	"south",
 	"east",
@@ -73,6 +74,11 @@ enum.default_inverted.actmode = {
 	"possible",
 	"utility",
 	"attempt",
+	"MAX"
+}
+enum.default_inverted.decidemode = {
+	"player",
+	"monster",
 	"MAX"
 }
 

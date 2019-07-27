@@ -133,3 +133,68 @@ property "proxy.write_to_alt: write does not alter source, just alt" {
 		return read_res and ct.writes == write_count
 	end
 }
+
+local flist = {
+	tostring,
+	function(v) return v end,
+	function(v) return not v end,
+	function(v) return {v} end,
+	function(v) return tonumber(v) or 0 end
+}
+
+property "proxy.memoize: return proxy table and control table" {
+	generators = { int(1, #flist) },
+	check = function(fi)
+		local f = flist[fi]
+		local xt, ct = proxy.memoize(f)
+		local types_res = type(xt) == "table" and type(ct) == "table"
+		local control_res = ct.reads == 0 and ct.writes == 0 and ct.f == f
+		local proxy_res = base.is_empty(xt)
+		local mt_res = getmetatable(xt) == ct.mt
+		return types_res and control_res and proxy_res and mt_res
+	end
+}
+
+property "proxy.memoize: read" {
+	generators = { int(1, #flist), tbl(), int(1,100) },
+	check = function(fi, klist, read_count)
+		local read_count = math.min(#klist, read_count)
+		local f = flist[fi]
+		local xt, ct = proxy.memoize(f)
+		for i=1,read_count do
+			local k = klist[i]
+			if not (base.equals(xt[k], f(k)) or type(k) == "table") then
+				return false
+			end
+		end
+		return ct.reads == read_count
+	end
+}
+
+property "proxy.memoize: actually memoizes" {
+	generators = { any(), int(1, 100) },
+	check = function(k, read_count)
+		local calls = 0
+		local function f(v)
+			calls = calls + 1
+			return tostring(v)
+		end
+		local xt, ct = proxy.memoize(f)
+		for i=1,read_count do
+			local v = xt[k]
+			if calls ~= 1 then
+				return false
+			end
+		end
+		return true
+	end
+}
+
+property "proxy.memoize: write_error" {
+	generators = { int(1, #flist), any(), any() },
+	check = function(fi, k, v)
+		local f = flist[fi]
+		local xt, ct = proxy.memoize(f)
+		return not pcall(function() xt[k] = v end)
+	end
+}

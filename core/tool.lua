@@ -8,13 +8,13 @@ tool.set[enum.tool.lantern] = {
 	template = {
 		kind = enum.tool.lantern,
 		MAX_RADIUS = 2,
-		powers = {}
+		power = {}
 	},
 	equip = function(data, denizen)
-		if data.powers[enum.power.light] then
-			data.powers[enum.power.light] = nil
+		if data.power[enum.power.light] then
+			data.power[enum.power.light] = nil
 		else
-			data.powers[enum.power.light] = data.MAX_RADIUS
+			data.power[enum.power.light] = data.MAX_RADIUS
 		end
 	end
 }

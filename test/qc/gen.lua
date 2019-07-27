@@ -37,13 +37,23 @@ property "gen.big_room: terrain" {
 		local t = gen.big_room()
 		local i = grid.get_pos(x, y)
 		local s = t[i].kind
+		local has_pos = t[i].pos == i
 		if s == enum.terrain.stair or s == enum.terrain.floor then
-			return not grid.is_edge(x, y)
+			return not grid.is_edge(x, y) and has_pos
 		elseif s == enum.terrain.tough_wall then
-			return grid.is_edge(x, y)
+			return grid.is_edge(x, y) and has_pos
 		else
 			return false
 		end
+	end
+}
+
+property "gen.cave: tiles have pos" {
+	generators = { int(1, grid.MAX_X), int(1, grid.MAX_Y) },
+	check = function(x, y)
+		local t = gen.cave()
+		local i = grid.get_pos(x, y)
+		return t[i].pos == i
 	end
 }
 

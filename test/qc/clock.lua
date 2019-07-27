@@ -1,17 +1,19 @@
 clock = require("core.clock")
 
 property "clock.init: respects new values" {
-	generators = { int(), int() },
-	check = function(max, slow_factor)
+	generators = { int(), int(), int() },
+	check = function(max, slow_factor, max_id)
 		local max = math.abs(max)
 		local slow_factor = math.abs(slow_factor)
 		local old_max = clock.scale.MAX
 		local old_slow = clock.scale.SLOW_FACTOR
-		clock.init(max, slow_factor)
+		local old_max_id = clock.scale.MAX_ID
+		clock.init(max, slow_factor, max_id)
 		local basic = (clock.scale.MAX == max and clock.scale.SLOW_FACTOR == slow_factor)
 		local derived = (clock.scale.PLAYER <= max and clock.scale.MOVE_COST <= max)
-		clock.init(old_max, old_slow)
-		return basic and derived
+		local id = (clock.scale.MAX_ID == max_id)
+		clock.init(old_max, old_slow, old_max_id)
+		return basic and derived and id
 	end
 }
 
@@ -84,5 +86,28 @@ property "clock: default speed == time.scale.PLAYER" {
 			end
 		end
 		return turn_count[1] == turn_count[2]
+	end
+}
+
+property "clock.init, clock.make: increasing id" {
+	generators = {
+		int(0, 100),
+		int()
+	},
+	check = function(count, max_id)
+		local old_max_id = clock.scale.MAX_ID
+		clock.init(clock.scale.MAX, clock.scale.SLOW_FACTOR, max_id)
+		local prev = max_id - 1
+		for n = 1,count do
+			local c = clock.make()
+			if c.id <= prev then
+				clock.init(clock.scale.MAX, clock.scale.SLOW_FACTOR, old_max_id)
+				return false
+			end
+			prev = c.id
+		end
+		local new_max_id = clock.scale.MAX_ID
+		clock.init(clock.scale.MAX, clock.scale.SLOW_FACTOR, old_max_id)
+		return new_max_id == (max_id + count)
 	end
 }

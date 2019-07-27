@@ -37,7 +37,7 @@ local function do_replace_power(a, done)
 	end
 	local res = {}
 	for k,v in pairs(a) do
-		if k == "powers" then
+		if k == "power" then
 			res[k] = {}
 			for i,factor in pairs(v) do
 				local name = origin.enum_inverted.power[i]

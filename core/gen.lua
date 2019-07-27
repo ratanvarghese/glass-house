@@ -4,18 +4,18 @@ local enum = require("core.enum")
 
 local gen = {}
 
-local function tough_or_floor(v)
+local function tough_or_floor(pos, v)
 	if v then
-		return {kind=enum.terrain.tough_wall}
+		return {kind=enum.terrain.tough_wall, pos = pos}
 	else
-		return {kind=enum.terrain.floor}
+		return {kind=enum.terrain.floor, pos = pos}
 	end
 end
 
 function gen.big_room()
 	local terrain = {}
 	for i,x,y in grid.points() do
-		terrain[i] = tough_or_floor(grid.is_edge(x, y))
+		terrain[i] = tough_or_floor(i, grid.is_edge(x, y))
 	end
 	local x_list = base.extend_arr({}, base.rn_distinct(2, grid.MAX_X-1, 2))
 	local y_list = base.extend_arr({}, base.rn_distinct(2, grid.MAX_Y-1, 2))
@@ -37,13 +37,13 @@ local function boolean_walker(max_steps, start_i, clipn)
 	return floors, i
 end
 
-local function boolean_terrain(x, y, v)
+local function boolean_terrain(pos, x, y, v)
 	if grid.is_edge(x, y) then
-		return {kind=enum.terrain.tough_wall}
+		return {kind=enum.terrain.tough_wall, pos = pos}
 	elseif v then
-		return {kind=enum.terrain.floor}
+		return {kind=enum.terrain.floor, pos = pos}
 	else
-		return {kind=enum.terrain.wall}
+		return {kind=enum.terrain.wall, pos = pos}
 	end
 end
 
@@ -56,7 +56,7 @@ function gen.cave()
 	local floors, end_i = boolean_walker(gen.CAVE_STEPS, start_i, clipn)
 	local terrain = {}
 	for i,x,y,v in grid.points(floors) do
-		terrain[i] = boolean_terrain(x, y, v)
+		terrain[i] = boolean_terrain(i, x, y, v)
 	end
 	terrain[start_i].kind = enum.terrain.stair
 	return terrain, end_i

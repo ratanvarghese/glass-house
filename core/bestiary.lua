@@ -17,7 +17,8 @@ bestiary.set[enum.monster.player] = {
 	power = {
 		[enum.power.tool] = power.DEFAULT
 	},
-	clock = clock.make(clock.scale.PLAYER)
+	clock = clock.make(clock.scale.PLAYER),
+	decide = enum.decidemode.player
 }
 
 local labels = {
@@ -32,6 +33,7 @@ local function make_species(i, power)
 	t.power = base.copy(power)
 	t.clock = clock.make(math.random(1, clock.scale.MAX))
 	t.health = {max = i*5}
+	t.decide = enum.decidemode.monster
 	if t.power[enum.power.kick] then
 		t.power[enum.power.kick_strength] = math.random(1, 3)
 	end
@@ -47,8 +49,8 @@ local function make_species(i, power)
 		t.display[enum.display.hot] = true
 		t.power[enum.power.light] = 1
 	end
-	if res.power[enum.power.tool] then
-		res.inventory = {}
+	if t.power[enum.power.tool] then
+		t.inventory = {}
 	end
 	return t
 end

@@ -66,4 +66,24 @@ function proxy.write_to_alt(source)
 	return common_result(res, control)
 end
 
+
+function proxy.memoize(f)
+	local res, control = common_init({})
+	control.f = f
+	control.mt = {
+		__index = function(t, k)
+			local v = control.source[k]
+			if v == nil then
+				v = control.f(k)
+				control.source[k] = v
+			end
+			control.reads = control.reads + 1
+			return v
+		end,
+		__newindex = function(t, k, v)
+			error("Attempt to write to memoize proxy table")
+		end
+	}
+	return common_result(res, control)
+end
 return proxy

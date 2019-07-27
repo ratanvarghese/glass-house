@@ -24,6 +24,9 @@ function flood.gradient(i, eligible, v)
 			end
 		end
 	end
+	if not eligible(i) then
+		res[i] = nil
+	end
 	return res
 end
 
