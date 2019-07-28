@@ -12,7 +12,7 @@ bestiary.set[enum.monster.player] = {
 		enum.tool.lantern
 	},
 	health = {
-		max = 16
+		max = 128
 	},
 	power = {
 		[enum.power.tool] = power.DEFAULT

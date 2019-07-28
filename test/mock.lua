@@ -15,6 +15,7 @@ function mock.world(make_cave)
 		_denizens = {},
 		_entities = {},
 		_entity_adds = 0,
+		_entity_removes = 0,
 		_regens = {},
 		num = 0
 	}
@@ -40,6 +41,10 @@ function mock.world(make_cave)
 	res.addEntity = function(world, e)
 		world._entities[e] = true
 		world._entity_adds = world._entity_adds + 1
+	end
+	res.removeEntity = function(world, e)
+		world._entities[e] = false
+		world._entity_removes = world._entity_removes + 1
 	end
 	res._eligible = function(i)
 		if not res.terrain[i] then return false end

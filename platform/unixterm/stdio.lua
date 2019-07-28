@@ -1,7 +1,8 @@
 local tiny = require("lib.tiny")
 
-local common = require("platform.unixterm.common")
+local visible = require("core.visible")
 local grid = require("core.grid")
+local common = require("platform.unixterm.common")
 
 local ui = {}
 
@@ -34,6 +35,10 @@ function ui.display(system)
 		table.insert(display_t, common.symbol_at(system.world, pos))
 		last_y = y
 	end
+
+	local stats = visible.stats(system.world)
+	table.insert(display_t, "\nHP:\t")
+	table.insert(display_t, stats.health.now)
 
 	local next_display = table.concat(display_t)
 	if next_display ~= last_display then

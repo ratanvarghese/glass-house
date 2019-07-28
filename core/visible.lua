@@ -1,4 +1,5 @@
 local enum = require("core.enum")
+local base = require("core.base")
 
 local visible = {}
 
@@ -26,6 +27,13 @@ function visible.at(world, pos)
 	else
 		return false, false
 	end
+end
+
+function visible.stats(world)
+	local player = world.denizens[world.player_pos]
+	local res = {}
+	res.health = base.copy(player.health)
+	return res
 end
 
 return visible

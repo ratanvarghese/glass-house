@@ -13,8 +13,24 @@ property "decide.player: movement commands" {
 	check = function(direction_i, x, y)
 		local d = grid.direction_list[direction_i]
 		local mon = {pos = grid.get_pos(x, y)}
-		local res_f, targ_i = decide.player(mon, {}, d, 1)
+		local res_f, targ_i = decide.player(mon, {denizens={}}, d, 1)
 		return res_f == act[enum.power.mundane].pursue and targ_i == grid.travel(mon.pos, 1, d)
+	end
+}
+
+property "decide.player: attack commands" {
+	generators = {
+		int(1, #grid.direction_list),
+		int(1, grid.MAX_X),
+		int(1, grid.MAX_Y),
+	},
+	check = function(direction_i, x, y)
+		local d = grid.direction_list[direction_i]
+		local mon = {pos = grid.get_pos(x, y)}
+		local predicted_targ_pos = grid.travel(mon.pos, 1, d)
+		local targ = {pos=predicted_targ_pos}
+		local res_f, targ_i = decide.player(mon, {denizens={[predicted_targ_pos]=targ}}, d, 1)
+		return res_f == act[enum.power.mundane].melee and targ_i == predicted_targ_pos
 	end
 }
 
@@ -85,7 +101,7 @@ property "decide.get_ftarget: identical results to decide.monster or decide.play
 		local old_input = decide.input
 		local input_f = function() return grid.direction_list[direction_i], n end
 		decide.init(function() end, input_f)
-		local world = {player_pos = grid.get_pos(x, y)}
+		local world = {player_pos = grid.get_pos(x, y), denizens={}}
 		local mon = {
 			power = {[power_kind] = power.DEFAULT},
 			pos = grid.get_pos(x, y),

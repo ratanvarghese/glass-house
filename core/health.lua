@@ -18,10 +18,14 @@ function health.kill(system, e)
 	local world = system.world
 	if e.decide == enum.decidemode.player then
 		health.exit(world, true)
-	elseif e.inventory and #(e.inventory) > 0 and e.pos then
-		local tile = world.terrain[e.pos]
-		tile.inventory = tile.inventory or {}
-		base.extend_arr(tile.inventory, ipairs(e.inventory))
+	else
+		if e.inventory and #(e.inventory) > 0 and e.pos then
+			local tile = world.terrain[e.pos]
+			tile.inventory = tile.inventory or {}
+			base.extend_arr(tile.inventory, ipairs(e.inventory))
+		end
+		system.world.removeEntity(system.world, e)
+		system.world.denizens[e.pos] = nil
 	end
 end
 

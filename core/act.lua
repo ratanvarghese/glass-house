@@ -11,7 +11,8 @@ function act.init()
 	act[enum.power.mundane] = {
 		wander = enum.selectf(enum.actmode, act_mundane.wander),
 		pursue = enum.selectf(enum.actmode, act_mundane.pursue),
-		flee = enum.selectf(enum.actmode, act_mundane.flee)
+		flee = enum.selectf(enum.actmode, act_mundane.flee),
+		melee = enum.selectf(enum.actmode, act_mundane.melee)
 	}
 	act[enum.power.tool] = {
 		pickup = enum.selectf(enum.actmode, act_usetool.pickup),

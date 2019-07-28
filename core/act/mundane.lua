@@ -1,9 +1,10 @@
 local enum = require("core.enum")
 local grid = require("core.grid")
+local health = require("core.health")
 
 local act_common = require("core.act.common")
 
-local mundane = {wander = {}, pursue = {}, flee = {}}
+local mundane = {wander = {}, pursue = {}, flee = {}, melee = {}}
 
 function mundane.wander.options(world, source_pos)
 	local options = {}
@@ -106,6 +107,34 @@ function mundane.flee.attempt(world, source, target_i)
 	end
 	act_common.move_denizen(world, source, max_i)
 	return true
+end
+
+function mundane.melee.possible(world, source, target_i)
+	if grid.distance(target_i, source.pos) ~= 1 then
+		return false
+	else
+		local target = world.denizens[target_i]
+		if target and health.is_alive(target.health) then
+			return target
+		else
+			return false
+		end
+	end
+end
+
+function mundane.melee.utility(world, source, target_i)
+	local target = mundane.melee.possible(world, source, target_i)
+	return target and 2 or 0
+end
+
+function mundane.melee.attempt(world, source, target_i)
+	local target = mundane.melee.possible(world, source, target_i)
+	if target then
+		target.health.now = target.health.now - 1
+		return true
+	else
+		return false
+	end
 end
 
 return mundane

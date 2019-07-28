@@ -1,8 +1,9 @@
 local tiny = require("lib.tiny")
 local ffi = require("ffi")
 
-local common = require("platform.unixterm.common")
+local visible = require("core.visible")
 local grid = require("core.grid")
+local common = require("platform.unixterm.common")
 
 local ui = {}
 local curses, COLOR, color_codes, REVERSE_OFFSET
@@ -86,6 +87,9 @@ function ui.update(system)
 		curses.mvaddstr(y, x, s)
 		curses.attroff(attr)
 	end
+	local stats = visible.stats(system.world)
+	local hp_line = string.format("HP: %4d", stats.health.now)
+	curses.mvaddstr(1, grid.MAX_X + 2, hp_line)
 	curses.refresh()
 end
 

@@ -1,6 +1,7 @@
 local base = require("core.base")
 local enum = require("core.enum")
 local grid = require("core.grid")
+local health = require("core.health")
 local act = require("core.act")
 
 local mock = require("test.mock")
@@ -393,5 +394,64 @@ property "act[enum.power.mundane] flee: attempt if obviously impossible" {
 		local old_pos = source.pos
 		local success = f(enum.actmode.attempt, w, source, options[opt_i])
 		return not success and grid.distance(old_pos, source.pos) == 0
+	end
+}
+
+property "act[enum.power.mundane] melee: possible" {
+	generators = {
+		int(2, grid.MAX_X-1),
+		int(2, grid.MAX_Y-1),
+		bool(),
+		bool(),
+		int(0, 1000),
+		int(0, 1000),
+		int(0, 1000),
+		int(0, 1000)
+	},
+	check = function(x, y, cave, swap, targ_now, targ_max, source_now, source_max)
+		local w, source, targ_i = mock.mini_world(cave, swap, x, y)
+		local target = {pos=targ_i, health=health.clip({now=targ_now, max=targ_max})}
+		w.denizens[targ_i] = target
+		source.health = health.clip({now=source_now, max=source_max})
+
+		local alive = health.is_alive(target.health)
+		local adjacent = grid.distance(source.pos, targ_i) == 1
+		local f = act[enum.power.mundane].melee
+		local res = f(enum.actmode.possible, w, source, targ_i)
+		if alive and adjacent then
+			return res
+		else
+			return not res
+		end
+	end
+}
+
+property "act[enum.power.mundane] melee: attempt" {
+	generators = {
+		int(2, grid.MAX_X-1),
+		int(2, grid.MAX_Y-1),
+		bool(),
+		bool(),
+		int(0, 1000),
+		int(0, 1000),
+		int(0, 1000),
+		int(0, 1000)
+	},
+	check = function(x, y, cave, swap, targ_now, targ_max, source_now, source_max)
+		local w, source, targ_i = mock.mini_world(cave, swap, x, y)
+		local target = {pos=targ_i, health=health.clip({now=targ_now, max=targ_max})}
+		w.denizens[targ_i] = target
+		source.health = health.clip({now=source_now, max=source_max})
+		local old_health = target.health.now
+
+		local alive = health.is_alive(target.health)
+		local adjacent = grid.distance(source.pos, targ_i) == 1
+		local f = act[enum.power.mundane].melee
+		local res = f(enum.actmode.attempt, w, source, targ_i)
+		if alive and adjacent then
+			return res and target.health.now == (old_health - 1)
+		else
+			return not res and target.health.now == old_health
+		end
 	end
 }

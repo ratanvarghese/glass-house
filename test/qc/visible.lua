@@ -1,5 +1,6 @@
 local mock = require("test.mock")
 
+local base = require("core.base")
 local enum = require("core.enum")
 local grid = require("core.grid")
 local visible = require("core.visible")
@@ -68,5 +69,27 @@ property "visible.at: tool" {
 		else
 			return e ~= enum.tool
 		end
+	end
+}
+
+property "visible.stats: health" {
+	generators = {
+		int(1, grid.MAX_X),
+		int(1, grid.MAX_Y),
+		bool(),
+		int(),
+		int()
+	},
+	check = function(x, y, make_cave, health_now, health_max)
+		local pos = grid.get_pos(x, y)
+		local w = mock.world(make_cave)
+		local health = {now = health_now, max = health_max}
+		w.player_pos = pos
+		w.denizens[pos] = {
+			health = health,
+			pos = pos
+		}
+		local res = visible.stats(w).health
+		return res ~= health and res.now == health_now and res.max == health_max
 	end
 }

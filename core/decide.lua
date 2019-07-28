@@ -10,8 +10,13 @@ local decide = {}
 
 function decide.player(e, world, cmd, n)
 	if grid.directions[cmd] then
-		local f = act[enum.power.mundane].pursue
 		local targ_i = grid.travel(e.pos, 1, cmd)
+		local f
+		if world.denizens[targ_i] then
+			f = act[enum.power.mundane].melee
+		else
+			f = act[enum.power.mundane].pursue
+		end
 		return f, targ_i
 	elseif cmd == enum.cmd.quit then
 		decide.exit(world, true)
