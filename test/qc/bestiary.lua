@@ -29,7 +29,7 @@ test_set[test_kinds[2]] = {
 }
 
 
-property "bestiary.make: pos and kind match input" {
+property "bestiary.make: pos, destination and kind match input" {
 	generators = { int(1, grid.MAX_X), int(1, grid.MAX_Y), int(1, #test_kinds) },
 	check = function(x, y, kind_i)
 		local old_set = bestiary.set
@@ -38,7 +38,7 @@ property "bestiary.make: pos and kind match input" {
 		local kind = test_kinds[kind_i]
 		local res = bestiary.make(kind, pos)
 		bestiary_set = old_set
-		return res.pos == pos and res.kind == kind
+		return res.pos == pos and res.destination == pos and res.kind == kind
 	end
 }
 

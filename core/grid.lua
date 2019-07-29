@@ -139,11 +139,11 @@ function grid.distance(i1, i2)
 end
 
 function grid.destinations_iter(_s, _var)
-	local dk = next(_s.dt, _var)
+	local dk = next(_s.directions_table, _var)
 	if dk == nil then
 		return nil
 	end
-	local dv = _s.dt[dk]
+	local dv = _s.directions_table[dk]
 	local x = _s.x + dv.x
 	local y = _s.y + dv.y
 	if x < 1 or x > grid.MAX_X or y < 1 or y > grid.MAX_Y then
@@ -153,10 +153,10 @@ function grid.destinations_iter(_s, _var)
 	end
 end
 
-function grid.destinations(start, dt)
-	local dt = dt or grid.directions
+function grid.destinations(start, directions_table)
+	local directions_table = directions_table or grid.directions
 	local x, y = grid.get_xy(start)
-	return grid.destinations_iter, {x=x, y=y, dt=dt}, nil
+	return grid.destinations_iter, {x=x, y=y, directions_table=directions_table}, nil
 end
 
 function grid.init(max_x, max_y)

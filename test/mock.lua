@@ -74,7 +74,7 @@ function mock.mini_world(cave, swap, x, y)
 	if swap then
 		targ_i, source_i = source_i, targ_i
 	end
-	local source = {pos=source_i, inventory={}}
+	local source = {pos=source_i, destination=source_i, inventory={}}
 	w._denizens[source_i] = source
 	w._setup_walk_paths(w, source_i, targ_i)
 	return w, source, targ_i

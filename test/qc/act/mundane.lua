@@ -56,9 +56,8 @@ property "act[enum.power.mundane] wander: attempt if obviously possible" {
 	check = function(x, y)
 		local f = act[enum.power.mundane].wander
 		local w, source = mock.mini_world(false, true, x, y)
-		local old_pos = source.pos
 		local success = f(enum.actmode.attempt, w, source)
-		return success and grid.distance(old_pos, source.pos) == 1
+		return success and grid.distance(source.destination, source.pos) == 1
 	end
 }
 
@@ -106,9 +105,8 @@ property "act[enum.power.mundane] wander: attempt if obviously impossible" {
 		for _,v in ipairs(options) do
 			w.terrain[v] = {kind = enum.terrain.tough_wall, pos=v}
 		end
-		local old_pos = source.pos
 		local success = f(enum.actmode.attempt, w, source)
-		return not success and grid.distance(old_pos, source.pos) == 0
+		return not success and grid.distance(source.pos, source.destination) == 0
 	end
 }
 
@@ -172,9 +170,9 @@ property "act[enum.power.mundane] pursue: attempt with obvious result" {
 			w.player_pos = source.pos
 		end
 		w.terrain[targ_i] = {kind = enum.terrain.stair, pos=targ_i}
-		local old_distance = grid.distance(source.pos, targ_i)
 		local res = f(enum.actmode.attempt, w, source, targ_i)
-		local new_distance = grid.distance(source.pos, targ_i)
+		local old_distance = grid.distance(source.pos, targ_i)
+		local new_distance = grid.distance(source.destination, targ_i)
 		local correct_player_pos = true
 		if decidemode == enum.decidemode.player then
 			correct_player_pos = w.player_pos == source.pos
@@ -242,40 +240,8 @@ property "act[enum.power.mundane] pursue: attempt if obviously impossible" {
 		local targ_pos = options[opt_i]
 		w.terrain[targ_pos] = {kind = enum.terrain.tough_wall, pos=targ_pos}
 		w._setup_walk_paths(w, source.pos, targ_pos)
-		local old_pos = source.pos
 		local success = f(enum.actmode.attempt, w, source, options[opt_i])
-		return not success and grid.distance(old_pos, source.pos) == 0
-	end
-}
-
-property "act[enum.power.mundane] pursue: onto stair" {
-	generators = {
-		int(2, grid.MAX_X-1),
-		int(2, grid.MAX_Y-1),
-		int(1, 4),
-		int(1, enum.decidemode.MAX-1)
-	},
-	check = function(x, y, opt_i, decidemode)
-		local f = act[enum.power.mundane].pursue
-		local w, source = mock.mini_world(false, true, x, y)
-		source.decide = decidemode
-		local options = {
-			grid.travel(source.pos, 1, enum.cmd.north),
-			grid.travel(source.pos, 1, enum.cmd.south),
-			grid.travel(source.pos, 1, enum.cmd.east),
-			grid.travel(source.pos, 1, enum.cmd.west)
-		}
-		local targ_pos = options[opt_i]
-		w.terrain[targ_pos] = {kind = enum.terrain.stair, pos=targ_pos}
-		w._setup_walk_paths(w, source.pos, targ_pos)
-		local old_pos = source.pos
-		local old_num = w.num
-		local success = f(enum.actmode.attempt, w, source, options[opt_i])
-		if decidemode == enum.decidemode.player then
-			return success and #w._regens == 1 and w._regens[1] == old_num + 1
-		else
-			return success and #w._regens == 0 and grid.distance(old_pos,source.pos) == 1
-		end
+		return not success and grid.distance(source.pos, source.destination) == 0
 	end
 }
 
@@ -288,7 +254,6 @@ property "act[enum.power.mundane] flee: possible" {
 	check = function(x, y, cave)
 		local f = act[enum.power.mundane].flee
 		local w, source, targ_i = mock.mini_world(cave, true, x, y)
-		local target_lit = w.light[targ_i]
 		local can_progress = false
 		local options = {
 			grid.travel(source.pos, 1, enum.cmd.north),
@@ -303,7 +268,7 @@ property "act[enum.power.mundane] flee: possible" {
 			end
 		end
 		local res = f(enum.actmode.possible, w, source, targ_i)
-		return res == (target_lit and can_progress)
+		return res == can_progress
 	end
 }
 
@@ -330,14 +295,10 @@ property "act[enum.power.mundane] flee: attempt with obvious result" {
 	check = function(x, y)
 		local f = act[enum.power.mundane].flee
 		local w, source, targ_i = mock.mini_world(false, true, x, y)
-		local old_distance = grid.distance(source.pos, targ_i)
 		local res = f(enum.actmode.attempt, w, source, targ_i)
-		local new_distance = grid.distance(source.pos, targ_i)
-		if w.light[targ_i] then
-			return res and new_distance == (old_distance + 1)
-		else
-			return not res and new_distance == old_distance
-		end
+		local old_distance = grid.distance(source.pos, targ_i)
+		local new_distance = grid.distance(source.destination, targ_i)
+		return res and new_distance == (old_distance + 1)
 	end,
 	when_fail = function(x, y)
 		local f = act[enum.power.mundane].flee
@@ -391,9 +352,8 @@ property "act[enum.power.mundane] flee: attempt if obviously impossible" {
 			w.terrain[v] = {kind = enum.terrain.tough_wall, pos=v}
 		end
 		w._setup_walk_paths(w, source.pos, targ_pos)
-		local old_pos = source.pos
 		local success = f(enum.actmode.attempt, w, source, options[opt_i])
-		return not success and grid.distance(old_pos, source.pos) == 0
+		return not success and grid.distance(source.destination, source.pos) == 0
 	end
 }
 

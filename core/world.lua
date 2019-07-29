@@ -3,22 +3,22 @@ local tiny = require("lib.tiny")
 local enum = require("core.enum")
 local grid = require("core.grid")
 local light = require("core.light")
-local path = require("core.path")
 local gen = require("core.gen")
 local tool = require("core.tool")
 local bestiary = require("core.bestiary")
 local decide = require("core.decide")
 local health = require("core.health")
+local move = require("core.move")
 
 local world = {}
 
 local function basic_setup(ui, n)
 	local res = tiny.world(
 		light.make_system(),
-		health.make_system(),
-		path.make_system(),
 		ui.make_system(),
-		decide.make_system()
+		decide.make_system(),
+		health.make_system(),
+		move.make_system()
 	)
 	res.num = n
 	return res
@@ -75,10 +75,12 @@ local function add_monsters(w, player_pos)
 	end
 end
 
-local function add_new_player(w, player_pos)
+local function add_new_player(w, player_pos, player)
 	w.denizens = w.denizens or {}
-	local player = bestiary.make(enum.monster.player, player_pos)
-	tool.equip(player.inventory[1], player)
+	local player = player or bestiary.make(enum.monster.player, player_pos)
+	player.pos = player_pos
+	player.destination = player_pos
+	--tool.equip(player.inventory[1], player)
 	w.player_pos = player_pos
 	w.denizens[player_pos] = player
 	w.addEntity(w, player)
@@ -107,11 +109,9 @@ function world.regen(w, n)
 	w.terrain = {}
 	w.memory = {}
 	w.num = n
-	w.player_pos = add_terrain(w)
-	player.pos = w.player_pos
-	w.denizens[w.player_pos] = player
-	w.addEntity(w, player)
-	add_monsters(w, w.player_pos)
+	local player_pos = add_terrain(w)
+	add_new_player(w, player_pos, player)
+	add_monsters(w, player_pos)
 end
 
 return world

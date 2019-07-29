@@ -1,7 +1,6 @@
 local base = require("core.base")
 local enum = require("core.enum")
 
-local act_common = require("core.act.common")
 local act_mundane = require("core.act.mundane")
 local act_usetool = require("core.act.usetool")
 

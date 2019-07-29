@@ -68,6 +68,7 @@ function bestiary.make(kind, pos)
 	local res = base.copy(species)
 	res.kind = kind
 	res.pos = pos
+	res.destination = pos
 	res.health.now = res.health.max
 	res.power[enum.power.mundane] = power.DEFAULT
 	res.inventory = res.inventory and {} or nil
