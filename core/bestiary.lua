@@ -56,6 +56,13 @@ local function make_species(i, power)
 end
 
 function bestiary.make_set()
+	for k=enum.monster.MAX_STATIC,enum.monster.MAX do
+		bestiary.set[k] = nil
+	end
+	local n_enum_inverted = base.copy(enum.inverted)
+	n_enum_inverted.monster = base.copy(enum.default_inverted.monster)
+	enum.init(n_enum_inverted)
+
 	local power_set = power.make_all()
 	for i,v in ipairs(power_set) do
 		local k = enum.new_item(enum.monster, labels[i])
@@ -66,6 +73,7 @@ end
 function bestiary.make(kind, pos)
 	local species = bestiary.set[kind]
 	local res = base.copy(species)
+	assert(species, "Species not found")
 	res.kind = kind
 	res.pos = pos
 	res.destination = pos

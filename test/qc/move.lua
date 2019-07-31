@@ -14,13 +14,11 @@ property "move.walkable: correct result" {
 	},
 	check = function(x, y, add_dz, terrain_kind)
 		local pos = grid.get_pos(x, y)
-		local world = {
-			terrain = {[pos] = {kind = terrain_kind, pos=pos}},
-			denizens = {}
-		}
-		if add_dz then world.denizens[pos] = {pos = pos} end
+		local terrain = {[pos] = {kind = terrain_kind, pos=pos}}
+		local denizens = {}
+		if add_dz then denizens[pos] = {pos = pos} end
 		local good_t = (terrain_kind == enum.terrain.floor) or (terrain_kind == enum.terrain.stair)
-		return move.walkable(world, pos) == ((not add_dz) and good_t)
+		return move.walkable(terrain, denizens, pos) == ((not add_dz) and good_t)
 	end
 }
 
@@ -68,7 +66,7 @@ property "move.options: filter destinations by walkability" {
 		local expected = base.extend_arr({}, grid.destinations(source_pos))
 		local n_expected = #expected
 		for i=n_expected,1,-1 do
-			if not move.walkable(w, expected[i]) then
+			if not move.walkable(w.terrain, w.denizens, expected[i]) then
 				table.remove(expected, i)
 			end
 		end
@@ -92,12 +90,16 @@ property "move.prepare, move.process: move denizen properly" {
 		local targ_pos = grid.get_pos(targ_x, targ_y)
 		w.terrain[targ_pos] = {kind = terrain_kind, pos=targ_pos}
 		local old_num = w.num
+		local old_regen = move.regen_f
+		local regen_args = {}
+		move.regen_f = function(...) table.insert(regen_args, {...}) end
 		move.prepare(w, source, targ_pos)
 		move.process({world = w}, source)
+		move.regen_f = old_regen
 		if decidemode == enum.decidemode.player and terrain_kind == enum.terrain.stair then
-			return #w._regens == 1 and w._regens[1] == old_num + 1
+			return base.equals(regen_args, {{w, old_num + 1}})
 		else
-			return #w._regens == 0 and source.pos == targ_pos
+			return #regen_args == 0 and source.pos == targ_pos
 		end
 	end
 }

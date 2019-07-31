@@ -16,7 +16,6 @@ function mock.world(make_cave)
 		_entities = {},
 		_entity_adds = 0,
 		_entity_removes = 0,
-		_regens = {},
 		num = 0
 	}
 	if make_cave then
@@ -58,9 +57,6 @@ function mock.world(make_cave)
 		for _,i in ipairs(targets) do
 			world.walk_paths[i] = flood.gradient(i, res._eligible)
 		end
-	end
-	res.regen = function(world, n)
-		table.insert(world._regens, n)
 	end
 	return res
 end

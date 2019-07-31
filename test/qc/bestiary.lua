@@ -37,7 +37,7 @@ property "bestiary.make: pos, destination and kind match input" {
 		local pos = grid.get_pos(x, y)
 		local kind = test_kinds[kind_i]
 		local res = bestiary.make(kind, pos)
-		bestiary_set = old_set
+		bestiary.set = old_set
 		return res.pos == pos and res.destination == pos and res.kind == kind
 	end
 }
@@ -56,7 +56,7 @@ property "bestiary.make: simple components match" {
 				return false
 			end
 		end
-		bestiary_set = old_set
+		bestiary.set = old_set
 		return true
 	end
 }
@@ -69,7 +69,7 @@ property "bestiary.make: health component" {
 		local kind = test_kinds[kind_i]
 		local res = bestiary.make(kind, grid.get_pos(x, y))
 		local species = bestiary.set[kind]
-		bestiary_set = old_set
+		bestiary.set = old_set
 		return res.health.now == res.health.max and res.health.max == species.health.max
 	end
 }
@@ -83,7 +83,7 @@ property "bestiary.make: power component" {
 		local res = bestiary.make(kind, grid.get_pos(x, y))
 		local expected_power = base.copy(bestiary.set[kind].power)
 		expected_power[enum.power.mundane] = power.DEFAULT
-		bestiary_set = old_set
+		bestiary.set = old_set
 		return base.equals(res.power, expected_power)
 	end
 }
@@ -99,15 +99,38 @@ property "bestiary.make: inventory are tool objects" {
 			for i,v in ipairs(bestiary.set[kind].inventory) do
 				local obj = tool.make(v)
 				if not base.equals(res.inventory[i], obj) then
-					bestiary_set = old_set
+					bestiary.set = old_set
 					return false
 				end
 			end
-			bestiary_set = old_set
+			bestiary.set = old_set
 			return true
 		else
-			bestiary_set = old_set
+			bestiary.set = old_set
 			return not res.inventory or base.is_empty(res.inventory)
 		end
+	end
+}
+
+property "bestiary.make_set: repeatable" {
+	numtests = 1,
+	generators = {},
+	check = function()
+		local max = {enum.monster.MAX}
+		bestiary.make_set()
+		max[2] = enum.monster.MAX
+		bestiary.make_set()
+		max[3] = enum.monster.MAX
+		return (max[1] < max[2]) and (max[2] == max[3])
+	end
+}
+
+property "bestiary.make_set: more than 1 species" {
+	numtests = 1,
+	generators = {},
+	check = function()
+		bestiary.make_set()
+		local set_list = base.extend_arr({}, pairs(bestiary.set))
+		return #set_list > 1
 	end
 }

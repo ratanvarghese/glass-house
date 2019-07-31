@@ -59,19 +59,21 @@ end
 function decide.pre(system)
 	if not system.target_ent_i or not system.entities[system.target_ent_i] then
 		system.target_ent_i = 1
+		system.changed_target = true
 	end
+	if system.changed_target then
+		clock.earn_credit(system.entities[system.target_ent_i].clock)
+	end
+	system.changed_target = false
 end
 
 function decide.process(system, e, dt)
-	if e == system.entities[system.target_ent_i] then
-		clock.earn_credit(e.clock)
-		local old_pos = e.pos
-		while clock.has_credit(e.clock) do
-			local f, target = decide.get_ftarget(system.world, e)
-			f(enum.actmode.attempt, system.world, e, target)
-			clock.spend_credit(e.clock)
-		end
-		if e.decide == enum.decidemode.player and e.pos ~= old_pos then
+	if e == system.entities[system.target_ent_i] and clock.has_credit(e.clock) then
+		local f, target = decide.get_ftarget(system.world, e)
+		f(enum.actmode.attempt, system.world, e, target)
+		clock.spend_credit(e.clock)
+
+		if e.decide == enum.decidemode.player and e.pos ~= e.destination then
 			local f = act[enum.power.tool].pickup
 			f(enum.actmode.attempt, system.world, e, 1)
 		end
@@ -79,7 +81,10 @@ function decide.process(system, e, dt)
 end
 
 function decide.post(system)
-	system.target_ent_i = system.target_ent_i + 1
+	if not clock.has_credit(system.entities[system.target_ent_i].clock) then
+		system.target_ent_i = system.target_ent_i + 1
+		system.changed_target = true
+	end
 end
 
 function decide.cmp(sys, e1, e2)
