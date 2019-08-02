@@ -1,7 +1,7 @@
 local base = require("core.base")
 local enum = require("core.enum")
 local grid = require("core.grid")
-local health = require("core.health")
+local health = require("core.system.health")
 local act = require("core.act")
 
 local mock = require("test.mock")

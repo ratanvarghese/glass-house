@@ -1,7 +1,7 @@
 local base = require("core.base")
 local enum = require("core.enum")
 local grid = require("core.grid")
-local light = require("core.light")
+local light = require("core.system.light")
 
 property "light.set_area: include target area" {
 	generators = {

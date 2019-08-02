@@ -1,7 +1,7 @@
 local enum = require("core.enum")
 local grid = require("core.grid")
-local health = require("core.health")
-local move = require("core.move")
+local health = require("core.system.health")
+local move = require("core.system.move")
 
 local mundane = {wander = {}, pursue = {}, flee = {}, melee = {}}
 

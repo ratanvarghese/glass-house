@@ -6,10 +6,10 @@ local grid = require("core.grid")
 local gen = require("core.gen")
 local bestiary = require("core.bestiary")
 
-local light = require("core.light")
-local decide = require("core.decide")
-local health = require("core.health")
-local move = require("core.move")
+local light = require("core.system.light")
+local decide = require("core.system.decide")
+local health = require("core.system.health")
+local move = require("core.system.move")
 
 local setup = require("core.setup")
 

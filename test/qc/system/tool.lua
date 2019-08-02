@@ -2,7 +2,7 @@ local base = require("core.base")
 local enum = require("core.enum")
 local grid = require("core.grid")
 local toolkit = require("core.toolkit")
-local tool_s = require("core.tool_s")
+local tool = require("core.system.tool")
 
 local mock = require("test.mock")
 
@@ -14,7 +14,7 @@ local function setup(x, y, cave, swap, tool_list, tool_i)
 		return w, source, t, tool_list, tool_i
 end
 
-property "tool_s.process: pickup" {
+property "tool.process: pickup" {
 	generators = {
 		int(1, grid.MAX_X),
 		int(1, grid.MAX_Y),
@@ -32,7 +32,7 @@ property "tool_s.process: pickup" {
 		source.usetool.pickup = {tool_i}
 		local old_tool, old_next_tool = tool_list[tool_i], tool_list[tool_i+1]
 		local old_check_tool = tool_list[check_i]
-		tool_s.process({world=w}, source, 1)
+		tool.process({world=w}, source, 1)
 
 		local good_dz = (source.inventory[1] == old_tool)
 		local good_tile = (tool_list[tool_i] == old_next_tool) and (tool_list[check_i] == old_check_tool)
@@ -40,7 +40,7 @@ property "tool_s.process: pickup" {
 	end
 }
 
-property "tool_s.process: drop" {
+property "tool.process: drop" {
 	generators = {
 		int(1, grid.MAX_X),
 		int(1, grid.MAX_Y),
@@ -59,7 +59,7 @@ property "tool_s.process: drop" {
 		source.usetool.drop = {tool_i}
 		local old_tool, old_next_tool = tool_list[tool_i], tool_list[tool_i+1]
 		local old_check_tool = tool_list[check_i]
-		tool_s.process({world=w}, source, 1)
+		tool.process({world=w}, source, 1)
 
 		local good_tile = (t.inventory[1] == old_tool)
 		local good_dz = (tool_list[tool_i] == old_next_tool) and (tool_list[check_i] == old_check_tool)
@@ -67,7 +67,7 @@ property "tool_s.process: drop" {
 	end
 }
 
-property "tool_s.process: equip" {
+property "tool.process: equip" {
 	generators = {
 		int(1, grid.MAX_X),
 		int(1, grid.MAX_Y),
@@ -85,7 +85,7 @@ property "tool_s.process: equip" {
 		local old_equip = toolkit.equip
 		local args = {}
 		toolkit.equip = function(...) table.insert(args, {...}) end
-		tool_s.process({world=w}, source, 1)
+		tool.process({world=w}, source, 1)
 		toolkit.equip = old_equip
 
 		if base.is_empty(tool_list) then

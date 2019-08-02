@@ -4,11 +4,11 @@ local base = require("core.base")
 local enum = require("core.enum")
 local grid = require("core.grid")
 local bestiary = require("core.bestiary")
-local light = require("core.light")
-local decide = require("core.decide")
-local health = require("core.health")
-local move = require("core.move")
-local tool_s = require("core.tool_s")
+local light = require("core.system.light")
+local decide = require("core.system.decide")
+local health = require("core.system.health")
+local move = require("core.system.move")
+local tool = require("core.system.tool")
 local gen = require("core.gen")
 
 local setup = {}
@@ -20,7 +20,7 @@ function setup.make_system_list(ui)
 		decide.make_system(),
 		health.make_system(),
 		move.make_system(),
-		tool_s.make_system()
+		tool.make_system()
 	}
 end
 

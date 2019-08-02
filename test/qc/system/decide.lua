@@ -2,7 +2,7 @@ local enum = require("core.enum")
 local grid = require("core.grid")
 local power = require("core.power")
 local act = require("core.act")
-local decide = require("core.decide")
+local decide = require("core.system.decide")
 
 property "decide.player: movement commands" {
 	generators = {

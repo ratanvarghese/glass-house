@@ -3,7 +3,7 @@ local mock = require("test.mock")
 local base = require("core.base")
 local enum = require("core.enum")
 local grid = require("core.grid")
-local health = require("core.health")
+local health = require("core.system.health")
 
 property "health.clip: results in range" {
 	generators = { int(), int(1, 1000) },
@@ -41,7 +41,7 @@ property "health.kill: drop inventory only if entity is monster" {
 	check = function(now, max, x, y, make_cave, decidemode, inventory)
 		local pos = grid.get_pos(x, y)
 		local w = mock.world(make_cave)
-		local old_inventory = w.terrain[pos].inventory
+		w.terrain[pos].inventory = {}
 		w.denizens[pos] = {
 			pos = pos,
 			health = {
@@ -53,14 +53,13 @@ property "health.kill: drop inventory only if entity is monster" {
 		}
 		health.kill({world=w}, w.denizens[pos])
 		local new_inventory = w.terrain[pos].inventory
-		w.terrain[pos].inventory = old_inventory
 		if decidemode == enum.decidemode.monster then
 			local res1 = #inventory > 0 and base.equals(new_inventory, inventory)
-			local res2 = #inventory <= 0 and base.equals(new_inventory, {})
-			local res2 = #inventory <= 0 and new_inventory == nil
+			local res2 = #inventory <= 0 and base.is_empty(new_inventory)
+			local res3 = #inventory <= 0 and new_inventory == nil
 			return res1 or res2 or res3
 		else
-			return new_inventory == old_inventory
+			return base.is_empty(new_inventory)
 		end
 	end 
 }
