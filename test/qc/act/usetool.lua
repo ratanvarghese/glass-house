@@ -2,7 +2,6 @@ local base = require("core.base")
 local grid = require("core.grid")
 local enum = require("core.enum")
 local act = require("core.act")
-local tool = require("core.tool")
 
 local mock = require("test.mock")
 

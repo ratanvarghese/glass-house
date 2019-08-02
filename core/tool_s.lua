@@ -1,7 +1,7 @@
 local tiny = require("lib.tiny")
 
 local base = require("core.base")
-local tool = require("core.tool")
+local toolkit = require("core.toolkit")
 
 local tool_s = {}
 
@@ -52,7 +52,7 @@ end
 
 local function process_equip(e)
 	for _,inventory_i in ipairs(e.usetool.equip) do
-		tool.equip(e.inventory[inventory_i], e)
+		toolkit.equip(e.inventory[inventory_i], e)
 	end
 	e.usetool.equip = nil
 end

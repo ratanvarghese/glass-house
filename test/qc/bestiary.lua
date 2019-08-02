@@ -2,7 +2,7 @@ local grid = require("core.grid")
 local base = require("core.base")
 local enum = require("core.enum")
 local power = require("core.power")
-local tool = require("core.tool")
+local toolkit = require("core.toolkit")
 local bestiary = require("core.bestiary")
 
 local test_kinds = {100, 101}
@@ -97,7 +97,7 @@ property "bestiary.make: inventory are tool objects" {
 		local res = bestiary.make(kind, grid.get_pos(x, y))
 		if bestiary.set[kind].inventory then
 			for i,v in ipairs(bestiary.set[kind].inventory) do
-				local obj = tool.make(v)
+				local obj = toolkit.make(v)
 				if not base.equals(res.inventory[i], obj) then
 					bestiary.set = old_set
 					return false

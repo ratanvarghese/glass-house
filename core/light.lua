@@ -2,7 +2,7 @@ local tiny = require("lib.tiny")
 
 local enum = require("core.enum")
 local grid = require("core.grid")
-local tool = require("core.tool")
+local toolkit = require("core.toolkit")
 
 local light = {}
 
@@ -22,11 +22,11 @@ end
 function light.set_from_entity(e, light_arr, mem_arr, dark_arr)
 	local p_light = enum.power.light
 	local intrinsic_light = e.power and e.power[p_light] or nil
-	local r_light = tool.inventory_power(p_light, e.inventory, intrinsic_light) or -math.huge
+	local r_light = toolkit.inventory_power(p_light, e.inventory, intrinsic_light) or -math.huge
 
 	local p_dark = enum.power.darkness
 	local intrinsic_dark = e.power and e.power[p_dark] or nil
-	local r_dark = tool.inventory_power(p_dark, e.inventory, intrinsic_dark) or -math.huge
+	local r_dark = toolkit.inventory_power(p_dark, e.inventory, intrinsic_dark) or -math.huge
 	if r_light < r_dark and r_dark >= 0 then
 		light.set_area(dark_arr, r_dark, e.pos, true)
 	elseif r_light > r_dark and r_light >= 0 then

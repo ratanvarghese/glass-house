@@ -3,7 +3,6 @@ local tiny = require("lib.tiny")
 local enum = require("core.enum")
 local act = require("core.act")
 local grid = require("core.grid")
-local tool = require("core.tool")
 local clock = require("core.clock")
 
 local decide = {}

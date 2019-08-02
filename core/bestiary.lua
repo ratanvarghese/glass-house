@@ -1,7 +1,7 @@
 local base = require("core.base")
 local enum = require("core.enum")
 local clock = require("core.clock")
-local tool = require("core.tool")
+local toolkit = require("core.toolkit")
 local power = require("core.power")
 
 local bestiary = {}
@@ -82,7 +82,7 @@ function bestiary.make(kind, pos)
 	res.inventory = res.inventory and {} or nil
 	if species.inventory then
 		for i,v in ipairs(species.inventory) do
-			table.insert(res.inventory, tool.make(v))
+			table.insert(res.inventory, toolkit.make(v))
 		end
 		res.usetool = {}
 	end

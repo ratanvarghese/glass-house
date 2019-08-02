@@ -1,7 +1,7 @@
 local base = require("core.base")
 local enum = require("core.enum")
 local grid = require("core.grid")
-local tool = require("core.tool")
+local toolkit = require("core.toolkit")
 local tool_s = require("core.tool_s")
 
 local mock = require("test.mock")
@@ -82,11 +82,11 @@ property "tool_s.process: equip" {
 		source.inventory = tool_list
 		w.terrain[source.pos] = t
 		source.usetool.equip = {tool_i}
-		local old_equip = tool.equip
+		local old_equip = toolkit.equip
 		local args = {}
-		tool.equip = function(...) table.insert(args, {...}) end
+		toolkit.equip = function(...) table.insert(args, {...}) end
 		tool_s.process({world=w}, source, 1)
-		tool.equip = old_equip
+		toolkit.equip = old_equip
 
 		if base.is_empty(tool_list) then
 			return #args == 0

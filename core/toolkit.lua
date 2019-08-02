@@ -1,10 +1,10 @@
 local base = require("core.base")
 local enum = require("core.enum")
 
-local tool = {}
+local toolkit = {}
 
-tool.set = {}
-tool.set[enum.tool.lantern] = {
+toolkit.set = {}
+toolkit.set[enum.tool.lantern] = {
 	template = {
 		kind = enum.tool.lantern,
 		MAX_RADIUS = 2,
@@ -19,15 +19,15 @@ tool.set[enum.tool.lantern] = {
 	end
 }
 
-function tool.equip(obj, denizen)
-	return tool.set[obj.kind].equip(obj, denizen)
+function toolkit.equip(obj, denizen)
+	return toolkit.set[obj.kind].equip(obj, denizen)
 end
 
-function tool.make(kind)
-	return base.copy(tool.set[kind].template)
+function toolkit.make(kind)
+	return base.copy(toolkit.set[kind].template)
 end
 
-function tool.inventory_power(p, list, default)
+function toolkit.inventory_power(p, list, default)
 	local list = list or {}
 	local factors = {}
 	table.insert(factors, default)
@@ -40,4 +40,4 @@ function tool.inventory_power(p, list, default)
 	return math.max(unpack(factors))
 end
 
-return tool
+return toolkit
