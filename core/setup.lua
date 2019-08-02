@@ -8,6 +8,7 @@ local light = require("core.light")
 local decide = require("core.decide")
 local health = require("core.health")
 local move = require("core.move")
+local tool_s = require("core.tool_s")
 local gen = require("core.gen")
 
 local setup = {}
@@ -18,7 +19,8 @@ function setup.make_system_list(ui)
 		ui.make_system(),
 		decide.make_system(),
 		health.make_system(),
-		move.make_system()
+		move.make_system(),
+		tool_s.make_system()
 	}
 end
 

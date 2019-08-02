@@ -84,6 +84,7 @@ function bestiary.make(kind, pos)
 		for i,v in ipairs(species.inventory) do
 			table.insert(res.inventory, tool.make(v))
 		end
+		res.usetool = {}
 	end
 	return res
 end
