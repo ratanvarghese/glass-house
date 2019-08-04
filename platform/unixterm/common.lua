@@ -82,6 +82,11 @@ function common.color_at(world, pos)
 	return c, invert
 end
 
+
+function common.error_handler(msg)
+	return msg.."\n"..debug.traceback()
+end
+
 function common.init(conf)
 	common.symbols = conf.symbols
 	common.keys = conf.keys

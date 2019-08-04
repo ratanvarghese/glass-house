@@ -11,8 +11,8 @@ else
 	ui = require("platform.unixterm.curses")
 end
 local save = require("platform.unixterm.save")
+local common = require("platform.unixterm.common")
 
-local base = require("core.base")
 local setup = require("core.setup")
 
 local w = setup.world(ui, save, os.time(), os.exit)
@@ -22,7 +22,7 @@ local ok, err = xpcall(function()
 	while true do
 		w.update(w, 1)
 	end
-end, base.error_handler)
+end, common.error_handler)
 ui.shutdown()
 if not ok then
 	print(err)

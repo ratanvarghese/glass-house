@@ -17,10 +17,6 @@ function base.invert(t)
 	return res
 end
 
-function base.error_handler(msg)
-	return msg.."\n"..debug.traceback()
-end
-
 --Based on https://stackoverflow.com/questions/25922437/how-can-i-deep-compare-2-lua-tables-which-may-or-may-not-have-tables-as-keys
 function base.equals(x, y, done)
 	local done = done or {}
