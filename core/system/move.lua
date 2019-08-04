@@ -9,7 +9,7 @@ local move = {}
 
 function move.walkable(terrain, denizens, pos)
 	local terrain_kind = terrain[pos].kind
-	local good_t = (terrain_kind == enum.terrain.floor) or (terrain_kind == enum.terrain.stair)
+	local good_t = (terrain_kind == enum.tile.floor) or (terrain_kind == enum.tile.stair)
 	return good_t and not denizens[pos]
 end
 
@@ -45,7 +45,7 @@ function move.process(system, d, dt)
 	d.pos = d.destination
 	if d.decide == enum.decidemode.player then
 		world.player_pos = d.pos
-		if world.terrain[d.pos].kind == enum.terrain.stair then
+		if world.terrain[d.pos].kind == enum.tile.stair then
 			move.regen_f(world, world.num+1)
 			return
 		end

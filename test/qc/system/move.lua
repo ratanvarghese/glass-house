@@ -10,14 +10,14 @@ property "move.walkable: correct result" {
 		int(1, grid.MAX_X),
 		int(1, grid.MAX_Y),
 		bool(),
-		int(1, enum.terrain.MAX-1)
+		int(1, enum.tile.MAX-1)
 	},
 	check = function(x, y, add_dz, terrain_kind)
 		local pos = grid.get_pos(x, y)
 		local terrain = {[pos] = {kind = terrain_kind, pos=pos}}
 		local denizens = {}
 		if add_dz then denizens[pos] = {pos = pos} end
-		local good_t = (terrain_kind == enum.terrain.floor) or (terrain_kind == enum.terrain.stair)
+		local good_t = (terrain_kind == enum.tile.floor) or (terrain_kind == enum.tile.stair)
 		return move.walkable(terrain, denizens, pos) == ((not add_dz) and good_t)
 	end
 }
@@ -44,9 +44,9 @@ property "move.reset_paths: reasonable values in paths" {
 			return res >= grid.distance(targ_pos, source_pos)
 		elseif targ_pos == dz_pos or source_pos == dz_pos then
 			return true
-		elseif w.terrain[targ_pos].kind ~= enum.terrain.floor then
+		elseif w.terrain[targ_pos].kind ~= enum.tile.floor then
 			return true
-		elseif w.terrain[source_pos].kind ~= enum.terrain.floor then
+		elseif w.terrain[source_pos].kind ~= enum.tile.floor then
 			return true
 		else
 			return false
@@ -82,7 +82,7 @@ property "move.prepare, move.process: move denizen properly" {
 		int(1, grid.MAX_Y),
 		int(1, 4),
 		int(1, enum.decidemode.MAX-1),
-		int(1, enum.terrain.MAX-1)
+		int(1, enum.tile.MAX-1)
 	},
 	check = function(x, y, targ_x, targ_y, opt_i, decidemode, terrain_kind)
 		local w, source = mock.mini_world(false, true, x, y)
@@ -96,7 +96,7 @@ property "move.prepare, move.process: move denizen properly" {
 		move.prepare(w, source, targ_pos)
 		move.process({world = w}, source)
 		move.regen_f = old_regen
-		if decidemode == enum.decidemode.player and terrain_kind == enum.terrain.stair then
+		if decidemode == enum.decidemode.player and terrain_kind == enum.tile.stair then
 			return base.equals(regen_args, {{w, old_num + 1}})
 		else
 			return #regen_args == 0 and source.pos == targ_pos

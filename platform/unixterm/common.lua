@@ -30,10 +30,10 @@ common.default.symbols = {}
 common.default.symbols.dark = " "
 common.default.symbols.err = ":"
 common.default.symbols.terrain = {
-	[enum.terrain.floor] = ".",
-	[enum.terrain.wall] = "#",
-	[enum.terrain.tough_wall] = "#",
-	[enum.terrain.stair] = "<"
+	[enum.tile.floor] = ".",
+	[enum.tile.wall] = "#",
+	[enum.tile.tough_wall] = "#",
+	[enum.tile.stair] = "<"
 }
 common.default.symbols.monster = {
 	[enum.monster.player] = "@",
@@ -53,7 +53,7 @@ function common.symbol_at(world, pos)
 	local targ_kind, targ_enum = visible.at(world, pos)
 	if not targ_kind then
 		return symbols.dark
-	elseif targ_enum == enum.terrain then
+	elseif targ_enum == enum.tile then
 		return symbols.terrain[targ_kind]
 	elseif targ_enum == enum.monster then
 		return symbols.monster[targ_kind]

@@ -20,10 +20,10 @@ function visible.at(world, pos)
 		elseif tool_pile and #tool_pile > 0 then
 			return tool_pile[#tool_pile].kind, enum.tool
 		else
-			return tile.kind, enum.terrain
+			return tile.kind, enum.tile
 		end
-	elseif memory and tile.kind ~= enum.terrain.floor then
-		return tile.kind, enum.terrain
+	elseif memory and tile.kind ~= enum.tile.floor then
+		return tile.kind, enum.tile
 	else
 		return false, false
 	end

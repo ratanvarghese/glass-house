@@ -149,7 +149,7 @@ property "setup.gen_pickle_t: terrain" {
 		local res = setup.gen_pickle_t(num, player_tbl)
 		local pos = grid.get_pos(x, y)
 		local k = res.terrain[pos].kind
-		return k >= 1 and k < enum.terrain.MAX and res.terrain[pos].pos == pos
+		return k >= 1 and k < enum.tile.MAX and res.terrain[pos].pos == pos
 	end 
 }
 

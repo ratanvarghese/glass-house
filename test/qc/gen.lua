@@ -27,7 +27,7 @@ property "gen.big_room: player on floor" {
 	check = function()
 		local t, i = gen.big_room()
 		local v = t[i]
-		return (v.kind == enum.terrain.floor)
+		return (v.kind == enum.tile.floor)
 	end
 }
 
@@ -38,9 +38,9 @@ property "gen.big_room: terrain" {
 		local i = grid.get_pos(x, y)
 		local s = t[i].kind
 		local has_pos = t[i].pos == i
-		if s == enum.terrain.stair or s == enum.terrain.floor then
+		if s == enum.tile.stair or s == enum.tile.floor then
 			return not grid.is_edge(x, y) and has_pos
-		elseif s == enum.terrain.tough_wall then
+		elseif s == enum.tile.tough_wall then
 			return grid.is_edge(x, y) and has_pos
 		else
 			return false
@@ -62,10 +62,10 @@ property "gen.cave: connected start and stairs" {
 	check = function()
 		local t, start_i = gen.cave()
 		local function eligible(i)
-			return t[i].kind ~= enum.terrain.wall
+			return t[i].kind ~= enum.tile.wall
 		end
 		return flood.search(start_i, eligible, function(i)
-			return t[i].kind == enum.terrain.stair
+			return t[i].kind == enum.tile.stair
 		end)
 	end
 }
@@ -76,7 +76,7 @@ property "gen.cave: correct number of floor tiles" {
 		local t = gen.cave()
 		local n = 0
 		for _,x,y,v in grid.points(t) do
-			if v.kind == enum.terrain.floor then
+			if v.kind == enum.tile.floor then
 				n = n + 1
 			end
 		end

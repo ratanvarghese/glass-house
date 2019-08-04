@@ -25,7 +25,7 @@ local function when_fail_general(power, act_i, cave, trap, x, y)
 		if w.denizens[i] then
 			io.write(i == source.pos and "@" or "A")
 		else
-			io.write(t.kind == enum.terrain.floor and "." or "#")
+			io.write(t.kind == enum.tile.floor and "." or "#")
 		end
 		if x == grid.MAX_X then
 			io.write("\n")

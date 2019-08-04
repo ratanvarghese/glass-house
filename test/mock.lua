@@ -48,7 +48,7 @@ function mock.world(make_cave)
 	res._eligible = function(i)
 		if not res.terrain[i] then return false end
 		local t_kind = res.terrain[i].kind
-		local good_t = t_kind ~= enum.terrain.wall and t_kind ~= enum.terrain.tough_wall
+		local good_t = t_kind ~= enum.tile.wall and t_kind ~= enum.tile.tough_wall
 		return good_t and not res.denizens[i]
 	end
 	res._setup_walk_paths = function(world, ...)

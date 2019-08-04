@@ -13,9 +13,9 @@ property "visible.at: just terrain" {
 		w.terrain[pos].inventory = {}
 		local k, e = visible.at(w, pos)
 		if w.light[pos] then
-			return k == w.terrain[pos].kind and e == enum.terrain
-		elseif w.memory[pos] and w.terrain[pos].kind ~= enum.terrain.floor then
-			return k == w.terrain[pos].kind and e == enum.terrain
+			return k == w.terrain[pos].kind and e == enum.tile
+		elseif w.memory[pos] and w.terrain[pos].kind ~= enum.tile.floor then
+			return k == w.terrain[pos].kind and e == enum.tile
 		else
 			return not k and not e
 		end

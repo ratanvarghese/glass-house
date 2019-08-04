@@ -14,7 +14,7 @@ enum.default_inverted.cmd = {
 	"equip",
 	"MAX"
 }
-enum.default_inverted.terrain = {
+enum.default_inverted.tile = {
 	"floor",
 	"wall",
 	"tough_wall",

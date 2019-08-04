@@ -6,7 +6,7 @@ property "enum: end with MAX" {
 	numtests = 1,
 	check = function()
 		enum.init(enum.default_inverted)
-		local list = {enum.cmd, enum.terrain, enum.tool, enum.monster}
+		local list = {enum.cmd, enum.tile, enum.tool, enum.monster}
 		for _, targ_enum in pairs(list) do
 			local max = 1
 			for k,v in pairs(targ_enum) do
@@ -25,7 +25,7 @@ local new_inverted = {
 		"rot",
 		"MAX"
 	},
-	terrain = {
+	tile = {
 		"marsh",
 		"MAX"
 	},

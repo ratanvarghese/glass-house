@@ -89,7 +89,7 @@ property "act[enum.power.mundane] wander: correct possible/utility if obviously 
 			grid.travel(source.pos, 1, enum.cmd.west)
 		}
 		for _,v in ipairs(options) do
-			w.terrain[v] = {kind = enum.terrain.tough_wall, pos=v}
+			w.terrain[v] = {kind = enum.tile.tough_wall, pos=v}
 		end
 
 		if check_utility then
@@ -115,7 +115,7 @@ property "act[enum.power.mundane] wander: attempt if obviously impossible" {
 			grid.travel(source.pos, 1, enum.cmd.west)
 		}
 		for _,v in ipairs(options) do
-			w.terrain[v] = {kind = enum.terrain.tough_wall, pos=v}
+			w.terrain[v] = {kind = enum.tile.tough_wall, pos=v}
 		end
 		local success = f(enum.actmode.attempt, w, source)
 		return not success and grid.distance(source.pos, source.destination) == 0
@@ -186,7 +186,7 @@ property "act[enum.power.mundane] pursue: attempt with obvious result" {
 		if decidemode == enum.decidemode.player then
 			w.player_pos = source.pos
 		end
-		w.terrain[targ_i] = {kind = enum.terrain.stair, pos=targ_i}
+		w.terrain[targ_i] = {kind = enum.tile.stair, pos=targ_i}
 		local res = f(enum.actmode.attempt, w, source, targ_i)
 		local old_distance = grid.distance(source.pos, targ_i)
 		local new_distance = grid.distance(source.destination, targ_i)
@@ -203,7 +203,7 @@ property "act[enum.power.mundane] pursue: attempt with obvious result" {
 		if decidemode == enum.decidemode.player then
 			w.player_pos = source.pos
 		end
-		w.terrain[targ_i] = {kind = enum.terrain.floor, pos=targ_i}
+		w.terrain[targ_i] = {kind = enum.tile.floor, pos=targ_i}
 		local old_distance = grid.distance(source.pos, targ_i)
 		local res = f(enum.actmode.attempt, w, source, targ_i)
 		local new_distance = grid.distance(source.pos, targ_i)
@@ -229,7 +229,7 @@ property "act[enum.power.mundane] pursue: attempt with obvious result" {
 				if w.denizens[i] then
 					io.write(i == source.pos and "@" or "A")
 				else
-					io.write(t.kind == enum.terrain.floor and "." or "#")
+					io.write(t.kind == enum.tile.floor and "." or "#")
 				end
 				if x == grid.MAX_X then
 					io.write("\n")
@@ -255,7 +255,7 @@ property "act[enum.power.mundane] pursue: attempt if obviously impossible" {
 			grid.travel(source.pos, 1, enum.cmd.west)
 		}
 		local targ_pos = options[opt_i]
-		w.terrain[targ_pos] = {kind = enum.terrain.tough_wall, pos=targ_pos}
+		w.terrain[targ_pos] = {kind = enum.tile.tough_wall, pos=targ_pos}
 		w._setup_walk_paths(w, source.pos, targ_pos)
 		local success = f(enum.actmode.attempt, w, source, options[opt_i])
 		return not success and grid.distance(source.pos, source.destination) == 0
@@ -344,7 +344,7 @@ property "act[enum.power.mundane] flee: attempt with obvious result" {
 				if w.denizens[i] then
 					io.write(i == source.pos and "@" or "A")
 				else
-					io.write(t.kind == enum.terrain.floor and "." or "#")
+					io.write(t.kind == enum.tile.floor and "." or "#")
 				end
 				if x == grid.MAX_X then
 					io.write("\n")
@@ -371,7 +371,7 @@ property "act[enum.power.mundane] flee: attempt if obviously impossible" {
 		}
 		local targ_pos = options[opt_i]
 		for _,v in ipairs(options) do
-			w.terrain[v] = {kind = enum.terrain.tough_wall, pos=v}
+			w.terrain[v] = {kind = enum.tile.tough_wall, pos=v}
 		end
 		w._setup_walk_paths(w, source.pos, targ_pos)
 		local success = f(enum.actmode.attempt, w, source, options[opt_i])
