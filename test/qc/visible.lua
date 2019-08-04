@@ -10,6 +10,7 @@ property "visible.at: just terrain" {
 	check = function(x, y, make_cave)
 		local pos = grid.get_pos(x, y)
 		local w = mock.world(make_cave)
+		w.terrain[pos].inventory = {}
 		local k, e = visible.at(w, pos)
 		if w.light[pos] then
 			return k == w.terrain[pos].kind and e == enum.terrain
