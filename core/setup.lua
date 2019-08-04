@@ -54,15 +54,10 @@ function setup.gen_denizens(terrain, player_pos, player)
 end
 
 function setup.gen_state(num, player)
-	local terrain, player_pos = gen.cave()
-	local denizens = setup.gen_denizens(terrain, player_pos, player)
-	return {
-		player_pos = player_pos,
-		denizens = denizens,
-		terrain = terrain,
-		memory = {},
-		num = num
-	}
+	local res = {memory = {}, num = num}
+	res.terrain, res.player_pos = gen.cave()
+	res.denizens = setup.gen_denizens(res.terrain, res.player_pos, player)
+	return res
 end
 
 function setup.clear_entities_except(w, except_set)
