@@ -13,7 +13,7 @@ property "decide.player: movement commands" {
 	check = function(direction_i, x, y)
 		local d = grid.direction_list[direction_i]
 		local mon = {pos = grid.get_pos(x, y)}
-		local res_f, targ_i = decide.player(mon, {denizens={}}, d, 1)
+		local res_f, targ_i = decide.player(mon, {state={denizens={}}}, d, 1)
 		return res_f == act[enum.power.mundane].pursue and targ_i == grid.travel(mon.pos, 1, d)
 	end
 }
@@ -29,7 +29,8 @@ property "decide.player: attack commands" {
 		local mon = {pos = grid.get_pos(x, y)}
 		local predicted_targ_pos = grid.travel(mon.pos, 1, d)
 		local targ = {pos=predicted_targ_pos}
-		local res_f, targ_i = decide.player(mon, {denizens={[predicted_targ_pos]=targ}}, d, 1)
+		local state = {denizens={[predicted_targ_pos]=targ}}
+		local res_f, targ_i = decide.player(mon, {state=state}, d, 1)
 		return res_f == act[enum.power.mundane].melee and targ_i == predicted_targ_pos
 	end
 }
@@ -58,7 +59,7 @@ property "decide.monster: pick function with maximum utility" {
 	},
 	check = function(a, b, power_kind, x, y)
 		local mon = {power = {[power_kind] = power.DEFAULT}}
-		local world = {player_pos = grid.get_pos(x, y)}
+		local world = {state={player_pos = grid.get_pos(x, y)}}
 		local min_f = function() return math.min(a, b) - 1 end
 		local max_f = function() return math.max(a, b) + 1 end
 		act[power_kind] = {
@@ -69,7 +70,7 @@ property "decide.monster: pick function with maximum utility" {
 		}
 		local res_f, res_targ = decide.monster(mon, world)
 		act[power_kind] = nil
-		return res_f == max_f and res_targ == world.player_pos
+		return res_f == max_f and res_targ == world.state.player_pos
 	end
 }
 
@@ -101,7 +102,7 @@ property "decide.get_ftarget: identical results to decide.monster or decide.play
 		local old_input = decide.input
 		local input_f = function() return grid.direction_list[direction_i], n end
 		decide.init(function() end, input_f)
-		local world = {player_pos = grid.get_pos(x, y), denizens={}}
+		local world = {state = {player_pos = grid.get_pos(x, y), denizens={}}}
 		local mon = {
 			power = {[power_kind] = power.DEFAULT},
 			pos = grid.get_pos(x, y),

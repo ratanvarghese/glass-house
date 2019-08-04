@@ -59,7 +59,7 @@ end
 
 function tool.process(system, e, dt)
 	local world = system.world
-	local t = world.terrain[e.pos]
+	local t = world.state.terrain[e.pos]
 	if e.usetool.pickup and tool.has_inventory_i(t, 1) then
 		process_pickup(world, e, t)
 	end

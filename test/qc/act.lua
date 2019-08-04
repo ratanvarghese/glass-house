@@ -21,8 +21,8 @@ local function when_fail_general(power, act_i, cave, trap, x, y)
 	print("cave:", cave, "trap:", trap)
 	print("x:", x, "y:", y)
 	io.write("\n")
-	for i,x,y,t in grid.points(w.terrain) do
-		if w.denizens[i] then
+	for i,x,y,t in grid.points(w.state.terrain) do
+		if w.state.denizens[i] then
 			io.write(i == source.pos and "@" or "A")
 		else
 			io.write(t.kind == enum.tile.floor and "." or "#")

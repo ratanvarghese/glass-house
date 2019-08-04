@@ -43,17 +43,17 @@ function light.cancel_light(light_arr, dark_arr)
 end
 
 function light.setup_tables(system)
-	system.world.light = {}
-	system.world.dark = {}
-	system.world.memory = system.world.memory or {}
+	system.world.state.light = {}
+	system.world.state.dark = {}
+	system.world.state.memory = system.world.state.memory or {}
 end
 
 function light.process(system, e, dt)
-	light.set_from_entity(e, system.world.light, system.world.memory, system.world.dark)
+	light.set_from_entity(e, system.world.state.light, system.world.state.memory, system.world.state.dark)
 end
 
 function light.post(system)
-	light.cancel_light(system.world.light, system.world.dark)
+	light.cancel_light(system.world.state.light, system.world.state.dark)
 end
 
 function light.make_system()
@@ -64,7 +64,7 @@ function light.make_system()
 	system.process = light.process
 	system.postProcess = light.post
 
-	system.onAddToWorld = light.setup_tables
+	system.preWrap = light.setup_tables
 	return system
 end
 

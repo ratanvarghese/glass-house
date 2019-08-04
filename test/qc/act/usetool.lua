@@ -9,7 +9,7 @@ local function setup(x, y, cave, swap, tool_list, tool_i)
 		local tool_list = base.extend_arr({}, pairs(tool_list))
 		local tool_i = base.is_empty(tool_list) and tool_i or base.clip(tool_i, 1, #tool_list)
 		local w, source = mock.mini_world(cave, swap, x, y)
-		local t = base.copy(w.terrain[source.pos])
+		local t = base.copy(w.state.terrain[source.pos])
 		return w, source, t, tool_list, tool_i
 end
 
@@ -36,7 +36,7 @@ property "act[enum.power.tool] pickup: possible" {
 	check = function(x, y, cave, swap, tool_list, tool_i)
 		local w, source, t, tool_list, tool_i = setup(x, y, cave, swap, tool_list, tool_i)
 		t.inventory = tool_list
-		w.terrain[source.pos] = t
+		w.state.terrain[source.pos] = t
 
 		local f = act[enum.power.tool].pickup
 		return f(enum.actmode.possible, w, source, tool_i) or base.is_empty(tool_list)
@@ -55,7 +55,7 @@ property "act[enum.power.tool] pickup: attempt" {
 	check = function(x, y, cave, swap, tool_list, tool_i)
 		local w, source, t, tool_list, tool_i = setup(x, y, cave, swap, tool_list, tool_i)
 		t.inventory = tool_list
-		w.terrain[source.pos] = t
+		w.state.terrain[source.pos] = t
 
 		return attempt_check(w, source, tool_list, tool_i, "pickup")
 	end
@@ -73,7 +73,7 @@ property "act[enum.power.tool] drop: possible" {
 	check = function(x, y, cave, swap, tool_list, tool_i)
 		local w, source, t, tool_list, tool_i = setup(x, y, cave, swap, tool_list, tool_i)
 		source.inventory = tool_list
-		w.terrain[source.pos] = t
+		w.state.terrain[source.pos] = t
 
 		local f = act[enum.power.tool].drop
 		return f(enum.actmode.possible, w, source, tool_i) or base.is_empty(tool_list)
@@ -92,7 +92,7 @@ property "act[enum.power.tool] drop: attempt" {
 	check = function(x, y, cave, swap, tool_list, tool_i)
 		local w, source, t, tool_list, tool_i = setup(x, y, cave, swap, tool_list, tool_i)
 		source.inventory = tool_list
-		w.terrain[source.pos] = t
+		w.state.terrain[source.pos] = t
 
 		return attempt_check(w, source, tool_list, tool_i, "drop")
 	end
@@ -110,7 +110,7 @@ property "act[enum.power.tool] equip: possible" {
 	check = function(x, y, cave, swap, tool_list, tool_i)
 		local w, source, t, tool_list, tool_i = setup(x, y, cave, swap, tool_list, tool_i)
 		source.inventory = tool_list
-		w.terrain[source.pos] = t
+		w.state.terrain[source.pos] = t
 
 		local f = act[enum.power.tool].equip
 		return f(enum.actmode.possible, w, source, tool_i) or base.is_empty(tool_list)
@@ -129,7 +129,7 @@ property "act[enum.power.tool] equip: attempt" {
 	check = function(x, y, cave, swap, tool_list, tool_i)
 		local w, source, t, tool_list, tool_i = setup(x, y, cave, swap, tool_list, tool_i)
 		source.inventory = tool_list
-		w.terrain[source.pos] = t
+		w.state.terrain[source.pos] = t
 
 		return attempt_check(w, source, tool_list, tool_i, "equip")
 	end

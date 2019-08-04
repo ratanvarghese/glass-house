@@ -26,17 +26,7 @@ property "setup.make_system_list: use passed in ui" {
 	end
 }
 
-property "setup.pickle_world: expected fields only" {
-	generators = { int(), any(), any() },
-	check = function(i, v, dummy_k)
-		local k_list = {"terrain", "denizens", "player_pos", "memory", "num"} 
-		local k = k_list[i] or dummy_k
-		local p = setup.pickle_world({[k] = v})
-		return (i >= 1 and i <= #k_list) and base.equals(p[k],v) or (not p[k])
-	end
-}
-
-property "setup.unpickle_world: add entities" {
+property "setup.from_state: add entities" {
 	generators = { any(), tbl(), tbl(), any(), any(), int(), int() },
 	check = function(player_pos, raw_terrain, raw_denizens, memory, num, terrain_i, denizens_i)
 		local terrain = {}
@@ -58,7 +48,7 @@ property "setup.unpickle_world: add entities" {
 			num = num
 		}
 		local w = tiny.world()
-		setup.unpickle_world(w, p)
+		setup.from_state(w, p)
 		w.refresh(w)
 		local t_res = w.entities[terrain[terrain_i]] or terrain_i == 0
 		local d_res = w.entities[denizens[denizens_i]] or denizens_i == 0
@@ -67,7 +57,7 @@ property "setup.unpickle_world: add entities" {
 }
 
 
-property "setup.unpickle_world: simple fields" {
+property "setup.from_state: simple fields" {
 	generators = { any(), tbl(), tbl(), any(), any(), int() },
 	check = function(player_pos, terrain, denizens, memory, num, i)
 		local k_list = {"terrain", "denizens", "player_pos", "memory", "num"}
@@ -81,8 +71,8 @@ property "setup.unpickle_world: simple fields" {
 			num = num
 		}
 		local w = tiny.world()
-		setup.unpickle_world(w, p)
-		return base.equals(w[k], p[k])
+		setup.from_state(w, p)
+		return base.equals(w.state[k], p[k])
 	end
 }
 
@@ -127,40 +117,40 @@ property "setup.gen_denizens: all on walkable spaces" {
 	end
 }
 
-property "setup.gen_pickle_t: simple fields" {
+property "setup.gen_state: simple fields" {
 	generators = { int(), bool(), tbl() },
 	check = function(num, use_player_tbl, player_tbl)
 		local player_tbl = player_tbl
 		if not use_player_tbl then
 			player_tbl = nil
 		end
-		local res = setup.gen_pickle_t(num, player_tbl)
+		local res = setup.gen_state(num, player_tbl)
 		return res.num == num and base.is_empty(res.memory)
 	end 
 }
 
-property "setup.gen_pickle_t: terrain" {
+property "setup.gen_state: terrain" {
 	generators = { int(), bool(), tbl(), int(1, grid.MAX_X), int(1, grid.MAX_Y) },
 	check = function(num, use_player_tbl, player_tbl, x, y)
 		local player_tbl = player_tbl
 		if not use_player_tbl then
 			player_tbl = nil
 		end
-		local res = setup.gen_pickle_t(num, player_tbl)
+		local res = setup.gen_state(num, player_tbl)
 		local pos = grid.get_pos(x, y)
 		local k = res.terrain[pos].kind
 		return k >= 1 and k < enum.tile.MAX and res.terrain[pos].pos == pos
 	end 
 }
 
-property "setup.gen_pickle_t: player" {
+property "setup.gen_state: player" {
 	generators = { int(), bool(), tbl() },
 	check = function(num, use_player_tbl, player_tbl)
 		local player_tbl = player_tbl
 		if not use_player_tbl then
 			player_tbl = nil
 		end
-		local res = setup.gen_pickle_t(num, player_tbl)
+		local res = setup.gen_state(num, player_tbl)
 		local res_player = res.denizens[res.player_pos]
 		if use_player_tbl and res_player ~= player_tbl then
 			return false
@@ -211,8 +201,9 @@ property "setup.clear_entities_except" {
 }
 
 property "setup.exit_f: call ui.shutdown and raw_exit_f in that order" {
-	generators = { tbl(), bool() },
-	check = function(w, kill_save) 
+	generators = { tbl(), tbl(), bool() },
+	check = function(w, state, kill_save) 
+		w.state = state
 		local old_ui, old_save, old_f = setup.ui, setup.save, setup.raw_exit_f
 
 		local shutdown_called = false
@@ -230,8 +221,9 @@ property "setup.exit_f: call ui.shutdown and raw_exit_f in that order" {
 }
 
 property "setup.exit_f: call remove only if kill_save, call save otherwise" {
-	generators = { tbl(), bool() },
-	check = function(w, kill_save) 
+	generators = { tbl(), tbl(), bool() },
+	check = function(w, state, kill_save)
+		w.state = state
 		local old_ui, old_save, old_f = setup.ui, setup.save, setup.raw_exit_f
 
 		local remove_called = false
@@ -252,7 +244,7 @@ property "setup.exit_f: call remove only if kill_save, call save otherwise" {
 			return not remove_called and base.equals(save_args, {{{
 					enum_inverted = enum.inverted,
 					bestiary_set = bestiary.set,
-					world = setup.pickle_world(w)
+					state = w.state
 			}}})
 		end
 	end
@@ -261,21 +253,22 @@ property "setup.exit_f: call remove only if kill_save, call save otherwise" {
 property "setup.regen: expected calls" {
 	generators = { tbl(), tbl(), int(), int(1, grid.MAX_X), int(1, grid.MAX_Y), tbl() },
 	check = function(w, player, num, player_x, player_y, pickle_t)
-		w.player_pos = grid.get_pos(player_x, player_y)
-		w.denizens = {[w.player_pos] = player}
+		w.state = {}
+		w.state.player_pos = grid.get_pos(player_x, player_y)
+		w.state.denizens = {[w.state.player_pos] = player}
 
 		local old_except = setup.clear_entities_except
-		local old_unpickle = setup.unpickle_world
-		local old_gen_pickle = setup.gen_pickle_t
+		local old_unpickle = setup.from_state
+		local old_gen_pickle = setup.gen_state
 
 		local clear_args = {}
 		setup.clear_entities_except = function(...) table.insert(clear_args, {...}) end
 
 		local unpickle_args = {}
-		setup.unpickle_world = function(...) table.insert(unpickle_args, {...}) end
+		setup.from_state = function(...) table.insert(unpickle_args, {...}) end
 
 		local gen_pickle_args = {}
-		setup.gen_pickle_t = function(...)
+		setup.gen_state = function(...)
 			table.insert(gen_pickle_args, {...})
 			return pickle_t
 		end
@@ -283,8 +276,8 @@ property "setup.regen: expected calls" {
 		setup.regen(w, num)
 
 		setup.clear_entities_except = old_except
-		setup.unpickle_world = old_unpickle
-		setup.gen_pickle_t = old_gen_pickle
+		setup.from_state = old_unpickle
+		setup.gen_state = old_gen_pickle
 
 		local clear_res = base.equals(clear_args, {{w, {[player] = true}}})
 		local gen_pickle_res = base.equals(gen_pickle_args, {{num, player}})

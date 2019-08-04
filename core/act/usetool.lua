@@ -3,7 +3,7 @@ local tool = require("core.system.tool")
 local usetool = {pickup = {}, drop = {}, equip = {}}
 
 function usetool.pickup.possible(world, e, inventory_i)
-	return tool.has_inventory_i(world.terrain[e.pos], inventory_i)
+	return tool.has_inventory_i(world.state.terrain[e.pos], inventory_i)
 end
 
 function usetool.pickup.utility(world, e, inventory_i)

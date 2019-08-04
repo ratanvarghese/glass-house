@@ -11,7 +11,7 @@ function decide.player(e, world, cmd, n)
 	if grid.directions[cmd] then
 		local targ_i = grid.travel(e.pos, 1, cmd)
 		local f
-		if world.denizens[targ_i] then
+		if world.state.denizens[targ_i] then
 			f = act[enum.power.mundane].melee
 		else
 			f = act[enum.power.mundane].pursue
@@ -36,14 +36,14 @@ function decide.monster(e, world)
 	for p,v in pairs(e.power) do
 		local actions = act[p] or {}
 		for _,f in ipairs(actions) do
-			local v = f(enum.actmode.utility, world, e, world.player_pos)
+			local v = f(enum.actmode.utility, world, e, world.state.player_pos)
 			if v > max_utility then
 				max_utility = v
 				max_utility_f = f
 			end
 		end
 	end
-	return max_utility_f, world.player_pos
+	return max_utility_f, world.state.player_pos
 end
 
 function decide.get_ftarget(world, e)

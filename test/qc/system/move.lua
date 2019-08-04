@@ -37,16 +37,16 @@ property "move.reset_paths: reasonable values in paths" {
 		local source_pos = grid.get_pos(source_x, source_y)
 		local dz_pos = grid.get_pos(dz_x, dz_y)
 		local w = mock.world(make_cave)
-		w.denizens[dz_pos] = {pos=dz_pos}
+		w.state.denizens[dz_pos] = {pos=dz_pos}
 		move.reset_paths({world = w})
 		local res = w.walk_paths[targ_pos][source_pos]
 		if res then
 			return res >= grid.distance(targ_pos, source_pos)
 		elseif targ_pos == dz_pos or source_pos == dz_pos then
 			return true
-		elseif w.terrain[targ_pos].kind ~= enum.tile.floor then
+		elseif w.state.terrain[targ_pos].kind ~= enum.tile.floor then
 			return true
-		elseif w.terrain[source_pos].kind ~= enum.tile.floor then
+		elseif w.state.terrain[source_pos].kind ~= enum.tile.floor then
 			return true
 		else
 			return false
@@ -66,7 +66,7 @@ property "move.options: filter destinations by walkability" {
 		local expected = base.extend_arr({}, grid.destinations(source_pos))
 		local n_expected = #expected
 		for i=n_expected,1,-1 do
-			if not move.walkable(w.terrain, w.denizens, expected[i]) then
+			if not move.walkable(w.state.terrain, w.state.denizens, expected[i]) then
 				table.remove(expected, i)
 			end
 		end
@@ -88,8 +88,8 @@ property "move.prepare, move.process: move denizen properly" {
 		local w, source = mock.mini_world(false, true, x, y)
 		source.decide = decidemode
 		local targ_pos = grid.get_pos(targ_x, targ_y)
-		w.terrain[targ_pos] = {kind = terrain_kind, pos=targ_pos}
-		local old_num = w.num
+		w.state.terrain[targ_pos] = {kind = terrain_kind, pos=targ_pos}
+		local old_num = w.state.num
 		local old_regen = move.regen_f
 		local regen_args = {}
 		move.regen_f = function(...) table.insert(regen_args, {...}) end

@@ -16,7 +16,9 @@ function mock.world(make_cave)
 		_entities = {},
 		_entity_adds = 0,
 		_entity_removes = 0,
-		num = 0
+		state = {
+			num = 0
+		}
 	}
 	if make_cave then
 		res._terrain = cave
@@ -33,10 +35,10 @@ function mock.world(make_cave)
 	for i in grid.points() do
 		res._memory[i] = (math.random(1, 2) == 2)
 	end
-	res.light, res._light_ctrl = proxy.read_write(res._light) --Expect writing nil
-	res.memory, res._memory_ctrl = proxy.read_write(res._memory)
-	res.terrain, res._terrain_ctrl = proxy.write_to_alt(res._terrain) --Protect shared data
-	res.denizens, res._denizens_ctrl = proxy.read_write(res._denizens) --Expect writing nil
+	res.state.light, res._light_ctrl = proxy.read_write(res._light) --Expect writing nil
+	res.state.memory, res._memory_ctrl = proxy.read_write(res._memory)
+	res.state.terrain, res._terrain_ctrl = proxy.write_to_alt(res._terrain) --Protect shared data
+	res.state.denizens, res._denizens_ctrl = proxy.read_write(res._denizens) --Expect writing nil
 	res.addEntity = function(world, e)
 		world._entities[e] = true
 		world._entity_adds = world._entity_adds + 1
@@ -46,10 +48,10 @@ function mock.world(make_cave)
 		world._entity_removes = world._entity_removes + 1
 	end
 	res._eligible = function(i)
-		if not res.terrain[i] then return false end
-		local t_kind = res.terrain[i].kind
+		if not res.state.terrain[i] then return false end
+		local t_kind = res.state.terrain[i].kind
 		local good_t = t_kind ~= enum.tile.wall and t_kind ~= enum.tile.tough_wall
-		return good_t and not res.denizens[i]
+		return good_t and not res.state.denizens[i]
 	end
 	res._setup_walk_paths = function(world, ...)
 		local targets = {...}

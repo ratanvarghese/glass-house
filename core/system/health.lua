@@ -20,12 +20,12 @@ function health.kill(system, e)
 		health.exit(world, true)
 	else
 		if e.inventory and #(e.inventory) > 0 and e.pos then
-			local tile = world.terrain[e.pos]
+			local tile = world.state.terrain[e.pos]
 			tile.inventory = tile.inventory or {}
 			base.extend_arr(tile.inventory, ipairs(e.inventory))
 		end
 		system.world.removeEntity(system.world, e)
-		system.world.denizens[e.pos] = nil
+		system.world.state.denizens[e.pos] = nil
 	end
 end
 

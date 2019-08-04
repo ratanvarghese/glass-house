@@ -16,7 +16,7 @@ end
 function move.options(world, source_pos, directions_table)
 	local options = {}
 	for _,pos in grid.destinations(source_pos, directions_table) do
-		if move.walkable(world.terrain, world.denizens, pos) then
+		if move.walkable(world.state.terrain, world.state.denizens, pos) then
 			table.insert(options, pos)
 		end
 	end
@@ -30,7 +30,7 @@ end
 function move.reset_paths(system)
 	system.world.walk_paths = proxy.memoize(function(target)
 		return flood.gradient(target, function(pos)
-			return move.walkable(system.world.terrain, system.world.denizens, pos)
+			return move.walkable(system.world.state.terrain, system.world.state.denizens, pos)
 		end)
 	end)
 end
@@ -38,15 +38,15 @@ end
 function move.process(system, d, dt)
 	local world = system.world
 
-	if world.denizens[d.pos] == nil then return end
+	if world.state.denizens[d.pos] == nil then return end
 
-	world.denizens[d.pos] = nil
-	world.denizens[d.destination] = d
+	world.state.denizens[d.pos] = nil
+	world.state.denizens[d.destination] = d
 	d.pos = d.destination
 	if d.decide == enum.decidemode.player then
-		world.player_pos = d.pos
-		if world.terrain[d.pos].kind == enum.tile.stair then
-			move.regen_f(world, world.num+1)
+		world.state.player_pos = d.pos
+		if world.state.terrain[d.pos].kind == enum.tile.stair then
+			move.regen_f(world, world.state.num+1)
 			return
 		end
 	end

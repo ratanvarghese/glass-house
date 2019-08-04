@@ -35,7 +35,7 @@ end
 function mundane.pursue.utility(world, source, target_i)
 	local n_options = #(move.options(world, source.pos))
 	local h_ratio = (source.health.now/source.health.max)
-	local lit = (world.light[target_i] and 1 or 0)
+	local lit = (world.state.light[target_i] and 1 or 0)
 	return n_options * h_ratio * lit
 end
 
@@ -77,7 +77,7 @@ function mundane.melee.possible(world, source, target_i)
 	if grid.distance(target_i, source.pos) ~= 1 then
 		return false
 	end
-	local target = world.denizens[target_i]
+	local target = world.state.denizens[target_i]
 	if target and health.is_alive(target.health) then
 		return target
 	else

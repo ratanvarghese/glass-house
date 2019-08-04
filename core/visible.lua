@@ -4,15 +4,15 @@ local base = require("core.base")
 local visible = {}
 
 function visible.at(world, pos)
-	local tile = world.terrain[pos]
+	local tile = world.state.terrain[pos]
 	assert(tile, "Tile not found")
 
 	local tool_pile = tile.inventory
-	local denizen = world.denizens[pos]
-	local light = world.light[pos]
-	local memory = world.memory[pos]
+	local denizen = world.state.denizens[pos]
+	local light = world.state.light[pos]
+	local memory = world.state.memory[pos]
 
-	if pos == world.player_pos then
+	if pos == world.state.player_pos then
 		return denizen.kind, enum.monster
 	elseif light then
 		if denizen then
@@ -30,7 +30,7 @@ function visible.at(world, pos)
 end
 
 function visible.stats(world)
-	local player = world.denizens[world.player_pos]
+	local player = world.state.denizens[world.state.player_pos]
 	local res = {}
 	res.health = base.copy(player.health)
 	return res

@@ -41,8 +41,8 @@ property "health.kill: drop inventory only if entity is monster" {
 	check = function(now, max, x, y, make_cave, decidemode, inventory)
 		local pos = grid.get_pos(x, y)
 		local w = mock.world(make_cave)
-		w.terrain[pos].inventory = {}
-		w.denizens[pos] = {
+		w.state.terrain[pos].inventory = {}
+		w.state.denizens[pos] = {
 			pos = pos,
 			health = {
 				now = now,
@@ -51,8 +51,8 @@ property "health.kill: drop inventory only if entity is monster" {
 			decide = decidemode,
 			inventory = inventory
 		}
-		health.kill({world=w}, w.denizens[pos])
-		local new_inventory = w.terrain[pos].inventory
+		health.kill({world=w}, w.state.denizens[pos])
+		local new_inventory = w.state.terrain[pos].inventory
 		if decidemode == enum.decidemode.monster then
 			local res1 = #inventory > 0 and base.equals(new_inventory, inventory)
 			local res2 = #inventory <= 0 and base.is_empty(new_inventory)
@@ -81,16 +81,16 @@ property "health.kill: remove entity if entity is monster" {
 			},
 			pos = world._start_i
 		}
-		world.denizens[e.pos] = e
+		world.state.denizens[e.pos] = e
 		world.addEntity(world, e)
 		local old_exit = health.exit
 		health.init(function() end)
 		health.kill({world = world}, e)
 		health.init(old_exit)
 		if decidemode == enum.decidemode.player then
-			return world.denizens[e.pos] == e and world._entities[e]
+			return world.state.denizens[e.pos] == e and world._entities[e]
 		else
-			return not world.denizens[e.pos] and not world._entities[e]
+			return not world.state.denizens[e.pos] and not world._entities[e]
 		end
 	end
 }
@@ -112,7 +112,7 @@ property "health.kill, health.init: call exit_f only if entity is player" {
 			},
 			pos = world._start_i
 		}
-		world.denizens[e.pos] = e
+		world.state.denizens[e.pos] = e
 		local old_exit = health.exit
 		local args = {}
 		local exit_f = function(...) table.insert(args, {...}) end

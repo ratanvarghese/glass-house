@@ -24,26 +24,12 @@ function setup.make_system_list(ui)
 	}
 end
 
-function setup.pickle_world(w)
-	return {
-		player_pos = w.player_pos,
-		denizens = w.denizens,
-		terrain = w.terrain,
-		memory = w.memory,
-		num = w.num,
-	}
-end
-
-function setup.unpickle_world(w, pickle_t)
-	w.player_pos = pickle_t.player_pos
-	w.terrain = pickle_t.terrain
-	w.denizens = pickle_t.denizens
-	w.memory = pickle_t.memory
-	w.num = pickle_t.num
-	for _,v in pairs(w.terrain) do
+function setup.from_state(w, state)
+	w.state = state
+	for _,v in pairs(w.state.terrain) do
 		w.addEntity(w, v)
 	end
-	for _,v in pairs(w.denizens) do
+	for _,v in pairs(w.state.denizens) do
 		w.addEntity(w, v)
 	end
 end
@@ -67,7 +53,7 @@ function setup.gen_denizens(terrain, player_pos, player)
 	return res
 end
 
-function setup.gen_pickle_t(num, player)
+function setup.gen_state(num, player)
 	local terrain, player_pos = gen.cave()
 	local denizens = setup.gen_denizens(terrain, player_pos, player)
 	return {
@@ -95,16 +81,16 @@ function setup.exit_f(w, kill_save)
 		setup.save.save({
 			enum_inverted = enum.inverted,
 			bestiary_set = bestiary.set,
-			world = setup.pickle_world(w)
+			state = w.state
 		})
 	end
 	setup.raw_exit_f()
 end
 
 function setup.regen(w, num)
-	local player = w.denizens[w.player_pos]
+	local player = w.state.denizens[w.state.player_pos]
 	setup.clear_entities_except(w, {[player] = true})
-	setup.unpickle_world(w, setup.gen_pickle_t(num, player))
+	setup.from_state(w, setup.gen_state(num, player))
 end
 
 function setup.world(ui, save, seed, raw_exit_f)
@@ -117,19 +103,19 @@ function setup.world(ui, save, seed, raw_exit_f)
 	health.init(setup.exit_f)
 	move.init(setup.regen)
 
-	local state = save.load()
-	local pickle_t
-	if state then
-		enum.init(state.enum_inverted)
-		bestiary.set = state.bestiary_set
-		pickle_t = state.world
+	local saved_data = save.load()
+	local state
+	if saved_data then
+		enum.init(saved_data.enum_inverted)
+		bestiary.set = saved_data.bestiary_set
+		state = saved_data.state
 	else
 		bestiary.make_set()
-		pickle_t = setup.gen_pickle_t(1)
+		state = setup.gen_state(1)
 	end
 
 	local res = tiny.world(unpack(setup.make_system_list(ui)))
-	setup.unpickle_world(res, pickle_t)
+	setup.from_state(res, state)
 	return res
 end
 

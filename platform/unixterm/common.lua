@@ -65,9 +65,9 @@ function common.symbol_at(world, pos)
 end
 
 function common.color_at(world, pos)
-	local invert = (pos == world.player_pos)
+	local invert = (pos == world.state.player_pos)
 	local c = common.colors.white
-	local dz = world.denizens[pos]
+	local dz = world.state.denizens[pos]
 	if dz and dz.display then
 		local hot = dz.display[enum.display.hot]
 		local cold = dz.display[enum.display.cold]
