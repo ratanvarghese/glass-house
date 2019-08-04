@@ -73,13 +73,18 @@ property "act: 'possible' and 'utility' modes do not alter state" {
 		bool(),
 		bool(),
 		int(1, grid.MAX_X),
-		int(1, grid.MAX_Y)
+		int(1, grid.MAX_Y),
+		int(1, 1000),
+		int(1, 1000)
 	},
-	check = function(use_utility, power, act_i, cave, trap, x, y)
+	check = function(use_utility, power, act_i, cave, trap, x, y, h1, h2)
 		local f = get_f(power, act_i)
 		if not f then return true end
 		local m = use_utility and enum.actmode.utility or enum.actmode.possible
 		local w, source, targ_i = mock.mini_world(cave, trap, x, y)
+		local health_max = math.max(h1, h2)
+		local health_now = math.min(h1, h2)
+		source.health = {max = health_max, now = health_now}
 		f(m, w, source, targ_i)
 		local no_terrain_writes = (w._terrain_ctrl.writes == 0)
 		local no_denizens_writes = (w._denizens_ctrl.writes == 0)
@@ -100,12 +105,17 @@ property "act: if 'possible' mode returns false, 'utility' mode returns < 1" {
 		bool(),
 		bool(),
 		int(1, grid.MAX_X),
-		int(1, grid.MAX_Y)
+		int(1, grid.MAX_Y),
+		int(1, 1000),
+		int(1, 1000)
 	},
-	check = function(power, act_i, cave, trap, x, y)
+	check = function(power, act_i, cave, trap, x, y, h1, h2)
 		local f = get_f(power, act_i)
 		if not f then return true end
 		local w, source, targ_i = mock.mini_world(cave, trap, x, y)
+		local health_max = math.max(h1, h2)
+		local health_now = math.min(h1, h2)
+		source.health = {max = health_max, now = health_now}
 		local possibility = f(enum.actmode.possible, w, source, targ_i)
 		local utility = f(enum.actmode.utility, w, source, targ_i)
 		if possibility then

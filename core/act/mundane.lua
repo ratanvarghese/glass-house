@@ -3,7 +3,14 @@ local grid = require("core.grid")
 local health = require("core.system.health")
 local move = require("core.system.move")
 
-local mundane = {wander = {}, pursue = {}, flee = {}, melee = {}}
+local mundane = {
+	wander = {},
+	pursue = {},
+	flee = {},
+	melee = {},
+	MAX_MOVE = 4,
+	MAX_MELEE = 5
+}
 
 function mundane.wander.possible(world, source, dummy_i)
 	return #(move.options(world, source.pos)) > 0
@@ -26,11 +33,10 @@ function mundane.pursue.possible(world, source, target_i)
 end
 
 function mundane.pursue.utility(world, source, target_i)
-	if mundane.pursue.possible(world, source, target_i) and world.light[target_i] then
-		return grid.distance(source.pos, target_i)
-	else
-		return 0
-	end
+	local n_options = #(move.options(world, source.pos))
+	local h_ratio = (source.health.now/source.health.max)
+	local lit = (world.light[target_i] and 1 or 0)
+	return n_options * h_ratio * lit
 end
 
 function mundane.pursue.attempt(world, source, target_i)
@@ -53,11 +59,9 @@ function mundane.flee.possible(world, source, target_i)
 end
 
 function mundane.flee.utility(world, source, target_i)
-	if mundane.flee.possible(world, source, target_i) then
-		return 1--grid.MAX_X + grid.MAX_Y - grid.distance(source.pos, target_i)
-	else
-		return 0
-	end
+	local n_options = #(move.options(world, source.pos))
+	local h_ratio = (source.health.now/source.health.max)
+	return n_options * (1 - h_ratio)
 end
 
 function mundane.flee.attempt(world, source, target_i)
@@ -82,7 +86,9 @@ function mundane.melee.possible(world, source, target_i)
 end
 
 function mundane.melee.utility(world, source, target_i)
-	return (mundane.melee.possible(world, source, target_i)) and 2 or 0
+	local adj = (mundane.melee.possible(world, source, target_i) and 1 or 0)
+	local h_ratio = (source.health.now/source.health.max)
+	return adj * h_ratio * mundane.MAX_MELEE
 end
 
 function mundane.melee.attempt(world, source, target_i)

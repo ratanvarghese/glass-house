@@ -4,7 +4,10 @@ local enum = require("core.enum")
 local act_mundane = require("core.act.mundane")
 local act_usetool = require("core.act.usetool")
 
-local act = {}
+local act = {
+	MAX_MUNDANE_MOVE = act_mundane.MAX_MOVE,
+	MAX_MUNDANE_MELEE = act_mundane.MAX_MELEE
+}
 
 function act.init()
 	act[enum.power.mundane] = {
