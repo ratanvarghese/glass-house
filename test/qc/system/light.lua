@@ -31,18 +31,36 @@ property "light.set_area: exclude non-targets" {
 		int(1, grid.MAX_X),
 		int(1, grid.MAX_Y),
 		any(),
-		int()
+		int(1, grid.MAX_X),
+		int(1, grid.MAX_Y)
 	},
-	check = function(t, radius, x, y, v, res_pos)
-		local t = base.copy(t)
-		local pos = grid.get_pos(x, y)
-		local res_pos = res_pos
-		if grid.distance(pos, res_pos) <= radius then
+	check = function(t, radius, x, y, v, res_x, res_y)
+		if math.abs(x - res_x) <= radius and math.abs(y - res_y) <= radius then
 			return true
 		end
+		local res_pos = grid.get_pos(res_x, res_y)
+		local pos = grid.get_pos(x, y)
+		local t = base.copy(t)
 		local old_v = t[res_pos]
 		light.set_area(t, radius, pos, v)
 		return t[res_pos] == old_v
+	end,
+	when_fail = function(t, radius, x, y, v, res_pos)
+		local t = base.copy(t)
+		local pos = grid.get_pos(x, y)
+		local res_pos = res_pos
+		local old_v = t[res_pos]
+		local lo_p = grid.get_pos(grid.clip(x-radius, y-radius))
+		local hi_p = grid.get_pos(grid.clip(x+radius, y+radius))
+		print("")
+		print("x, y:", x, y)
+		print("radius:", radius)
+		print("old_v:", old_v)
+		print("res_pos:", res_pos)
+		print("res x, y:", grid.get_xy(res_pos))
+		print("pos:", pos)
+		print("lo_p, x, y:", lo_p, grid.get_xy(lo_p))
+		print("hi_p, x, y:", hi_p, grid.get_xy(hi_p))
 	end
 }
 
