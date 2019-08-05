@@ -104,11 +104,6 @@ function base.rn_distinct(min, max, len)
 	return f, invariant, 0
 end
 
-function base.extend_tbl(res, _f, _s, _var)
-	for k,v in _f,_s,_var do res[k] = v end
-	return res
-end
-
 function base.extend_arr(res, _f, _s, _var)
 	for k,v in _f,_s,_var do table.insert(res, v) end
 	return res

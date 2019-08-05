@@ -113,21 +113,6 @@ function enum.new_item(list, item_name)
 	return max
 end
 
-function enum.rn_item(list, dynamic_only)
-	if dynamic_only and (not list.MAX_STATIC or (list.MAX - list.MAX_STATIC) < 2) then
-		error("No dynamic items in enum")
-	end
-	local valid = {}
-	for k,v in pairs(list) do
-		local respect_dynamic_only = (not dynamic_only or v > list.MAX_STATIC)
-		local not_placeholder = (k ~= "MAX" and k ~= "MAX_STATIC")
-		if not_placeholder and respect_dynamic_only then
-			table.insert(valid, v)
-		end
-	end
-	return valid[math.random(1, #valid)]
-end
-
 function enum.selectf(enumlist, t)
 	local alt_t = {}
 	for k,v in pairs(enumlist) do

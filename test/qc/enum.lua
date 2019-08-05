@@ -132,46 +132,6 @@ local function get_enum_names()
 	return res
 end
 
-property "enum.rn_item: results in range" {
-	generators = { int(1, #get_enum_names()) },
-	check = function(i)
-		enum.init(enum.default_inverted)
-		local name = get_enum_names()[i]
-		local res = enum.rn_item(enum[name])
-		return res > 0 and res < enum[name].MAX
-	end
-}
-
-property "enum.rn_item: never MAX or MAX_STATIC" {
-	generators = { int(1, #get_enum_names()) },
-	check = function(i)
-		enum.init(enum.default_inverted)
-		local name = get_enum_names()[i]
-		local res = enum.rn_item(enum[name])
-		return res ~= enum[name].MAX and res ~= enum[name].MAX_STATIC
-	end
-}
-
-property "enum.rn_item: respect dynamic_only" {
-	generators = { int(1, 2) },
-	check = function(i)
-		enum.init(new_inverted)
-		local list = {"monster", "tool"}
-		local name = list[i]
-		local res = enum.rn_item(enum[name], true)
-		return res > enum[name].MAX_STATIC
-	end
-}
-
-property "enum.rn_item: error if dynamic_only cannot be respected" {
-	generators = { int(1, #get_enum_names()) },
-	check = function(i)
-		enum.init(enum.default_inverted) --Default will not contain 'dynamic' enums
-		local name = get_enum_names()[i]
-		return not pcall(function() enum.rn_item(enum[name], true) end)
-	end
-}
-
 property "enum.selectf: select correct mode" {
 	generators = { int(1, #get_enum_names()), int(), any(), tbl()},
 	check = function(enum_i, element_i, expected_res, expected_args)

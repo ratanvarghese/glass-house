@@ -236,43 +236,6 @@ local function powgen(x, y)
 	return _f, _s, _var
 end
 
-property "base.extend_tbl: include all values from custom generator without adding extras" {
-	generators = { int(1, 4), int(1, 4) },
-	check = function(x, y)
-		local res = base.extend_tbl({}, powgen(x, y))
-		local count = 0
-		for k,v in pairs(res) do
-			if k < 1 or k > y or math.floor(k) ~= k then
-				return false
-			elseif v ~= math.pow(x, k) then
-				return false
-			end
-			count = count + 1
-		end
-		return count == y
-	end
-}
-
-property "base.extend_tbl: extend existing table" {
-	generators = { tbl(), int(1, 4), int(1, 4) },
-	check = function(old_t, x, y)
-		local t = base.copy(old_t)
-		base.extend_tbl(t, powgen(x, y))
-		local count = 0
-		for k,v in pairs(t) do
-			if type(k) == "number" and k >= 1 and k <= y and math.floor(k) == k then
-				if v ~= math.pow(x, k) then
-					return false
-				end
-			elseif not base.equals(v, old_t[k]) then
-				return false
-			end
-			count = count + 1
-		end
-		return count <= (#old_t + y)
-	end
-}
-
 property "base.extend_arr: in order" {
 	generators = { int(1, 4), int(1, 4) },
 	check = function(x, y)
