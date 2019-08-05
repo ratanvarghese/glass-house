@@ -4,7 +4,7 @@ local enum = require("core.enum")
 local grid = {}
 
 function grid.get_pos(x, y)
-	return (y*grid.MAX_X) + x
+	return ((y-1)*grid.MAX_X) + x
 end
 
 local function get_x(i)
@@ -18,7 +18,7 @@ end
 
 function grid.get_xy(i)
 	local x = get_x(i)
-	local y = (i - x) / grid.MAX_X
+	local y = ((i - x) / grid.MAX_X) + 1
 	return x, y
 end
 
