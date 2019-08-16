@@ -77,13 +77,12 @@ property "setup.from_state: simple fields" {
 }
 
 property "setup.gen_denizens: player at player_pos" {
-	generators = { int(1, grid.MAX_X), int(1, grid.MAX_Y), bool(), tbl() },
-	check = function(x, y, use_player_tbl, player_tbl)
+	generators = { int(grid.MIN_POS, grid.MAX_POS), bool(), tbl() },
+	check = function(player_pos, use_player_tbl, player_tbl)
 		local player_tbl = player_tbl
 		if not use_player_tbl then
 			player_tbl = nil
 		end
-		local player_pos = grid.get_pos(x, y)
 		local terrain = gen.cave()
 		bestiary.make_set()
 		local res = setup.gen_denizens(terrain, player_pos, player_tbl)
@@ -97,9 +96,8 @@ property "setup.gen_denizens: player at player_pos" {
 }
 
 property "setup.gen_denizens: all on walkable spaces" {
-	generators = { int(1, grid.MAX_X), int(1, grid.MAX_Y), int() },
-	check = function(x, y, i)
-		local player_pos = grid.get_pos(x, y)
+	generators = { int(grid.MIN_POS, grid.MAX_POS), int() },
+	check = function(player_pos, i)
 		local terrain = gen.cave()
 		bestiary.make_set()
 		local res = setup.gen_denizens(terrain, player_pos)
@@ -130,14 +128,13 @@ property "setup.gen_state: simple fields" {
 }
 
 property "setup.gen_state: terrain" {
-	generators = { int(), bool(), tbl(), int(1, grid.MAX_X), int(1, grid.MAX_Y) },
-	check = function(num, use_player_tbl, player_tbl, x, y)
+	generators = { int(), bool(), tbl(), int(grid.MIN_POS, grid.MAX_POS) },
+	check = function(num, use_player_tbl, player_tbl, pos)
 		local player_tbl = player_tbl
 		if not use_player_tbl then
 			player_tbl = nil
 		end
 		local res = setup.gen_state(num, player_tbl)
-		local pos = grid.get_pos(x, y)
 		local k = res.terrain[pos].kind
 		return k >= 1 and k < enum.tile.MAX and res.terrain[pos].pos == pos
 	end 
@@ -251,10 +248,10 @@ property "setup.exit_f: call remove only if kill_save, call save otherwise" {
 }
 
 property "setup.regen: expected calls" {
-	generators = { tbl(), tbl(), int(), int(1, grid.MAX_X), int(1, grid.MAX_Y), tbl() },
-	check = function(w, player, num, player_x, player_y, pickle_t)
+	generators = { tbl(), tbl(), int(), int(grid.MIN_POS, grid.MAX_POS), tbl() },
+	check = function(w, player, num, player_pos, pickle_t)
 		w.state = {}
-		w.state.player_pos = grid.get_pos(player_x, player_y)
+		w.state.player_pos = player_pos
 		w.state.denizens = {[w.state.player_pos] = player}
 
 		local old_except = setup.clear_entities_except

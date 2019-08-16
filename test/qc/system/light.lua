@@ -68,13 +68,11 @@ property "light.set_all: affect all points" {
 	generators = {
 		tbl(),
 		any(),
-		int(1, grid.MAX_X),
-		int(1, grid.MAX_Y),
+		int(grid.MIN_POS, grid.MAX_POS)
 	},
-	check = function(t, v, res_x, res_y)
+	check = function(t, v, res_pos)
 		local t = base.copy(t)
 		light.set_all(t, v)
-		local res_pos = grid.get_pos(res_x, res_y)
 		return t[res_pos] == v
 	end
 }

@@ -7,13 +7,11 @@ local mock = require("test.mock")
 
 property "move.walkable: correct result" {
 	generators = {
-		int(1, grid.MAX_X),
-		int(1, grid.MAX_Y),
+		int(grid.MIN_POS, grid.MAX_POS),
 		bool(),
 		int(1, enum.tile.MAX-1)
 	},
-	check = function(x, y, add_dz, terrain_kind)
-		local pos = grid.get_pos(x, y)
+	check = function(pos, add_dz, terrain_kind)
 		local terrain = {[pos] = {kind = terrain_kind, pos=pos}}
 		local denizens = {}
 		if add_dz then denizens[pos] = {pos = pos} end
@@ -24,18 +22,12 @@ property "move.walkable: correct result" {
 
 property "move.reset_paths: reasonable values in paths" {
 	generators = { 
-		int(1, grid.MAX_X),
-		int(1, grid.MAX_Y),
-		int(1, grid.MAX_X),
-		int(1, grid.MAX_Y),
-		int(1, grid.MAX_X),
-		int(1, grid.MAX_Y),
+		int(grid.MIN_POS, grid.MAX_POS),
+		int(grid.MIN_POS, grid.MAX_POS),
+		int(grid.MIN_POS, grid.MAX_POS),
 		bool()
 	},
-	check = function(targ_x, targ_y, source_x, source_y, dz_x, dz_y, make_cave)
-		local targ_pos = grid.get_pos(targ_x, targ_y)
-		local source_pos = grid.get_pos(source_x, source_y)
-		local dz_pos = grid.get_pos(dz_x, dz_y)
+	check = function(targ_pos, source_pos, dz_pos, make_cave)
 		local w = mock.world(make_cave)
 		w.state.denizens[dz_pos] = {pos=dz_pos}
 		move.reset_paths({world = w})
@@ -55,14 +47,9 @@ property "move.reset_paths: reasonable values in paths" {
 }
 
 property "move.options: filter destinations by walkability" {
-	generators = {
-		int(1, grid.MAX_X),
-		int(1, grid.MAX_Y),
-		bool()
-	},
-	check = function(x, y, make_cave)
+	generators = { int(grid.MIN_POS, grid.MAX_POS), bool() },
+	check = function(source_pos, make_cave)
 		local w = mock.world(make_cave)
-		local source_pos = grid.get_pos(x, y)
 		local expected = base.extend_arr({}, grid.destinations(source_pos))
 		local n_expected = #expected
 		for i=n_expected,1,-1 do
@@ -78,16 +65,14 @@ property "move.prepare, move.process: move denizen properly" {
 	generators = {
 		int(1, grid.MAX_X),
 		int(1, grid.MAX_Y),
-		int(1, grid.MAX_X),
-		int(1, grid.MAX_Y),
+		int(grid.MIN_POS, grid.MAX_POS),
 		int(1, 4),
 		int(1, enum.decidemode.MAX-1),
 		int(1, enum.tile.MAX-1)
 	},
-	check = function(x, y, targ_x, targ_y, opt_i, decidemode, terrain_kind)
+	check = function(x, y, targ_pos, opt_i, decidemode, terrain_kind)
 		local w, source = mock.mini_world(false, true, x, y)
 		source.decide = decidemode
-		local targ_pos = grid.get_pos(targ_x, targ_y)
 		w.state.terrain[targ_pos] = {kind = terrain_kind, pos=targ_pos}
 		local old_num = w.state.num
 		local old_regen = move.regen_f

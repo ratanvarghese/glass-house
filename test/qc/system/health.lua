@@ -32,14 +32,12 @@ property "health.kill: drop inventory only if entity is monster" {
 	generators = {
 		int(),
 		int(),
-		int(1, grid.MAX_X),
-		int(1, grid.MAX_Y),
+		int(grid.MIN_POS, grid.MAX_POS),
 		bool(),
 		int(1, enum.decidemode.MAX-1),
 		tbl()
 	},
-	check = function(now, max, x, y, make_cave, decidemode, inventory)
-		local pos = grid.get_pos(x, y)
+	check = function(now, max, pos, make_cave, decidemode, inventory)
 		local w = mock.world(make_cave)
 		w.state.terrain[pos].inventory = {}
 		w.state.denizens[pos] = {

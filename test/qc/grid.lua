@@ -7,9 +7,11 @@ property "grid.init: respect new values" {
 	check = function(x, y)
 		local old_x, old_y = grid.MAX_X, grid.MAX_Y
 		grid.init(x, y)
-		local res = (grid.MAX_X == x and grid.MAX_Y == y)
+		local res_max_xy = (grid.MAX_X == x and grid.MAX_Y == y)
+		local res_max_pos = (grid.MAX_POS == grid.get_pos(grid.MAX_X, grid.MAX_Y))
+		local res_min_pos = (grid.MIN_POS == grid.get_pos(1, 1))
 		grid.init(old_x, old_y)
-		return res
+		return res_max_xy and res_max_pos and res_min_pos
 	end
 }
 
@@ -23,18 +25,25 @@ property "grid.init: error on bad input" {
 	end
 }
 
-local unique_pos_set = {}
-property "grid.get_pos: unique pos" {
+property "grid.get_pos: unique pos for each x, y combination" {
+	generators = {
+		int(1, grid.MAX_X),
+		int(1, grid.MAX_X),
+		int(1, grid.MAX_Y),
+		int(1, grid.MAX_Y)
+	},
+	check = function(x1, x2, y1, y2)
+		local xy_eq = (x1 == x2) and (y1 == y2)
+		local pos_eq = grid.get_pos(x1, y1) == grid.get_pos(x2, y2)
+		return xy_eq == pos_eq
+	end
+}
+
+property "grid.get_pos: in range" {
 	generators = { int(1, grid.MAX_X), int(1, grid.MAX_Y) },
 	check = function(x, y)
-		local i = grid.get_pos(x, y)
-		local alreadyFound = unique_pos_set[i]
-		unique_pos_set[i] = {x=x, y=y}
-		if alreadyFound then
-			return alreadyFound.x == x and alreadyFound.y == y
-		else
-			return true
-		end
+		local p = grid.get_pos(x, y)
+		return p <= grid.MAX_POS and p >= grid.MIN_POS
 	end
 }
 
@@ -43,6 +52,14 @@ property "grid.get_xy: reverse of grid.get_pos" {
 	check = function(x, y)
 		local nx, ny = grid.get_xy(grid.get_pos(x, y))
 		return nx == x and ny == y
+	end
+}
+
+property "grid.get_xy: in range" {
+	generators = { int(grid.MIN_POS, grid.MAX_POS) },
+	check = function (p)
+		local x, y = grid.get_xy(p)
+		return x <= grid.MAX_X and x >= 1 and y <= grid.MAX_Y and y >= 1
 	end
 }
 
@@ -291,30 +308,15 @@ property "grid.travel: omit direction" {
 }
 
 property "grid.line: start at i1" {
-	generators = {
-		int(1, grid.MAX_X),
-		int(1, grid.MAX_X),
-		int(1, grid.MAX_Y),
-		int(1, grid.MAX_Y),
-	},
-	check = function(x1, x2, y1, y2)
-		local i1 = grid.get_pos(x1, y1)
-		local i2 = grid.get_pos(x2, y2)
-		local res = grid.line(i1, i2)
-		return res[1] == i1
+	generators = { int(grid.MIN_POS, grid.MAX_POS), int(grid.MIN_POS, grid.MAX_POS) },
+	check = function(i1, i2)
+		return grid.line(i1, i2)[1] == i1
 	end
 }
 
 property "grid.line: end at i2" {
-	generators = {
-		int(1, grid.MAX_X),
-		int(1, grid.MAX_X),
-		int(1, grid.MAX_Y),
-		int(1, grid.MAX_Y),
-	},
-	check = function(x1, x2, y1, y2)
-		local i1 = grid.get_pos(x1, y1)
-		local i2 = grid.get_pos(x2, y2)
+	generators = { int(grid.MIN_POS, grid.MAX_POS), int(grid.MIN_POS, grid.MAX_POS) },
+	check = function(i1, i2)
 		local res = grid.line(i1, i2)
 		return res[#res] == i2
 	end
@@ -322,28 +324,20 @@ property "grid.line: end at i2" {
 
 property "grid.line: adjacent list elements are adjacent coordinates" {
 	generators = {
-		int(1, grid.MAX_X),
-		int(1, grid.MAX_X),
-		int(1, grid.MAX_Y),
-		int(1, grid.MAX_Y),
+ 		int(grid.MIN_POS, grid.MAX_POS),
+ 		int(grid.MIN_POS, grid.MAX_POS),
 		int(2, grid.MAX_X + grid.MAX_Y)
 	},
-	check = function(x1, x2, y1, y2, list_i)
-		local i1 = grid.get_pos(x1, y1)
-		local i2 = grid.get_pos(x2, y2)
+	check = function(i1, i2, list_i)
 		local res = grid.line(i1, i2)
 		if #res < 2 then
 			return true
 		end
 
 		local list_i = base.clip(list_i, 2, #res)
-		local p1 = res[list_i - 1]
-		local p2 = res[list_i]
-		return grid.distance(p1, p2) == 1
+		return grid.distance(res[list_i - 1], res[list_i]) == 1
 	end,
-	when_fail = function(x1, x2, y1, y2)
-		local i1 = grid.get_pos(x1, y1)
-		local i2 = grid.get_pos(x2, y2)
+	when_fail = function(i1, i2)
 		local res = grid.line(i1, i2)
 		print("")
 		for i,v in ipairs(res) do
@@ -354,21 +348,11 @@ property "grid.line: adjacent list elements are adjacent coordinates" {
 }
 
 property "grid.line: correct length" {
-	generators = {
-		int(1, grid.MAX_X),
-		int(1, grid.MAX_X),
-		int(1, grid.MAX_Y),
-		int(1, grid.MAX_Y),
-	},
-	check = function(x1, x2, y1, y2)
-		local i1 = grid.get_pos(x1, y1)
-		local i2 = grid.get_pos(x2, y2)
-		local res = grid.line(i1, i2)
-		return #res == (grid.distance(i1, i2) + 1)
+	generators = { int(grid.MIN_POS, grid.MAX_POS), int(grid.MIN_POS, grid.MAX_POS) },
+	check = function(i1, i2)
+		return #(grid.line(i1, i2)) == (grid.distance(i1, i2) + 1)
 	end,
-	when_fail = function(x1, x2, y1, y2)
-		local i1 = grid.get_pos(x1, y1)
-		local i2 = grid.get_pos(x2, y2)
+	when_fail = function(i1, i2)
 		local res = grid.line(i1, i2)
 		print("")
 		for i,v in ipairs(res) do
@@ -465,26 +449,15 @@ property "grid.distance: expected distance" {
 }
 
 property "grid.distance: same result with arguments reversed" {
-	generators = {
-		int(1, grid.MAX_X),
-		int(1, grid.MAX_X),
-		int(1, grid.MAX_Y),
-		int(1, grid.MAX_Y)
-	},
-	check = function(x1, x2, y1, y2)
-		local i1 = grid.get_pos(x1, y1)
-		local i2 = grid.get_pos(x2, y2)
+	generators = { int(grid.MIN_POS, grid.MAX_POS), int(grid.MIN_POS, grid.MAX_POS) },
+	check = function(i1, i2)
 		return grid.distance(i1, i2) == grid.distance(i2, i1)
 	end
 }
 
 property "grid.destinations: correct distance for default direction list" {
-	generators = {
-		int(1, grid.MAX_X),
-		int(1, grid.MAX_Y)
-	},
-	check = function(x, y)
-		local start = grid.get_pos(x, y)
+	generators = { int(grid.MIN_POS, grid.MAX_POS) },
+	check = function(start)
 		local count = 0
 		for _,pos in grid.destinations(start) do
 			if grid.distance(start, pos) ~= 1 then

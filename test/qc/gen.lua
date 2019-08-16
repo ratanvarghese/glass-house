@@ -49,11 +49,9 @@ property "gen.big_room: terrain" {
 }
 
 property "gen.cave: tiles have pos" {
-	generators = { int(1, grid.MAX_X), int(1, grid.MAX_Y) },
-	check = function(x, y)
-		local t = gen.cave()
-		local i = grid.get_pos(x, y)
-		return t[i].pos == i
+	generators = { int(grid.MIN_POS, grid.MAX_POS) },
+	check = function(p)
+		return (gen.cave())[p].pos == p
 	end
 }
 

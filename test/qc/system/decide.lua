@@ -5,28 +5,20 @@ local act = require("core.act")
 local decide = require("core.system.decide")
 
 property "decide.player: movement commands" {
-	generators = {
-		int(1, #grid.direction_list),
-		int(1, grid.MAX_X),
-		int(1, grid.MAX_Y),
-	},
-	check = function(direction_i, x, y)
+	generators = { int(1, #grid.direction_list), int(grid.MIN_POS, grid.MAX_POS) },
+	check = function(direction_i, pos)
 		local d = grid.direction_list[direction_i]
-		local mon = {pos = grid.get_pos(x, y)}
+		local mon = {pos = pos}
 		local res_f, targ_i = decide.player(mon, {state={denizens={}}}, d, 1)
 		return res_f == act[enum.power.mundane].pursue and targ_i == grid.travel(mon.pos, 1, d)
 	end
 }
 
 property "decide.player: attack commands" {
-	generators = {
-		int(1, #grid.direction_list),
-		int(1, grid.MAX_X),
-		int(1, grid.MAX_Y),
-	},
-	check = function(direction_i, x, y)
+	generators = { int(1, #grid.direction_list), int(grid.MIN_POS, grid.MAX_POS) },
+	check = function(direction_i, pos)
 		local d = grid.direction_list[direction_i]
-		local mon = {pos = grid.get_pos(x, y)}
+		local mon = {pos = pos}
 		local predicted_targ_pos = grid.travel(mon.pos, 1, d)
 		local targ = {pos=predicted_targ_pos}
 		local state = {denizens={[predicted_targ_pos]=targ}}
@@ -54,12 +46,11 @@ property "decide.monster: pick function with maximum utility" {
 		int(),
 		int(),
 		int(enum.power.MAX+1, enum.power.MAX*2),
-		int(1, grid.MAX_X),
-		int(1, grid.MAX_Y)
+		int(grid.MIN_POS, grid.MAX_POS)
 	},
-	check = function(a, b, power_kind, x, y)
+	check = function(a, b, power_kind, pos)
 		local mon = {power = {[power_kind] = power.DEFAULT}}
-		local world = {state={player_pos = grid.get_pos(x, y)}}
+		local world = {state={player_pos = pos}}
 		local min_f = function() return math.min(a, b) - 1 end
 		local max_f = function() return math.max(a, b) + 1 end
 		act[power_kind] = {

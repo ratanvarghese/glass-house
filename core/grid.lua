@@ -164,6 +164,8 @@ function grid.init(max_x, max_y)
 	assert(type(max_y) == "number", "No max_y")
 	grid.MAX_X = max_x
 	grid.MAX_Y = max_y
+	grid.MAX_POS = grid.get_pos(grid.MAX_X, grid.MAX_Y)
+	grid.MIN_POS = grid.get_pos(1, 1)
 	grid.directions = {
 		[enum.cmd.north] = {x=0, y=-1},
 		[enum.cmd.south] = {x=0, y=1},

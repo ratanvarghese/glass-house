@@ -30,11 +30,10 @@ test_set[test_kinds[2]] = {
 
 
 property "bestiary.make: pos, destination and kind match input" {
-	generators = { int(1, grid.MAX_X), int(1, grid.MAX_Y), int(1, #test_kinds) },
-	check = function(x, y, kind_i)
+	generators = { int(grid.MIN_POS, grid.MAX_POS), int(1, #test_kinds) },
+	check = function(pos, kind_i)
 		local old_set = bestiary.set
 		bestiary.set = test_set
-		local pos = grid.get_pos(x, y)
 		local kind = test_kinds[kind_i]
 		local res = bestiary.make(kind, pos)
 		bestiary.set = old_set
@@ -43,12 +42,12 @@ property "bestiary.make: pos, destination and kind match input" {
 }
 
 property "bestiary.make: simple components match" {
-	generators = { int(1, grid.MAX_X), int(1, grid.MAX_Y), int(1, #test_kinds) },
-	check = function(x, y, kind_i)
+	generators = { int(grid.MIN_POS, grid.MAX_POS), int(1, #test_kinds) },
+	check = function(pos, kind_i)
 		local old_set = bestiary.set
 		bestiary.set = test_set
 		local kind = test_kinds[kind_i]
-		local res = bestiary.make(kind, grid.get_pos(x, y))
+		local res = bestiary.make(kind, pos)
 		local ignore_k = {inventory = true, health = true, power = true}
 		for k,v in pairs(bestiary.set[kind]) do
 			if not ignore_k[k] and not base.equals(res[k], v) then
@@ -62,12 +61,12 @@ property "bestiary.make: simple components match" {
 }
 
 property "bestiary.make: health component" {
-	generators = { int(1, grid.MAX_X), int(1, grid.MAX_Y), int(1, #test_kinds) },
-	check = function(x, y, kind_i)
+	generators = { int(grid.MIN_POS, grid.MAX_POS), int(1, #test_kinds) },
+	check = function(pos, kind_i)
 		local old_set = bestiary.set
 		bestiary.set = test_set
 		local kind = test_kinds[kind_i]
-		local res = bestiary.make(kind, grid.get_pos(x, y))
+		local res = bestiary.make(kind, pos)
 		local species = bestiary.set[kind]
 		bestiary.set = old_set
 		return res.health.now == res.health.max and res.health.max == species.health.max
@@ -75,12 +74,12 @@ property "bestiary.make: health component" {
 }
 
 property "bestiary.make: power component" {
-	generators = { int(1, grid.MAX_X), int(1, grid.MAX_Y), int(1, #test_kinds) },
-	check = function(x, y, kind_i)
+	generators = { int(grid.MIN_POS, grid.MAX_POS), int(1, #test_kinds) },
+	check = function(pos, kind_i)
 		local old_set = bestiary.set
 		bestiary.set = test_set
 		local kind = test_kinds[kind_i]
-		local res = bestiary.make(kind, grid.get_pos(x, y))
+		local res = bestiary.make(kind, pos)
 		local expected_power = base.copy(bestiary.set[kind].power)
 		expected_power[enum.power.mundane] = power.DEFAULT
 		bestiary.set = old_set
@@ -89,12 +88,12 @@ property "bestiary.make: power component" {
 }
 
 property "bestiary.make: inventory are tool objects" {
-	generators = { int(1, grid.MAX_X), int(1, grid.MAX_Y), int(1, #test_kinds) },
-	check = function(x, y, kind_i)
+	generators = { int(grid.MIN_POS, grid.MAX_POS), int(1, #test_kinds) },
+	check = function(pos, kind_i)
 		local old_set = bestiary.set
 		bestiary.set = test_set
 		local kind = test_kinds[kind_i]
-		local res = bestiary.make(kind, grid.get_pos(x, y))
+		local res = bestiary.make(kind, pos)
 		if bestiary.set[kind].inventory then
 			for i,v in ipairs(bestiary.set[kind].inventory) do
 				local obj = toolkit.make(v)

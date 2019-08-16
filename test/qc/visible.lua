@@ -6,9 +6,8 @@ local grid = require("core.grid")
 local visible = require("core.visible")
 
 property "visible.at: just terrain" {
-	generators = { int(1, grid.MAX_X), int(1, grid.MAX_Y), bool() },
-	check = function(x, y, make_cave)
-		local pos = grid.get_pos(x, y)
+	generators = { int(grid.MIN_POS, grid.MAX_POS), bool() },
+	check = function(pos, make_cave)
 		local w = mock.world(make_cave)
 		w.state.terrain[pos].inventory = {}
 		local k, e = visible.at(w, pos)
@@ -23,9 +22,8 @@ property "visible.at: just terrain" {
 }
 
 property "visible.at: player" {
-	generators = { int(1, grid.MAX_X), int(1, grid.MAX_Y), bool(), int() },
-	check = function(x, y, make_cave, kind)
-		local pos = grid.get_pos(x, y)
+	generators = { int(grid.MIN_POS, grid.MAX_POS), bool(), int() },
+	check = function(pos, make_cave, kind)
 		local w = mock.world(make_cave)
 		w.state.player_pos = pos
 		w.state.denizens[pos] = {kind = kind}
@@ -35,9 +33,8 @@ property "visible.at: player" {
 }
 
 property "visible.at: denizen" {
-	generators = { int(1, grid.MAX_X), int(1, grid.MAX_Y), bool(), int() },
-	check = function(x, y, make_cave, kind)
-		local pos = grid.get_pos(x, y)
+	generators = { int(grid.MIN_POS, grid.MAX_POS), bool(), int() },
+	check = function(pos, make_cave, kind)
 		local w = mock.world(make_cave)
 		w.state.denizens[pos] = {kind = kind}
 		local k, e = visible.at(w, pos)
@@ -51,14 +48,12 @@ property "visible.at: denizen" {
 
 property "visible.at: tool" {
 	generators = {
-		int(1, grid.MAX_X),
-		int(1, grid.MAX_Y),
+		int(grid.MIN_POS, grid.MAX_POS),
 		bool(),
 		int(),
 		int()
 	},
-	check = function(x, y, make_cave, kind, dummy1)
-		local pos = grid.get_pos(x, y)
+	check = function(pos, make_cave, kind, dummy1)
 		local w = mock.world(make_cave)
 		w.state.terrain[pos].inventory = {
 			{kind = dummy1},
@@ -75,14 +70,12 @@ property "visible.at: tool" {
 
 property "visible.stats: health" {
 	generators = {
-		int(1, grid.MAX_X),
-		int(1, grid.MAX_Y),
+		int(grid.MIN_POS, grid.MAX_POS),
 		bool(),
 		int(),
 		int()
 	},
-	check = function(x, y, make_cave, health_now, health_max)
-		local pos = grid.get_pos(x, y)
+	check = function(pos, make_cave, health_now, health_max)
 		local w = mock.world(make_cave)
 		local health = {now = health_now, max = health_max}
 		w.state.player_pos = pos
