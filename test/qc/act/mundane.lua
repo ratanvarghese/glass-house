@@ -37,7 +37,7 @@ local function attempt_if_possible(f, seek_target)
 	end
 end
 
-local function big_room_possible(f)
+local function simple_possible(f)
 	return function(seed, pos)
 		local w, src, targ_pos = mock.mini_world(seed, pos)
 		local res = f(enum.actmode.possible, w, src, targ_pos)
@@ -108,7 +108,7 @@ property "act[enum.power.mundane].wander: attempt if obviously impossible" {
 
 property "act[enum.power.mundane].pursue: possible" {
 	generators = { int(), int(grid.MIN_POS, grid.MAX_POS) },
-	check = big_room_possible(act[enum.power.mundane].pursue)
+	check = simple_possible(act[enum.power.mundane].pursue)
 }
 
 property "act[enum.power.mundane].pursue: utility" {
@@ -132,7 +132,7 @@ property "act[enum.power.mundane].pursue: attempt if obviously impossible" {
 
 property "act[enum.power.mundane].flee: possible" {
 	generators = { int(), int(grid.MIN_POS, grid.MAX_POS) },
-	check = big_room_possible(act[enum.power.mundane].flee)
+	check = simple_possible(act[enum.power.mundane].flee)
 }
 
 property "act[enum.power.mundane].flee: utility" {
