@@ -101,11 +101,6 @@ property "act[enum.power.mundane].wander: attempt if obviously possible" {
 	end
 }
 
-property "act[enum.power.mundane].wander: obviously impossible" {
-	generators = { int(), int(grid.MIN_POS, grid.MAX_POS) },
-	check = attempt_if_impossible(act[enum.power.mundane].wander)
-}
-
 property "act[enum.power.mundane].wander: attempt if obviously impossible" {
 	generators = { int(), int(grid.MIN_POS, grid.MAX_POS) },
 	check = attempt_if_impossible(act[enum.power.mundane].wander)
