@@ -3,6 +3,7 @@ local enum = require("core.enum")
 
 local act_mundane = require("core.act.mundane")
 local act_usetool = require("core.act.usetool")
+local act_warp = require("core.act.warp")
 
 local act = {
 	MAX_MUNDANE_MOVE = act_mundane.MAX_MOVE,
@@ -20,6 +21,12 @@ function act.init()
 		pickup = enum.selectf(enum.actmode, act_usetool.pickup),
 		drop = enum.selectf(enum.actmode, act_usetool.drop),
 		equip = enum.selectf(enum.actmode, act_usetool.equip)
+	}
+	act[enum.power.warp] = {
+		wander = enum.selectf(enum.actmode, act_warp.wander),
+		pursue = enum.selectf(enum.actmode, act_warp.pursue),
+		flee = enum.selectf(enum.actmode, act_warp.flee),
+		ranged = enum.selectf(enum.actmode, act_warp.ranged)
 	}
 
 	for k,v in pairs(act) do
