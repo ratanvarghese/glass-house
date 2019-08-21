@@ -6,47 +6,83 @@ local act = require("core.act")
 
 local mock = require("test.mock")
 
-property "act[enum.power.mundane] wander: ignore target" {
+local function set_adjacent_unwalkable(w, src, pos, targ_pos)
+	for _,v in grid.destinations(pos) do
+		w.state.terrain[v] = {kind = enum.tile.tough_wall, pos=v}
+	end
+	w._setup_walk_paths(w, src.pos, targ_pos)
+end
+
+local function attempt_if_impossible(f)
+	return function(seed, pos)
+		local w, src, targ_pos = mock.mini_world(seed, pos)
+		set_adjacent_unwalkable(w, src, pos, targ_pos)
+		local success = f(enum.actmode.attempt, w, src, targ_pos)
+		return not success and grid.distance(src.pos, src.destination) == 0 and src.pos == pos
+	end
+end
+
+local function attempt_if_possible(f, seek_target)
+	return function(seed, x, y)
+		local pos = grid.get_pos(x, y)
+		local w, src, targ_pos = mock.mini_world(seed, pos, true)
+		local res = f(enum.actmode.attempt, w, src, targ_pos)
+		local old_distance = grid.distance(src.pos, targ_pos)
+		local new_distance = grid.distance(src.destination, targ_pos)
+		if seek_target then
+			return res and new_distance <= old_distance and src.pos == pos
+		else
+			return res and new_distance >= old_distance and src.pos == pos
+		end
+	end
+end
+
+local function big_room_possible(f)
+	return function(seed, pos)
+		local w, src, targ_pos = mock.mini_world(seed, pos)
+		local res = f(enum.actmode.possible, w, src, targ_pos)
+		for _,v in grid.destinations(pos) do
+			if w.walk_paths[targ_pos][v] then
+				return res
+			end
+		end
+		return not res
+	end
+end
+
+local function melee_setup(seed, pos, targ_now, targ_max)
+	local w, src, targ_pos = mock.mini_world(seed, pos)
+	local targ = {pos = targ_pos, health=health.clip({now=targ_now, max=targ_max})}
+	w.state.denizens[targ_pos] = targ
+	return w, src, targ
+end
+
+property "act[enum.power.mundane].wander: ignore target" {
 	generators = {
 		int(1, enum.actmode.MAX-1),
 		any(),
 		any(),
-		bool(),
-		int(1, grid.MAX_X),
-		int(1, grid.MAX_Y),
-		int()
+		int(),
+		int(grid.MIN_POS, grid.MAX_POS)
 	},
-	check = function(m, targ_1, targ_2, cave, x, y, seed)
+	check = function(m, targ_1, targ_2, seed, pos)
 		local f = act[enum.power.mundane].wander
-		local w_1, source_1 = mock.mini_world(cave, true, x, y)
-		local w_2, source_2 = mock.mini_world(cave, true, x, y)
+		local w_1, src_1 = mock.mini_world(seed, pos)
+		local w_2, src_2 = mock.mini_world(seed, pos)
 		math.randomseed(seed)
-		local res_1 = f(m, w_1, source_1, targ_1)
+		local res_1 = f(m, w_1, src_1, targ_1)
 		math.randomseed(seed)
-		local res_2 = f(m, w_2, source_2, targ_2)
-		local eq_terrain = base.equals(w_1._active_terrain, w_2._active_terrain)
-		local eq_denizens = base.equals(w_1._active_denizens, w_2._active_denizens)
-		local eq_entities = base.equals(w_1._entities, w_2._entities)
-		return res_1 == res_2 and eq_terrain and eq_denizens and eq_entities
+		local res_2 = f(m, w_2, src_2, targ_2)
+		return res_1 == res_2 and base.equals(w_1.state, w_2.state)
 	end
 }
 
-property "act[enum.power.mundane] wander: correct possible/utility if obviously possible" {
-	generators = {
-		int(2, grid.MAX_X-1),
-		int(2, grid.MAX_Y-1),
-		bool(),
-		int(1, 1000),
-		int(1, 1000)
-	},
-	check = function(x, y, check_utility, h1, h2)
-		local f = act[enum.power.mundane].wander
-		local w, source = mock.mini_world(false, true, x, y)
-		local health_max = math.max(h1, h2)
-		local health_now = math.min(h1, h2)
-		source.health = {max = health_max, now = health_now}
+property "act[enum.power.mundane].wander: correct possible/utility if obviously possible" {
+	generators = { bool(), int(), int(2, grid.MAX_X-1), int(2, grid.MAX_Y-1) },
+	check = function(check_utility, seed, x, y)
 		local m = check_utility and enum.actmode.utility or enum.actmode.possible
-		local res = f(m, w, source)
+		local pos = grid.get_pos(x, y)
+		local res = act[enum.power.mundane].wander(m, mock.mini_world(seed, pos, true))
 		if check_utility then
 			return res <= act.MAX_MUNDANE_MOVE and res >= 1
 		else
@@ -55,351 +91,81 @@ property "act[enum.power.mundane] wander: correct possible/utility if obviously 
 	end
 }
 
-property "act[enum.power.mundane] wander: attempt if obviously possible" {
-	generators = {
-		int(2, grid.MAX_X-1),
-		int(2, grid.MAX_Y-1),
-	},
-	check = function(x, y)
-		local f = act[enum.power.mundane].wander
-		local w, source = mock.mini_world(false, true, x, y)
-		local success = f(enum.actmode.attempt, w, source)
-		return success and grid.distance(source.destination, source.pos) == 1
+property "act[enum.power.mundane].wander: attempt if obviously possible" {
+	generators = { int(), int(2, grid.MAX_X-1), int(2, grid.MAX_Y-1) },
+	check = function(seed, x, y)
+		local pos = grid.get_pos(x, y)
+		local w, src = mock.mini_world(seed, pos, true)
+		local success = act[enum.power.mundane].wander(enum.actmode.attempt, w, src)
+		return success and grid.distance(src.destination, src.pos) == 1 and src.pos == pos
 	end
 }
 
-property "act[enum.power.mundane] wander: correct possible/utility if obviously impossible" {
-	generators = {
-		int(2, grid.MAX_X-1),
-		int(2, grid.MAX_Y-1),
-		bool(),
-		int(1, 1000),
-		int(1, 1000)
-	},
-	check = function(x, y, check_utility, h1, h2)
-		local f = act[enum.power.mundane].wander
-		local w, source = mock.mini_world(false, true, x, y)
-		local health_max = math.max(h1, h2)
-		local health_now = math.min(h1, h2)
-		source.health = {max = health_max, now = health_now}
-		local options = {
-			grid.travel(source.pos, 1, enum.cmd.north),
-			grid.travel(source.pos, 1, enum.cmd.south),
-			grid.travel(source.pos, 1, enum.cmd.east),
-			grid.travel(source.pos, 1, enum.cmd.west)
-		}
-		for _,v in ipairs(options) do
-			w.state.terrain[v] = {kind = enum.tile.tough_wall, pos=v}
-		end
+property "act[enum.power.mundane].wander: obviously impossible" {
+	generators = { int(), int(grid.MIN_POS, grid.MAX_POS) },
+	check = attempt_if_impossible(act[enum.power.mundane].wander)
+}
 
-		if check_utility then
-			return f(enum.actmode.utility, w, source) < 1
-		else
-			return not f(enum.actmode.possible, w, source)
-		end
+property "act[enum.power.mundane].wander: attempt if obviously impossible" {
+	generators = { int(), int(grid.MIN_POS, grid.MAX_POS) },
+	check = attempt_if_impossible(act[enum.power.mundane].wander)
+}
+
+property "act[enum.power.mundane].pursue: possible" {
+	generators = { int(), int(grid.MIN_POS, grid.MAX_POS) },
+	check = big_room_possible(act[enum.power.mundane].pursue)
+}
+
+property "act[enum.power.mundane].pursue: utility" {
+	generators = { int(), int(grid.MIN_POS, grid.MAX_POS) },
+	check = function(seed, pos)
+		local w, src, targ_pos = mock.mini_world(seed, pos)
+		local res = act[enum.power.mundane].pursue(enum.actmode.utility, w, src, targ_pos)
+		return res <= (w.state.light[targ_pos] and act.MAX_MUNDANE_MOVE or 0)
 	end
 }
 
-property "act[enum.power.mundane] wander: attempt if obviously impossible" {
-	generators = {
-		int(2, grid.MAX_X-1),
-		int(2, grid.MAX_Y-1),
-	},
-	check = function(x, y)
-		local f = act[enum.power.mundane].wander
-		local w, source = mock.mini_world(false, true, x, y)
-		local options = {
-			grid.travel(source.pos, 1, enum.cmd.north),
-			grid.travel(source.pos, 1, enum.cmd.south),
-			grid.travel(source.pos, 1, enum.cmd.east),
-			grid.travel(source.pos, 1, enum.cmd.west)
-		}
-		for _,v in ipairs(options) do
-			w.state.terrain[v] = {kind = enum.tile.tough_wall, pos=v}
-		end
-		local success = f(enum.actmode.attempt, w, source)
-		return not success and grid.distance(source.pos, source.destination) == 0
-	end
+property "act[enum.power.mundane].pursue: attempt if obviously possible" {
+	generators = { int(), int(3, grid.MAX_X-2), int(3, grid.MAX_Y-2) },
+	check = attempt_if_possible(act[enum.power.mundane].pursue, true)
 }
 
-property "act[enum.power.mundane] pursue: possible" {
-	generators = {
-		int(3, grid.MAX_X-2),
-		int(3, grid.MAX_Y-2),
-		bool()
-	},
-	check = function(x, y, cave)
-		local f = act[enum.power.mundane].pursue
-		local w, source, targ_i = mock.mini_world(cave, true, x, y)
-		local can_progress = false
-		local options = {
-			grid.travel(source.pos, 1, enum.cmd.north),
-			grid.travel(source.pos, 1, enum.cmd.south),
-			grid.travel(source.pos, 1, enum.cmd.east),
-			grid.travel(source.pos, 1, enum.cmd.west)
-		}
-		for _,v in ipairs(options) do
-			if w.walk_paths[targ_i][v] then
-				can_progress = true
-				break
-			end
-		end
-		local res = f(enum.actmode.possible, w, source, targ_i)
-		return res == can_progress
-	end
+property "act[enum.power.mundane].pursue: attempt if obviously impossible" {
+	generators = { int(), int(grid.MIN_POS, grid.MAX_POS) },
+	check = attempt_if_impossible(act[enum.power.mundane].pursue)
 }
 
-property "act[enum.power.mundane] pursue: utility" {
-	generators = {
-		int(3, grid.MAX_X-2),
-		int(3, grid.MAX_Y-2),
-		bool(),
-		int(1, 1000),
-		int(1, 1000)
-	},
-	check = function(x, y, cave, h1, h2)
-		local f = act[enum.power.mundane].pursue
-		local w, source, targ_i = mock.mini_world(cave, true, x, y)
-		local health_max = math.max(h1, h2)
-		local health_now = math.min(h1, h2)
-		source.health = {max = health_max, now = health_now}
-		local old_pos = source.pos
-		local res = f(enum.actmode.utility, w, source, targ_i)
-		local expected_max = act.MAX_MUNDANE_MOVE
-		if not w.state.light[targ_i] then
-			expected_max = 0
-		end
-		return res <= expected_max
-	end
+property "act[enum.power.mundane].flee: possible" {
+	generators = { int(), int(grid.MIN_POS, grid.MAX_POS) },
+	check = big_room_possible(act[enum.power.mundane].flee)
 }
 
-property "act[enum.power.mundane] pursue: attempt with obvious result" {
-	generators = {
-		int(3, grid.MAX_X-2),
-		int(3, grid.MAX_Y-2),
-		int(1, enum.decidemode.MAX-1)
-	},
-	check = function(x, y, decidemode)
-		local f = act[enum.power.mundane].pursue
-		local w, source, targ_i = mock.mini_world(false, true, x, y)
-		source.decide = decidemode
-		if decidemode == enum.decidemode.player then
-			w.state.player_pos = source.pos
-		end
-		w.state.terrain[targ_i] = {kind = enum.tile.stair, pos=targ_i}
-		local res = f(enum.actmode.attempt, w, source, targ_i)
-		local old_distance = grid.distance(source.pos, targ_i)
-		local new_distance = grid.distance(source.destination, targ_i)
-		local correct_player_pos = true
-		if decidemode == enum.decidemode.player then
-			correct_player_pos = w.state.player_pos == source.pos
-		end
-		return res and new_distance <= old_distance and correct_player_pos
-	end,
-	when_fail = function(x, y, decidemode)
-		local f = act[enum.power.mundane].pursue
-		local w, source, targ_i = mock.mini_world(false, true, x, y)
-		source.decide = decidemode
-		if decidemode == enum.decidemode.player then
-			w.state.player_pos = source.pos
-		end
-		w.state.terrain[targ_i] = {kind = enum.tile.floor, pos=targ_i}
-		local old_distance = grid.distance(source.pos, targ_i)
-		local res = f(enum.actmode.attempt, w, source, targ_i)
-		local new_distance = grid.distance(source.pos, targ_i)
-		local correct_player_pos = true
-		if decidemode == enum.decidemode.player then
-			correct_player_pos = w.state.player_pos == source.pos
-		end
-		if x < grid.MAX_X and x > 1 and y < grid.MAX_Y and y > 1 then
-			print("")
-			print("x:", x, "y:", y)
-			print("targ_i:", targ_i)
-			local tx, ty = grid.get_xy(targ_i)
-			print("tx:", tx, "ty:", ty)
-			print("player?", decidemode == enum.decidemode.player)
-			print("player_pos:", w.state.player_pos)
-			print("target lit?", w.state.light[targ_i])
-			print("old_distance:", old_distance)
-			print("new_distance:", new_distance)
-			print("res:", res)
-			print("pass cond:", new_distance <= old_distance and correct_player_pos)
-			io.write("\n")
-			for i,x,y,t in grid.points(w._terrain) do
-				if w.state.denizens[i] then
-					io.write(i == source.pos and "@" or "A")
-				else
-					io.write(t.kind == enum.tile.floor and "." or "#")
-				end
-				if x == grid.MAX_X then
-					io.write("\n")
-				end
-			end
-		end
-	end
-}
-
-property "act[enum.power.mundane] pursue: attempt if obviously impossible" {
-	generators = {
-		int(2, grid.MAX_X-1),
-		int(2, grid.MAX_Y-1),
-		int(1, 4)
-	},
-	check = function(x, y, opt_i)
-		local f = act[enum.power.mundane].pursue
-		local w, source = mock.mini_world(false, true, x, y)
-		local options = {
-			grid.travel(source.pos, 1, enum.cmd.north),
-			grid.travel(source.pos, 1, enum.cmd.south),
-			grid.travel(source.pos, 1, enum.cmd.east),
-			grid.travel(source.pos, 1, enum.cmd.west)
-		}
-		local targ_pos = options[opt_i]
-		w.state.terrain[targ_pos] = {kind = enum.tile.tough_wall, pos=targ_pos}
-		w._setup_walk_paths(w, source.pos, targ_pos)
-		local success = f(enum.actmode.attempt, w, source, options[opt_i])
-		return not success and grid.distance(source.pos, source.destination) == 0
-	end
-}
-
-property "act[enum.power.mundane] flee: possible" {
-	generators = {
-		int(3, grid.MAX_X-2),
-		int(3, grid.MAX_Y-2),
-		bool()
-	},
-	check = function(x, y, cave)
-		local f = act[enum.power.mundane].flee
-		local w, source, targ_i = mock.mini_world(cave, true, x, y)
-		local can_progress = false
-		local options = {
-			grid.travel(source.pos, 1, enum.cmd.north),
-			grid.travel(source.pos, 1, enum.cmd.south),
-			grid.travel(source.pos, 1, enum.cmd.east),
-			grid.travel(source.pos, 1, enum.cmd.west)
-		}
-		for _,v in ipairs(options) do
-			if w.walk_paths[targ_i][v] then
-				can_progress = true
-				break
-			end
-		end
-		local res = f(enum.actmode.possible, w, source, targ_i)
-		return res == can_progress
-	end
-}
-
-property "act[enum.power.mundane] flee: utility" {
-	generators = {
-		int(2, grid.MAX_X-1),
-		int(2, grid.MAX_Y-1),
-		bool(),
-		int(1, 1000),
-		int(1, 1000)
-	},
-	check = function(x, y, cave, h1, h2)
-		local f = act[enum.power.mundane].flee
-		local w, source, targ_i = mock.mini_world(cave, true, x, y)
-		local health_max = math.max(h1, h2)
-		local health_now = math.min(h1, h2)
-		source.health = {max = health_max, now = health_now}
-		local old_pos = source.pos
-		local res = f(enum.actmode.utility, w, source, targ_i)
+property "act[enum.power.mundane].flee: utility" {
+	generators = { int(), int(grid.MIN_POS, grid.MAX_POS) },
+	check = function(seed, pos)
+		local w, src, targ_pos = mock.mini_world(seed, pos)
+		local res = act[enum.power.mundane].flee(enum.actmode.utility, w, src, targ_pos)
 		return res <= act.MAX_MUNDANE_MOVE
 	end
 }
 
-property "act[enum.power.mundane] flee: attempt with obvious result" {
-	generators = {
-		int(3, grid.MAX_X-2),
-		int(3, grid.MAX_Y-2),
-	},
-	check = function(x, y)
-		local f = act[enum.power.mundane].flee
-		local w, source, targ_i = mock.mini_world(false, true, x, y)
-		local res = f(enum.actmode.attempt, w, source, targ_i)
-		local old_distance = grid.distance(source.pos, targ_i)
-		local new_distance = grid.distance(source.destination, targ_i)
-		return res and new_distance == (old_distance + 1)
-	end,
-	when_fail = function(x, y)
-		local f = act[enum.power.mundane].flee
-		local w, source, targ_i = mock.mini_world(false, true, x, y)
-		local old_distance = grid.distance(source.pos, targ_i)
-		local res = f(enum.actmode.attempt, w, source, targ_i)
-		local new_distance = grid.distance(source.pos, targ_i)
-		if x < grid.MAX_X and x > 1 and y < grid.MAX_Y and y > 1 then
-			print("")
-			print("x:", x, "y:", y)
-			print("targ_i:", targ_i)
-			local tx, ty = grid.get_xy(targ_i)
-			print("tx:", tx, "ty:", ty)
-			print("target lit?", w.state.light[targ_i])
-			print("old_distance:", old_distance)
-			print("new_distance:", new_distance)
-			print("res:", res)
-			print("pass cond:", old_distance > 1 and w.state.light[targ_i])
-			io.write("\n")
-			for i,x,y,t in grid.points(w._terrain) do
-				if w.state.denizens[i] then
-					io.write(i == source.pos and "@" or "A")
-				else
-					io.write(t.kind == enum.tile.floor and "." or "#")
-				end
-				if x == grid.MAX_X then
-					io.write("\n")
-				end
-			end
-		end
-	end
+property "act[enum.power.mundane].flee: attempt if obviously possible" {
+	generators = { int(), int(3, grid.MAX_X-2), int(3, grid.MAX_Y-2) },
+	check = attempt_if_possible(act[enum.power.mundane].flee, false)
 }
 
-property "act[enum.power.mundane] flee: attempt if obviously impossible" {
-	generators = {
-		int(2, grid.MAX_X-1),
-		int(2, grid.MAX_Y-1),
-		int(1, 4)
-	},
-	check = function(x, y, opt_i)
-		local f = act[enum.power.mundane].flee
-		local w, source = mock.mini_world(false, true, x, y)
-		local options = {
-			grid.travel(source.pos, 1, enum.cmd.north),
-			grid.travel(source.pos, 1, enum.cmd.south),
-			grid.travel(source.pos, 1, enum.cmd.east),
-			grid.travel(source.pos, 1, enum.cmd.west)
-		}
-		local targ_pos = options[opt_i]
-		for _,v in ipairs(options) do
-			w.state.terrain[v] = {kind = enum.tile.tough_wall, pos=v}
-		end
-		w._setup_walk_paths(w, source.pos, targ_pos)
-		local success = f(enum.actmode.attempt, w, source, options[opt_i])
-		return not success and grid.distance(source.destination, source.pos) == 0
-	end
+property "act[enum.power.mundane].flee: attempt if obviously impossible" {
+	generators = { int(), int(grid.MIN_POS, grid.MAX_POS) },
+	check = attempt_if_impossible(act[enum.power.mundane].flee)
 }
 
-property "act[enum.power.mundane] melee: possible" {
-	generators = {
-		int(2, grid.MAX_X-1),
-		int(2, grid.MAX_Y-1),
-		bool(),
-		bool(),
-		int(0, 1000),
-		int(0, 1000),
-		int(0, 1000),
-		int(0, 1000)
-	},
-	check = function(x, y, cave, swap, targ_now, targ_max, source_now, source_max)
-		local w, source, targ_i = mock.mini_world(cave, swap, x, y)
-		local target = {pos=targ_i, health=health.clip({now=targ_now, max=targ_max})}
-		w.state.denizens[targ_i] = target
-		source.health = health.clip({now=source_now, max=source_max})
-
-		local alive = health.is_alive(target.health)
-		local adjacent = grid.distance(source.pos, targ_i) == 1
-		local f = act[enum.power.mundane].melee
-		local res = f(enum.actmode.possible, w, source, targ_i)
+property "act[enum.power.mundane].melee: possible" {
+	generators = { int(), int(grid.MIN_POS, grid.MAX_POS), int(0, 1000), int(0, 1000) },
+	check = function(seed, pos, targ_now, targ_max)
+		local w, src, targ = melee_setup(seed, pos, targ_now, targ_max)
+		local alive = health.is_alive(targ.health)
+		local adjacent = grid.distance(src.pos, targ.pos) == 1
+		local res = act[enum.power.mundane].melee(enum.actmode.possible, w, src, targ.pos)
 		if alive and adjacent then
 			return res
 		else
@@ -408,61 +174,24 @@ property "act[enum.power.mundane] melee: possible" {
 	end
 }
 
-property "act[enum.power.mundane] melee: utility" {
-	generators = {
-		int(2, grid.MAX_X-1),
-		int(2, grid.MAX_Y-1),
-		bool(),
-		bool(),
-		int(0, 1000),
-		int(0, 1000),
-		int(1, 1000),
-		int(1, 1000)
-	},
-	check = function(x, y, cave, swap, targ_now, targ_max, source_now, source_max)
-		local w, source, targ_i = mock.mini_world(cave, swap, x, y)
-		local target = {pos=targ_i, health=health.clip({now=targ_now, max=targ_max})}
-		w.state.denizens[targ_i] = target
-		source.health = health.clip({now=source_now, max=source_max})
-
-		local alive = health.is_alive(target.health)
-		local adjacent = grid.distance(source.pos, targ_i) == 1
-		local f = act[enum.power.mundane].melee
-		local res = f(enum.actmode.utility, w, source, targ_i)
-		if alive and adjacent then
-			return res <= act.MAX_MUNDANE_MELEE
-		else
-			return res < 1
-		end
+property "act[enum.power.mundane].melee: utility" {
+	generators = { int(), int(grid.MIN_POS, grid.MAX_POS), int(0, 1000), int(0, 1000) },
+	check = function(seed, pos, targ_now, targ_max)
+		local w, src, targ = melee_setup(seed, pos, targ_now, targ_max)
+		local res = act[enum.power.mundane].melee(enum.actmode.utility, w, src, targ.pos)
+		return res <= act.MAX_MUNDANE_MELEE
 	end
 }
 
-property "act[enum.power.mundane] melee: attempt" {
-	generators = {
-		int(2, grid.MAX_X-1),
-		int(2, grid.MAX_Y-1),
-		bool(),
-		bool(),
-		int(0, 1000),
-		int(0, 1000),
-		int(0, 1000),
-		int(0, 1000)
-	},
-	check = function(x, y, cave, swap, targ_now, targ_max, source_now, source_max)
-		local w, source, targ_i = mock.mini_world(cave, swap, x, y)
-		local target = {pos=targ_i, health=health.clip({now=targ_now, max=targ_max})}
-		w.state.denizens[targ_i] = target
-		source.health = health.clip({now=source_now, max=source_max})
-		local old_health = target.health.now
-
-		local alive = health.is_alive(target.health)
-		local adjacent = grid.distance(source.pos, targ_i) == 1
-		local f = act[enum.power.mundane].melee
-		local res = f(enum.actmode.attempt, w, source, targ_i)
-		if alive and adjacent then
-			return res and target.health.now == (old_health - 1)
+property "act[enum.power.mundane].melee: attempt" {
+	generators = { int(), int(grid.MIN_POS, grid.MAX_POS), int(0, 1000), int(0, 1000) },
+	check = function(seed, pos, targ_now, targ_max)
+		local w, src, targ = melee_setup(seed, pos, targ_now, targ_max)
+		local old_health = targ.health.now
+		if act[enum.power.mundane].melee(enum.actmode.attempt, w, src, targ.pos) then
+			return targ.health.now == (old_health - 1)
 		else
-			return not res and target.health.now == old_health
+			return targ.health.now == old_health
 		end
 	end
 }

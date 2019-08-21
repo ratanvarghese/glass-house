@@ -1,81 +1,85 @@
-local base = require("core.base")
+local tiny = require("lib.tiny")
+
 local enum = require("core.enum")
 local grid = require("core.grid")
 local gen = require("core.gen")
-local proxy = require("core.proxy")
 local flood = require("core.flood")
+local proxy = require("core.proxy")
 
 local mock = {}
 
-local big_room, big_room_start_i = gen.big_room()
-local cave, cave_start_i = gen.cave()
+local function coin_flip()
+	return (math.random(1, 2) == 1)
+end
 
-function mock.world(make_cave)
-	local res = {
-		_denizens = {},
-		_entities = {},
-		_entity_adds = 0,
-		_entity_removes = 0,
-		state = {
-			num = 0
-		}
-	}
-	if make_cave then
-		res._terrain = cave
-		res._start_i = cave_start_i
+function mock.state(seed, force_big_room)
+	math.randomseed(seed)
+	local res = {num = math.random(1, 100), denizens = {}, light = {}, memory = {}}
+	if force_big_room or coin_flip() then
+		res.terrain, res.player_pos = gen.big_room()
 	else
-		res._terrain = big_room
-		res._start_i = big_room_start_i
+		res.terrain, res.player_pos = gen.cave()
 	end
-	res._light = {}
-	for i in grid.points() do
-		res._light[i] = (math.random(1, 2) == 2)
+	for pos in grid.points() do
+		res.light[pos] = coin_flip()
+		res.memory[pos] = coin_flip()
 	end
-	res._memory = {}
-	for i in grid.points() do
-		res._memory[i] = (math.random(1, 2) == 2)
+	return res
+end
+
+function mock.swap_player_pos(state, targ_pos)
+	state.player_pos, targ_pos = targ_pos, state.player_pos
+	return targ_pos
+end
+
+function mock.add_player_denizen(seed, state)
+	math.randomseed(seed)
+	local player = {
+		pos = state.player_pos,
+		destination = state.player_pos,
+		inventory = {},
+		usetool = {},
+		health = {}
+	}
+	player.health.max = math.random(1, 1000)
+	player.health.now = math.random(1, player.health.max)
+	state.denizens[state.player_pos] = player
+	return player
+end
+
+function mock.world_from_state(state)
+	local res = tiny.world()
+	res.state, res.ctrl = {}, {}
+	for k,v in pairs(state) do
+		if type(v) == "table" then
+			res.state[k], res.ctrl[k] = proxy.read_write(v)
+		else
+			res.state[k] = v
+		end
 	end
-	res.state.light, res._light_ctrl = proxy.read_write(res._light) --Expect writing nil
-	res.state.memory, res._memory_ctrl = proxy.read_write(res._memory)
-	res.state.terrain, res._terrain_ctrl = proxy.write_to_alt(res._terrain) --Protect shared data
-	res.state.denizens, res._denizens_ctrl = proxy.read_write(res._denizens) --Expect writing nil
-	res.addEntity = function(world, e)
-		world._entities[e] = true
-		world._entity_adds = world._entity_adds + 1
-	end
-	res.removeEntity = function(world, e)
-		world._entities[e] = false
-		world._entity_removes = world._entity_removes + 1
-	end
-	res._eligible = function(i)
-		if not res.state.terrain[i] then return false end
-		local t_kind = res.state.terrain[i].kind
+	res._eligible = function(pos)
+		if not res.state.terrain[pos] then return false end
+		local t_kind = res.state.terrain[pos].kind
 		local good_t = t_kind ~= enum.tile.wall and t_kind ~= enum.tile.tough_wall
-		return good_t and not res.state.denizens[i]
+		return good_t and not res.state.denizens[pos]
 	end
 	res._setup_walk_paths = function(world, ...)
 		local targets = {...}
 		world.walk_paths = {}
-		for _,i in ipairs(targets) do
-			world.walk_paths[i] = flood.gradient(i, res._eligible)
+		for _,pos in ipairs(targets) do
+			world.walk_paths[pos] = flood.gradient(pos, res._eligible)
 		end
 	end
 	return res
 end
 
-function mock.mini_world(cave, swap, x, y)
-	local x = x or math.floor(grid.MAX_X/2)
-	local y = y or math.floor(grid.MAX_Y/2)
-	local w = mock.world(cave)
-	local targ_i = grid.get_pos(x, y)
-	local source_i = w._start_i
-	if swap then
-		targ_i, source_i = source_i, targ_i
-	end
-	local source = {pos=source_i, destination=source_i, inventory={}, usetool={}}
-	w._denizens[source_i] = source
-	w._setup_walk_paths(w, source_i, targ_i)
-	return w, source, targ_i
+function mock.mini_world(seed, pos, force_big_room)
+	local state = mock.state(seed, force_big_room)
+	local targ_pos = mock.swap_player_pos(state, pos)
+	local src = mock.add_player_denizen(seed, state)
+	local w = mock.world_from_state(state)
+	w._setup_walk_paths(w, pos, targ_pos)
+	return w, src, targ_pos
 end
 
 return mock

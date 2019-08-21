@@ -1,15 +1,14 @@
-local mock = require("test.mock")
-
 local base = require("core.base")
 local enum = require("core.enum")
 local grid = require("core.grid")
 local visible = require("core.visible")
 
+local mock = require("test.mock")
+
 property "visible.at: just terrain" {
-	generators = { int(grid.MIN_POS, grid.MAX_POS), bool() },
-	check = function(pos, make_cave)
-		local w = mock.world(make_cave)
-		w.state.terrain[pos].inventory = {}
+	generators = { int(), int(grid.MIN_POS, grid.MAX_POS) },
+	check = function(seed, pos)
+		local w = mock.world_from_state(mock.state(seed))
 		local k, e = visible.at(w, pos)
 		if w.state.light[pos] then
 			return k == w.state.terrain[pos].kind and e == enum.tile
@@ -22,20 +21,20 @@ property "visible.at: just terrain" {
 }
 
 property "visible.at: player" {
-	generators = { int(grid.MIN_POS, grid.MAX_POS), bool(), int() },
-	check = function(pos, make_cave, kind)
-		local w = mock.world(make_cave)
-		w.state.player_pos = pos
-		w.state.denizens[pos] = {kind = kind}
-		local k, e = visible.at(w, pos)
+	generators = { int(), int() },
+	check = function(seed, kind)
+		local w = mock.world_from_state(mock.state(seed))
+		local player = mock.add_player_denizen(seed, w.state)
+		player.kind = kind
+		local k, e = visible.at(w, player.pos)
 		return k == kind and e == enum.monster
 	end
 }
 
 property "visible.at: denizen" {
-	generators = { int(grid.MIN_POS, grid.MAX_POS), bool(), int() },
-	check = function(pos, make_cave, kind)
-		local w = mock.world(make_cave)
+	generators = { int(), int(grid.MIN_POS, grid.MAX_POS), int() },
+	check = function(seed, pos, kind)
+		local w = mock.world_from_state(mock.state(seed))
 		w.state.denizens[pos] = {kind = kind}
 		local k, e = visible.at(w, pos)
 		if w.state.light[pos] then
@@ -47,18 +46,10 @@ property "visible.at: denizen" {
 }
 
 property "visible.at: tool" {
-	generators = {
-		int(grid.MIN_POS, grid.MAX_POS),
-		bool(),
-		int(),
-		int()
-	},
-	check = function(pos, make_cave, kind, dummy1)
-		local w = mock.world(make_cave)
-		w.state.terrain[pos].inventory = {
-			{kind = dummy1},
-			{kind = kind}
-		}
+	generators = { int(), int(grid.MIN_POS, grid.MAX_POS), int(), int() },
+	check = function(seed, pos, kind, dummy1)
+		local w = mock.world_from_state(mock.state(seed))
+		w.state.terrain[pos].inventory = { {kind = dummy1}, {kind = kind} }
 		local k, e = visible.at(w, pos)
 		if w.state.light[pos] then
 			return k == kind and e == enum.tool
@@ -69,21 +60,10 @@ property "visible.at: tool" {
 }
 
 property "visible.stats: health" {
-	generators = {
-		int(grid.MIN_POS, grid.MAX_POS),
-		bool(),
-		int(),
-		int()
-	},
-	check = function(pos, make_cave, health_now, health_max)
-		local w = mock.world(make_cave)
-		local health = {now = health_now, max = health_max}
-		w.state.player_pos = pos
-		w.state.denizens[pos] = {
-			health = health,
-			pos = pos
-		}
-		local res = visible.stats(w).health
-		return res ~= health and res.now == health_now and res.max == health_max
+	generators = { int() },
+	check = function(seed)
+		local w = mock.world_from_state(mock.state(seed))
+		local raw_health = base.copy(mock.add_player_denizen(seed, w.state).health)
+		return base.equals(visible.stats(w).health, raw_health)
 	end
 }

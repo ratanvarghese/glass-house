@@ -6,26 +6,18 @@ local tool = require("core.system.tool")
 
 local mock = require("test.mock")
 
-local function setup(x, y, cave, swap, tool_list, tool_i)
-		local tool_list = base.extend_arr({}, pairs(tool_list))
-		local tool_i = base.is_empty(tool_list) and tool_i or base.clip(tool_i, 1, #tool_list)
-		local w, source = mock.mini_world(cave, swap, x, y)
-		local t = base.copy(w.state.terrain[source.pos])
-		return w, source, t, tool_list, tool_i
+local function setup(seed, pos, tool_list, tool_i)
+	local tool_list = base.extend_arr({}, pairs(tool_list))
+	local tool_i = base.is_empty(tool_list) and tool_i or base.clip(tool_i, 1, #tool_list)
+	local w, source = mock.mini_world(seed, pos)
+	local t = base.copy(w.state.terrain[source.pos])
+	return w, source, t, tool_list, tool_i
 end
 
 property "tool.process: pickup" {
-	generators = {
-		int(1, grid.MAX_X),
-		int(1, grid.MAX_Y),
-		bool(),
-		bool(),
-		tbl(),
-		int(),
-		int()
-	},
-	check = function(x, y, cave, swap, tool_list, tool_i, check_i)
-		local w, source, t, tool_list, tool_i = setup(x, y, cave, swap, tool_list, tool_i)
+	generators = { int(), int(grid.MIN_POS, grid.MAX_POS), tbl(), int(), int() },
+	check = function(seed, pos, tool_list, tool_i, check_i)
+		local w, source, t, tool_list, tool_i = setup(seed, pos, tool_list, tool_i)
 		local check_i = (tool_i < 1) and 0 or base.clip(check_i, 0, tool_i-1)
 		t.inventory = tool_list
 		w.state.terrain[source.pos] = t
@@ -41,17 +33,9 @@ property "tool.process: pickup" {
 }
 
 property "tool.process: drop" {
-	generators = {
-		int(1, grid.MAX_X),
-		int(1, grid.MAX_Y),
-		bool(),
-		bool(),
-		tbl(),
-		int(),
-		int()
-	},
-	check = function(x, y, cave, swap, tool_list, tool_i, check_i)
-		local w, source, t, tool_list, tool_i = setup(x, y, cave, swap, tool_list, tool_i)
+	generators = { int(), int(grid.MIN_POS, grid.MAX_POS), tbl(), int(), int() },
+	check = function(seed, pos, tool_list, tool_i, check_i)
+		local w, source, t, tool_list, tool_i = setup(seed, pos, tool_list, tool_i)
 		local check_i = (tool_i < 1) and 0 or base.clip(check_i, 0, tool_i-1)
 		source.inventory = tool_list
 		t.inventory = {}
@@ -68,17 +52,9 @@ property "tool.process: drop" {
 }
 
 property "tool.process: equip" {
-	generators = {
-		int(1, grid.MAX_X),
-		int(1, grid.MAX_Y),
-		bool(),
-		bool(),
-		tbl(),
-		int(),
-		int()
-	},
-	check = function(x, y, cave, swap, tool_list, tool_i, check_i)
-		local w, source, t, tool_list, tool_i = setup(x, y, cave, swap, tool_list, tool_i)
+	generators = { int(), int(grid.MIN_POS, grid.MAX_POS), tbl(), int(), int() },
+	check = function(seed, pos, tool_list, tool_i, check_i)
+		local w, source, t, tool_list, tool_i = setup(seed, pos, tool_list, tool_i)
 		source.inventory = tool_list
 		w.state.terrain[source.pos] = t
 		source.usetool.equip = {tool_i}

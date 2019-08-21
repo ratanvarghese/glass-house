@@ -12,14 +12,12 @@ local function get_f(power, act_i)
 	return flist[act_i], act_i
 end
 
-local function when_fail_general(power, act_i, cave, trap, x, y)
+local function when_fail_general(power, act_i, seed, pos)
 	local f, act_i = get_f(power, act_i)
-	local w, source, targ_i = mock.mini_world(cave, trap, x, y)
+	local w, source = mock.mini_world(seed, pos)
 	print("")
 	print("power:", power, "("..enum.inverted.power[power]..")")
 	print("act_i:", f and act_i or "N/A")
-	print("cave:", cave, "trap:", trap)
-	print("x:", x, "y:", y)
 	io.write("\n")
 	for i,x,y,t in grid.points(w.state.terrain) do
 		if w.state.denizens[i] then
@@ -34,9 +32,7 @@ local function when_fail_general(power, act_i, cave, trap, x, y)
 end
 
 property "act: functions have 1 string key and 1 numeric key" {
-	generators = {
-		int(1, enum.power.MAX-1)
-	},
+	generators = { int(1, enum.power.MAX-1) },
 	check = function(power)
 		local flist = act[power]
 		if not flist then return true end
@@ -52,43 +48,31 @@ property "act: functions have 1 string key and 1 numeric key" {
 				return false
 			end
 		end
-
-		for v in pairs(v_from_str) do
-			if v_from_num[v] then
-				v_from_num[v] = nil
-			else
-				return false
-			end
-		end
-		return base.is_empty(v_from_num)
+		return base.equals(v_from_num, v_from_str)
 	end
 }
 
-property "act: 'possible' and 'utility' modes do not alter state" {
+property "act: 'possible' and 'utility' do not write to state" {
 	numtests = 750, --Testing many functions, so need many runs to catch errors
 	generators = {
 		bool(),
 		int(1, enum.power.MAX-1),
 		int(),
-		bool(),
-		bool(),
-		int(1, grid.MAX_X),
-		int(1, grid.MAX_Y),
-		int(1, 1000),
-		int(1, 1000)
+		int(),
+		int(grid.MIN_POS, grid.MAX_POS)
 	},
-	check = function(use_utility, power, act_i, cave, trap, x, y, h1, h2)
+	check = function(use_utility, power, act_i, seed, pos)
+		local m = use_utility and enum.actmode.utility or enum.actmode.possible
 		local f = get_f(power, act_i)
 		if not f then return true end
-		local m = use_utility and enum.actmode.utility or enum.actmode.possible
-		local w, source, targ_i = mock.mini_world(cave, trap, x, y)
-		local health_max = math.max(h1, h2)
-		local health_now = math.min(h1, h2)
-		source.health = {max = health_max, now = health_now}
-		f(m, w, source, targ_i)
-		local no_terrain_writes = (w._terrain_ctrl.writes == 0)
-		local no_denizens_writes = (w._denizens_ctrl.writes == 0)
-		return no_terrain_writes and no_denizens_writes and w._entity_adds == 0
+		local w, src, targ_pos = mock.mini_world(seed, pos)
+		f(m, w, src, targ_pos)
+		for _,v in pairs(w.ctrl) do
+			if v.writes > 0 then
+				return false
+			end
+		end
+		return true
 	end,
 	when_fail = function(use_utility, ...)
 		local m = use_utility and enum.actmode.utility or enum.actmode.possible
@@ -102,27 +86,16 @@ property "act: if 'possible' mode returns false, 'utility' mode returns < 1" {
 	generators = {
 		int(1, enum.power.MAX-1),
 		int(),
-		bool(),
-		bool(),
-		int(1, grid.MAX_X),
-		int(1, grid.MAX_Y),
-		int(1, 1000),
-		int(1, 1000)
+		int(),
+		int(grid.MIN_POS, grid.MAX_POS)
 	},
-	check = function(power, act_i, cave, trap, x, y, h1, h2)
+	check = function(power, act_i, seed, pos)
 		local f = get_f(power, act_i)
 		if not f then return true end
-		local w, source, targ_i = mock.mini_world(cave, trap, x, y)
-		local health_max = math.max(h1, h2)
-		local health_now = math.min(h1, h2)
-		source.health = {max = health_max, now = health_now}
-		local possibility = f(enum.actmode.possible, w, source, targ_i)
-		local utility = f(enum.actmode.utility, w, source, targ_i)
-		if possibility then
-			return true
-		else
-			return utility < 1
-		end
+		local w, src, targ_pos = mock.mini_world(seed, pos)
+		local possibility = f(enum.actmode.possible, w, src, targ_pos)
+		local utility = f(enum.actmode.utility, w, src, targ_pos)
+		return possibility or (utility < 1)
 	end,
 	when_fail = when_fail_general
 }
@@ -132,21 +105,18 @@ property "act: if 'possible' mode returns false, so does 'attempt' mode" {
 	generators = {
 		int(1, enum.power.MAX-1),
 		int(),
-		bool(),
-		bool(),
-		int(1, grid.MAX_X),
-		int(1, grid.MAX_Y)
+		int(),
+		int(grid.MIN_POS, grid.MAX_POS)
 	},
-	check = function(power, act_i, cave, trap, x, y)
+	check = function(power, act_i, seed, pos)
 		local f = get_f(power, act_i)
 		if not f then return true end
-		local w, source, targ_i = mock.mini_world(cave, trap, x, y)
-		local possibility = f(enum.actmode.possible, w, source, targ_i)
-		local success = f(enum.actmode.attempt, w, source, targ_i)
-		return possibility or not success
+		local w, src, targ_pos = mock.mini_world(seed, pos)
+		local possibility = f(enum.actmode.possible, w, src, targ_pos)
+		local attempt = f(enum.actmode.attempt, w, src, targ_pos)
+		return possibility or (not attempt)
 	end,
 	when_fail = when_fail_general
-
 }
 
 property "act: error on bad mode" {
@@ -155,17 +125,13 @@ property "act: error on bad mode" {
 		int(),
 		int(1, enum.power.MAX-1),
 		int(),
-		bool(),
-		bool(),
-		int(1, grid.MAX_X),
-		int(1, grid.MAX_Y)
+		int(),
+		int(grid.MIN_POS, grid.MAX_POS)
 	},
-	check = function(m, power, act_i, cave, trap, x, y)
+	check = function(m, power, act_i, seed, pos)
+		if m >= 1 and m < enum.actmode.MAX then return true end
 		local f = get_f(power, act_i)
-		if not f then return true end
-		local m = (m == base.clip(m, 1, enum.actmode.MAX)) and enum.actmode.MAX or m
-		local w, source, targ_i = mock.mini_world(cave, trap, x, y)
-		return not pcall(function() f(m, w, source, targ_i) end)
+		return (not f) or (not pcall(f, m, mock.mini_world(seed, pos)))
 	end,
 	when_fail = function(m, ...)
 		io.write("\nmode:\t", tostring(m)) --general func will add newline after
