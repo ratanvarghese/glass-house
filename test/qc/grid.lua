@@ -369,7 +369,7 @@ local function smallGrid(x, y, v1, v2, v3, v4)
 		[grid.get_pos(x-1,y)] = v4
 	}
 end
-property "grid.adjacent_extreme: pick correct value" {
+property "grid.extreme_destination: pick correct value" {
 	generators = {
 		int(2, grid.MAX_X-1),
 		int(2, grid.MAX_Y-1),
@@ -383,19 +383,19 @@ property "grid.adjacent_extreme: pick correct value" {
 		local my_grid = smallGrid(x, y, v1, v2, v3, v4)
 		local i = grid.get_pos(x, y)
 		local cmp = domax and math.max or math.min
-		return grid.adjacent_extreme(i, my_grid, domax) == cmp(v1, v2, v3, v4)
+		return grid.extreme_destination(i, my_grid, domax) == cmp(v1, v2, v3, v4)
 	end,
 	when_fail = function(x, y, v1, v2, v3, v4, domax)
 		local my_grid = smallGrid(x, y, v1, v2, v3, v4)
 		local cmp = domax and math.max or math.min
 		local expected = cmp(v1, v2, v3, v4)
 		local i = grid.get_pos(x, y) 
-		local actual = grid.adjacent_extreme(i, my_grid, domax)
+		local actual = grid.extreme_destination(i, my_grid, domax)
 		print("Expected: ", expected)
 		print("Actual: ", actual)
 	end
 }
-property "grid.adjacent_extreme: pick correct coordinates" {
+property "grid.extreme_destination: pick correct coordinates" {
 	generators = {
 		int(2, grid.MAX_X-1),
 		int(2, grid.MAX_Y-1),
@@ -409,7 +409,7 @@ property "grid.adjacent_extreme: pick correct coordinates" {
 		local my_grid = smallGrid(x, y, v1, v2, v3, v4)
 		local i = grid.get_pos(x, y)
 		local cmp = domax and math.max or math.min
-		local _, res_i = grid.adjacent_extreme(i, my_grid, domax)
+		local _, res_i = grid.extreme_destination(i, my_grid, domax)
 		return my_grid[res_i] == cmp(v1, v2, v3, v4)
 	end,
 	when_fail = function(x, y, v1, v2, v3, v4)
@@ -417,17 +417,67 @@ property "grid.adjacent_extreme: pick correct coordinates" {
 		local cmp = domax and math.max or math.min
 		local expected = cmp(v1, v2, v3, v4)
 		local i = grid.get_pos(x, y)
-		local res, res_i = grid.adjacent_extreme(i, my_grid, domax)
+		local res, res_i = grid.extreme_destination(i, my_grid, domax)
 		print("res: ", res)
 		print("res_i: ", res_i)
 	end
 }
-property "grid.adjacent_extreme: return number as default result" {
+property "grid.extreme_destination: return number as default result" {
 	generators = { int(2, grid.MAX_X-1), int(2, grid.MAX_Y-1), bool() },
 	check = function(x, y, domax)
 		local my_grid = {} --Empty, so must use default value
 		local i = grid.get_pos(x, y)
-		return type(grid.adjacent_extreme(i, my_grid, domax)) == "number"
+		return type(grid.extreme_destination(i, my_grid, domax)) == "number"
+	end
+}
+
+property "grid.extreme_destination: custom direction table" {
+	generators = {
+		int(1, grid.MAX_X),
+		int(1, grid.MAX_Y),
+		int(0, 3),
+		int(),
+		int(),
+		int(),
+		bool()
+	},
+	check = function(dx, dy, dlen, v1, v2, v3, domax)
+		local start_x, start_y = 1, 1
+		local start = grid.get_pos(start_x, start_y)
+		local dlist = {
+			{x = dx, y = 0},
+			{x = 0, y = dy},
+			{x = dx, y = dy}
+		}
+		local vt = {
+			[grid.get_pos(start_x + dx, start_y)] = v1,
+			[grid.get_pos(start_x, start_y + dy)] = v2,
+			[grid.get_pos(start_x + dx, start_y + dy)] = v3
+		}
+		local vlist = {v1, v2, v3}
+		local old_dlen = #dlist
+		for i=old_dlen,dlen+1,-1 do
+			local t = dlist[i]
+			local p = grid.get_pos(start_x + t.x, start_y + t.y)
+			local v = vt[p]
+			vlist[p] = nil
+			dlist[i] = nil
+			vlist[i] = nil
+		end
+		local res = grid.extreme_destination(start, vt, domax, dlist)
+		if dy == grid.MAX_Y then
+			vlist = {vlist[1]}
+		end
+		if dx == grid.MAX_X then
+			vlist = {vlist[2]}
+		end
+		if #vlist == 0 then
+			return res == grid.extreme_destination(start, {}, domax)
+		elseif domax then
+			return res == math.max(unpack(vlist))
+		else
+			return res == math.min(unpack(vlist))
+		end
 	end
 }
 

@@ -43,7 +43,7 @@ function mundane.pursue.attempt(world, source, target_i)
 	if source.pos == target_i then
 		return true
 	end
-	local min, min_i = grid.adjacent_extreme(source.pos, world.walk_paths[target_i])
+	local min, min_i = grid.extreme_destination(source.pos, world.walk_paths[target_i])
 	if min >= math.huge then
 		return false
 	end
@@ -65,7 +65,7 @@ function mundane.flee.utility(world, source, target_i)
 end
 
 function mundane.flee.attempt(world, source, target_i)
-	local max, max_i = grid.adjacent_extreme(source.pos, world.walk_paths[target_i], true)
+	local max, max_i = grid.extreme_destination(source.pos, world.walk_paths[target_i], true)
 	if max <= 0 then
 		return false
 	end

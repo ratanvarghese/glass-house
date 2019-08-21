@@ -15,8 +15,7 @@ function flood.gradient(i, eligible, v)
 	deque.push_back(Q, {i, v})
 	while deque.len(Q) > 0 do
 		local old = deque.pop_front(Q)
-		for d in pairs(grid.directions) do
-			local new_i = grid.travel(old[1], 1, d)
+		for _, new_i in grid.destinations(old[1]) do
 			if not res[new_i] and eligible(new_i) then
 				local new_v = old[2] + 1
 				res[new_i] = new_v
@@ -41,8 +40,7 @@ function flood.search(i, eligible, f)
 	deque.push_back(Q, i)
 	while deque.len(Q) > 0 do
 		local old_i = deque.pop_front(Q)
-		for d in pairs(grid.directions) do
-			local new_i = grid.travel(old_i, 1, d)
+		for _, new_i in grid.destinations(old_i) do
 			if not finished[new_i] then
 				if eligible(new_i) and f(new_i) then
 					return true, new_i

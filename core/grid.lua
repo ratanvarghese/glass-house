@@ -115,21 +115,17 @@ function grid.line(i1, i2)
 	end
 end
 
-function grid.adjacent_extreme(i, t, domax)
-	local current = domax and -math.huge or math.huge
-	local current_i = nil
-
-	for d in pairs(grid.directions) do
-		local new_i = grid.travel(i, 1, d)
-		local new_v = t[new_i]
-		if new_v then
-			if (domax and new_v > current) or (not domax and new_v < current) then
-				current = new_v
-				current_i = new_i
-			end
+function grid.extreme_destination(start_pos, t, domax, directions_table)
+	local current_v = domax and -math.huge or math.huge
+	local current_pos = nil
+	for _,pos in grid.destinations(start_pos, directions_table) do
+		local v = t[pos]
+		if v and ((domax and v > current_v) or (not domax and v < current_v)) then
+			current_v = v
+			current_pos = pos
 		end
 	end
-	return current, current_i
+	return current_v, current_pos
 end
 
 function grid.distance(i1, i2)
