@@ -50,8 +50,10 @@ local function simple_possible(f)
 	end
 end
 
-local function melee_setup(seed, pos, targ_now, targ_max)
+local function melee_setup(seed, pos)
 	local w, src, targ_pos = mock.mini_world(seed, pos)
+	local targ_now = math.random(1, 1000)
+	local targ_max = math.random(1, 1000)
 	local targ = {pos = targ_pos, health=health.clip({now=targ_now, max=targ_max})}
 	w.state.denizens[targ_pos] = targ
 	return w, src, targ
@@ -155,9 +157,9 @@ property "act[enum.power.mundane].flee: attempt if obviously impossible" {
 }
 
 property "act[enum.power.mundane].melee: possible" {
-	generators = { int(), int(grid.MIN_POS, grid.MAX_POS), int(0, 1000), int(0, 1000) },
-	check = function(seed, pos, targ_now, targ_max)
-		local w, src, targ = melee_setup(seed, pos, targ_now, targ_max)
+	generators = { int(), int(grid.MIN_POS, grid.MAX_POS) },
+	check = function(seed, pos)
+		local w, src, targ = melee_setup(seed, pos)
 		local alive = health.is_alive(targ.health)
 		local adjacent = grid.distance(src.pos, targ.pos) == 1
 		local res = act[enum.power.mundane].melee(enum.actmode.possible, w, src, targ.pos)
@@ -170,18 +172,18 @@ property "act[enum.power.mundane].melee: possible" {
 }
 
 property "act[enum.power.mundane].melee: utility" {
-	generators = { int(), int(grid.MIN_POS, grid.MAX_POS), int(0, 1000), int(0, 1000) },
-	check = function(seed, pos, targ_now, targ_max)
-		local w, src, targ = melee_setup(seed, pos, targ_now, targ_max)
+	generators = { int(), int(grid.MIN_POS, grid.MAX_POS) },
+	check = function(seed, pos)
+		local w, src, targ = melee_setup(seed, pos)
 		local res = act[enum.power.mundane].melee(enum.actmode.utility, w, src, targ.pos)
 		return res <= act.MAX_MUNDANE_MELEE
 	end
 }
 
 property "act[enum.power.mundane].melee: attempt" {
-	generators = { int(), int(grid.MIN_POS, grid.MAX_POS), int(0, 1000), int(0, 1000) },
-	check = function(seed, pos, targ_now, targ_max)
-		local w, src, targ = melee_setup(seed, pos, targ_now, targ_max)
+	generators = { int(), int(grid.MIN_POS, grid.MAX_POS) },
+	check = function(seed, pos)
+		local w, src, targ = melee_setup(seed, pos)
 		local old_health = targ.health.now
 		if act[enum.power.mundane].melee(enum.actmode.attempt, w, src, targ.pos) then
 			return targ.health.now == (old_health - 1)
