@@ -6,17 +6,8 @@ local health = require("core.system.health")
 
 local mock = require("test.mock")
 
-local function make_dlist(warp_factor)
-	return {
-		{x = 0, y = -warp_factor},
-		{x = 0, y = warp_factor},
-		{x = -warp_factor, y = 0},
-		{x = warp_factor, y = 0}
-	}
-end
-
 local function set_warp_unwalkable(w, src, pos, targ_pos, warp_factor)
-	local dlist = make_dlist(warp_factor)
+	local dlist = act.make_warp_dlist(warp_factor)
 	for _,v in grid.destinations(pos, dlist) do
 		w.state.terrain[v] = {kind = enum.tile.tough_wall, pos=v}
 	end
@@ -46,7 +37,7 @@ end
 
 local function simple_possible(f)
 	return function(seed, pos, warp_factor)
-		local dlist = make_dlist(warp_factor)
+		local dlist = act.make_warp_dlist(warp_factor)
 		local w, src, targ_pos = mock.mini_world(seed, pos)
 		src.power = {[enum.power.warp] = warp_factor}
 		local res = f(enum.actmode.possible, w, src, targ_pos)
@@ -95,6 +86,45 @@ property "act[enum.power.warp].wander: ignore target" {
 		math.randomseed(seed)
 		local res_2 = f(m, w_2, src_2, targ_2)
 		return res_1 == res_2 and base.equals(w_1.state, w_2.state)
+	end
+}
+
+property "act.make_warp_dlist: length" {
+	generators = { int(2, 10) },
+	check = function(warp_factor)
+		local dlist = act.make_warp_dlist(warp_factor)
+		return #dlist == 4
+	end
+}
+
+property "act.make_warp_dlist: absolute x or y equals warp factor" {
+	generators = { int(2, 10), int(1, 4) },
+	check = function(warp_factor, i)
+		local dlist = act.make_warp_dlist(warp_factor)
+		local d = dlist[i]
+		return math.abs(d.x) == warp_factor or math.abs(d.y) == warp_factor
+	end
+}
+
+property "act.make_warp_dlist: x or y equals 0" {
+	generators = { int(2, 10), int(1, 4) },
+	check = function(warp_factor, i)
+		local dlist = act.make_warp_dlist(warp_factor)
+		local d = dlist[i]
+		return d.x == 0 or d.y == 0
+	end
+}
+
+property "act.make_warp_dlist: distinct values" {
+	generators = { int(2, 10), int(1, 4), int(1, 4) },
+	check = function(warp_factor, i1, i2)
+		if i1 == i2 then
+			return true
+		else
+			local dlist = act.make_warp_dlist(warp_factor)
+			local d1, d2 = dlist[i1], dlist[i2]
+			return d1.x ~= d2.x or d1.y ~= d2.y
+		end
 	end
 }
 

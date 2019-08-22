@@ -7,7 +7,8 @@ local act_warp = require("core.act.warp")
 
 local act = {
 	MAX_MUNDANE_MOVE = act_mundane.MAX_MOVE,
-	MAX_MUNDANE_MELEE = act_mundane.MAX_MELEE
+	MAX_MUNDANE_MELEE = act_mundane.MAX_MELEE,
+	make_warp_dlist = act_warp.make_dlist
 }
 
 function act.init()

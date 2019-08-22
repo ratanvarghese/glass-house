@@ -12,7 +12,7 @@ local warp = {
 	ranged = {}
 }
 
-local function make_dlist(warp_factor)
+function warp.make_dlist(warp_factor)
 	return {
 		{x = 0, y = -warp_factor},
 		{x = 0, y = warp_factor},
@@ -24,7 +24,7 @@ end
 local function warp_options(world, source)
 	local warp_factor = source.power[enum.power.warp]
 	if warp_factor then
-		return move.options(world, source.pos, make_dlist(warp_factor))
+		return move.options(world, source.pos, warp.make_dlist(warp_factor))
 	else
 		return {}
 	end
@@ -116,7 +116,7 @@ function warp.pursue.attempt(world, source, target_pos)
 	if not warp_factor then
 		return false
 	end
-	local dlist = make_dlist(warp_factor)
+	local dlist = warp.make_dlist(warp_factor)
 	local paths = world.walk_paths[target_pos]
 	local min, min_pos = grid.extreme_destination(source.pos, paths, false, dlist)
 	if min >= math.huge then
@@ -146,7 +146,7 @@ function warp.flee.attempt(world, source, target_pos)
 	if not warp_factor then
 		return false
 	end
-	local dlist = make_dlist(warp_factor)
+	local dlist = warp.make_dlist(warp_factor)
 	local paths = world.walk_paths[target_pos]
 	local max, max_pos = grid.extreme_destination(source.pos, paths, true, dlist)
 	if max <= -math.huge then
