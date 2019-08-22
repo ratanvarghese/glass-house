@@ -39,7 +39,8 @@ function mock.add_player_denizen(seed, state)
 		destination = state.player_pos,
 		inventory = {},
 		usetool = {},
-		health = {}
+		health = {},
+		power = {}
 	}
 	player.health.max = math.random(1, 1000)
 	player.health.now = math.random(1, player.health.max)
