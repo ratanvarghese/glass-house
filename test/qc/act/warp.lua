@@ -180,7 +180,7 @@ property "act[enum.power.warp].pursue: utility" {
 	end
 }
 
-property "act[enum.power.mundane].pursue: attempt if obviously possible" {
+property "act[enum.power.warp].pursue: attempt if obviously possible" {
 	generators = { int(), int(3, grid.MAX_X-2), int(3, grid.MAX_Y-2), int(2, 10) },
 	check = attempt_if_possible(act[enum.power.warp].pursue)
 }
