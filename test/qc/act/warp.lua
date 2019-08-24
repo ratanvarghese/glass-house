@@ -262,7 +262,7 @@ property "act[enum.power.warp].ranged: possible, only if straight line to target
 	end
 }
 
-property "act[enum.power.warp.ranged: possible, only if target is alive" {
+property "act[enum.power.warp].ranged: possible, only if target is alive" {
 	numtests = 1000, --Hard to catch this one
 	generators = { int(), int(grid.MIN_POS, grid.MAX_POS), int(2, 10) },
 	check = function(seed, pos, warp_factor)
@@ -272,6 +272,41 @@ property "act[enum.power.warp.ranged: possible, only if target is alive" {
 		else
 			return not act[enum.power.warp].ranged(enum.actmode.possible, w, src, targ.pos)
 		end
+	end
+}
+
+property "act[enum.power.warp].ranged: obviously possible" {
+	generators = { int(), int(2, 10), bool(), bool() },
+	check = function(seed, warp_factor, far_edge, across_x)
+		local pos
+		if far_edge then
+			pos = grid.get_pos(grid.MAX_X - 1, grid.MAX_Y - 1)
+		else
+			pos = grid.get_pos(2, 2)
+		end
+		local w, src = mock.mini_world(seed, pos, true)
+		src.power = {[enum.power.warp] = warp_factor}
+		local targ_x, targ_y
+		if far_edge then
+			if across_x then
+				targ_x = math.random(grid.MAX_X - warp_factor, grid.MAX_X - 2)
+				targ_y = grid.MAX_Y - 1
+			else
+				targ_x = grid.MAX_X - 1
+				targ_y = math.random(grid.MAX_Y - warp_factor, grid.MAX_Y - 2)
+			end
+		else
+			if across_x then
+				targ_x = math.random(3, warp_factor)
+				targ_y = 2
+			else
+				targ_x = 2
+				targ_y = math.random(3, warp_factor)
+			end
+		end
+		local targ_pos = grid.get_pos(targ_x, targ_y)
+		w.state.denizens[targ_pos] = {pos = targ_pos, health=health.clip({now=2, max=2})}
+		return act[enum.power.warp].ranged(enum.actmode.possible, w, src, targ_pos)
 	end
 }
 
