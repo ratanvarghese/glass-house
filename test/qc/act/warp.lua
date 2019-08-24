@@ -348,3 +348,21 @@ property "act[enum.power.warp].ranged: attempt, health result" {
 		end
 	end
 }
+
+property "act[enum.power.warp].ranged: attempt, destination result" {
+	generators = { int(), int(grid.MIN_POS, grid.MAX_POS), int(2, 10), bool() },
+	check = function(seed, pos, warp_factor, force_line)
+		local w, src, targ = ranged_setup(seed, pos, warp_factor, force_line)
+		if act[enum.power.warp].ranged(enum.actmode.attempt, w, src, targ.pos) then
+			local line = grid.line(src.pos, src.destination)
+			for _,p in pairs(line) do
+				if p == targ.pos then
+					return grid.distance(src.pos, src.destination) == warp_factor
+				end
+			end
+			return false
+		else
+			return src.pos == src.destination
+		end
+	end
+}
