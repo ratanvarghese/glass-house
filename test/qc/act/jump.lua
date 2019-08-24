@@ -52,8 +52,14 @@ local function simple_possible(f)
 	end
 end
 
-local function ranged_setup(seed, pos)
+local function ranged_setup(seed, pos, force_range)
 	local w, src, targ_pos = mock.mini_world(seed, pos)
+	if force_range then
+		local src_x, src_y = grid.get_xy(src.pos)
+		local targ_x = (src_x > 3) and (src_x - 1) or (src_x + 1)
+		local targ_y = (src_y > 3) and (src_y - 1) or (src_y + 1)
+		targ_pos = grid.get_pos(targ_x, targ_y)
+	end
 	local targ_max = math.random(1, 10)
 	local targ_now = math.random(1, targ_max) - 1  --Sometimes dead
 	local targ = {pos = targ_pos, health=health.clip({now=targ_now, max=targ_max})}
@@ -164,7 +170,7 @@ property "act[enum.power.jump].flee: attempt if obviously impossible" {
 property "act[enum.power.jump].ranged: possible, only if target is alive" {
 	generators = { int(), int(grid.MIN_POS, grid.MAX_POS) },
 	check = function(seed, pos)
-		local w, src, targ = ranged_setup(seed, pos)
+		local w, src, targ = ranged_setup(seed, pos, true)
 		if health.is_alive(targ.health) then
 			return true
 		else
@@ -176,7 +182,7 @@ property "act[enum.power.jump].ranged: possible, only if target is alive" {
 property "act[enum.power.jump].ranged: possible, only if pursue possible" {
 	generators = { int(), int(grid.MIN_POS, grid.MAX_POS) },
 	check = function(seed, pos)
-		local w, src, targ = ranged_setup(seed, pos)
+		local w, src, targ = ranged_setup(seed, pos, true)
 		if act[enum.power.jump].pursue(enum.actmode.possible, w, src, targ.pos) then
 			return true
 		else
@@ -198,6 +204,19 @@ property "act[enum.power.jump].ranged: possible, only if target in range" {
 	end
 }
 
+property "act[enum.power.warp].ranged: possible, not if target is not covered" {
+	generators = { int(), int(1, grid.MAX_X) },
+	check = function(seed, x)
+		local src_y = 2
+		local pos = grid.get_pos(x, src_y)
+		local w, src = mock.mini_world(seed, pos, true)
+		local targ_y = 1
+		local targ_pos = grid.get_pos(x, targ_y)
+		w.state.denizens[targ_pos] = {pos = targ_pos, health=health.clip({now=2, max=2})}
+		return not act[enum.power.jump].ranged(enum.actmode.possible, w, src, targ_pos)
+	end
+}
+
 property "act[enum.power.jump].ranged: obviously possible" {
 	generators = { int(), bool(), bool() },
 	check = function(seed, far_x, far_x)
@@ -205,8 +224,8 @@ property "act[enum.power.jump].ranged: obviously possible" {
 		local y = far_y and grid.MAX_Y or 1
 		local pos = grid.get_pos(x, y)
 		local w, src = mock.mini_world(seed, pos, true)
-		local targ_x = far_x and (grid.MAX_X - 2) or 2
-		local targ_y = far_y and (grid.MAX_Y - 2) or 2
+		local targ_x = far_x and (grid.MAX_X - 1) or 2
+		local targ_y = far_y and (grid.MAX_Y - 1) or 2
 		local targ_pos = grid.get_pos(targ_x, targ_y)
 		w.state.denizens[targ_pos] = {pos = targ_pos, health=health.clip({now=2, max=2})}
 		return act[enum.power.jump].ranged(enum.actmode.possible, w, src, targ_pos)
@@ -214,9 +233,9 @@ property "act[enum.power.jump].ranged: obviously possible" {
 }
 
 property "act[enum.power.jump].ranged: utility" {
-	generators = { int(), int(grid.MIN_POS, grid.MAX_POS) },
-	check = function(seed, pos)
-		local w, src, targ = ranged_setup(seed, pos)
+	generators = { int(), int(grid.MIN_POS, grid.MAX_POS), bool() },
+	check = function(seed, pos, force_range)
+		local w, src, targ = ranged_setup(seed, pos, force_range)
 		local possible = act[enum.power.jump].ranged(enum.actmode.possible, w, src, targ.pos)
 		local pursue_u = act[enum.power.jump].pursue(enum.actmode.utility, w, src, targ.pos)
 		local res = act[enum.power.jump].ranged(enum.actmode.utility, w, src, targ.pos)
@@ -229,9 +248,9 @@ property "act[enum.power.jump].ranged: utility" {
 }
 
 property "act[enum.power.jump].ranged: attempt, boolean result" {
-	generators = { int(), int(grid.MIN_POS, grid.MAX_POS) },
-	check = function(seed, pos)
-		local w, src, targ = ranged_setup(seed, pos)
+	generators = { int(), int(grid.MIN_POS, grid.MAX_POS), bool() },
+	check = function(seed, pos, force_range)
+		local w, src, targ = ranged_setup(seed, pos, force_range)
 		local possible = act[enum.power.jump].ranged(enum.actmode.possible, w, src, targ.pos)
 		local res = act[enum.power.jump].ranged(enum.actmode.attempt, w, src, targ.pos)
 		return res == possible
@@ -239,9 +258,9 @@ property "act[enum.power.jump].ranged: attempt, boolean result" {
 }
 
 property "act[enum.power.jump].ranged: attempt, health result" {
-	generators = { int(), int(grid.MIN_POS, grid.MAX_POS) },
-	check = function(seed, pos)
-		local w, src, targ = ranged_setup(seed, pos)
+	generators = { int(), int(grid.MIN_POS, grid.MAX_POS), bool() },
+	check = function(seed, pos, force_range)
+		local w, src, targ = ranged_setup(seed, pos, force_range)
 		local old_health = targ.health.now
 		if act[enum.power.jump].ranged(enum.actmode.attempt, w, src, targ.pos) then
 			return targ.health.now == (old_health - 2)
@@ -252,12 +271,12 @@ property "act[enum.power.jump].ranged: attempt, health result" {
 }
 
 property "act[enum.power.jump].ranged: attempt, distance result" {
-	generators = { int(), int(grid.MIN_POS, grid.MAX_POS) },
-	check = function(seed, pos)
-		local w, src, targ = ranged_setup(seed, pos)
+	generators = { int(), int(grid.MIN_POS, grid.MAX_POS), bool() },
+	check = function(seed, pos, force_range)
+		local w, src, targ = ranged_setup(seed, pos, force_range)
 		if act[enum.power.jump].ranged(enum.actmode.attempt, w, src, targ.pos) then
 			local distance = grid.distance(src.destination, targ.pos)
-			return distance == 2 and check_L_shape(src.pos, src.destination)
+			return (distance == 2 or distance == 1) and check_L_shape(src.pos, src.destination)
 		else
 			return src.pos == src.destination
 		end
