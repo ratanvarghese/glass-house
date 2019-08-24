@@ -4,11 +4,13 @@ local enum = require("core.enum")
 local act_mundane = require("core.act.mundane")
 local act_usetool = require("core.act.usetool")
 local act_warp = require("core.act.warp")
+local act_jump = require("core.act.jump")
 
 local act = {
 	MAX_MUNDANE_MOVE = act_mundane.MAX_MOVE,
 	MAX_MUNDANE_MELEE = act_mundane.MAX_MELEE,
-	make_warp_dlist = act_warp.make_dlist
+	make_warp_dlist = act_warp.make_dlist,
+	jump_dlist = act_jump.dlist,
 }
 
 function act.init()
@@ -28,6 +30,12 @@ function act.init()
 		pursue = enum.selectf(enum.actmode, act_warp.pursue),
 		flee = enum.selectf(enum.actmode, act_warp.flee),
 		ranged = enum.selectf(enum.actmode, act_warp.ranged)
+	}
+	act[enum.power.jump] = {
+		wander = enum.selectf(enum.actmode, act_jump.wander),
+		pursue = enum.selectf(enum.actmode, act_jump.pursue),
+		flee = enum.selectf(enum.actmode, act_jump.flee),
+		ranged = enum.selectf(enum.actmode, act_jump.ranged)
 	}
 
 	for k,v in pairs(act) do
