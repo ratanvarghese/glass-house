@@ -131,6 +131,26 @@ function jump.ranged.utility(world, source, target_pos)
 end
 
 function jump.ranged.attempt(world, source, target_pos)
+	--[[
+		Long ago, when I was a small child, I visited a friend's house
+		and we played chess. His knight jumped over one of my pieces, and he
+		took the piece off the board. I don't remember the exact words of the
+		conversation that followed, but it went something like this...
+
+		"Knights don't kill pieces they jump over," I said.
+		"Yes they do," my friend responded.
+		"No they don't," I said.
+		"My dad says they do. Do you want to ask my dad about it?" he said.
+
+		As it happened, I did not want to ask his dad about it, so I didn't inquire
+		further. I tried to move my pieces around the board with this "house rule"
+		in mind until I needed my knight to jump over one of my own pieces.
+
+		"If I jump over my own piece, will it die?" I said.
+		"It can, but only if you want it to," my friend responded.
+
+		As it happened, I didn't want it to.
+	--]]
 	local possible, dest, target = ranged_destination(world, source, target_pos)
 	if not possible then
 		return false
