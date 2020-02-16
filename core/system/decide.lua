@@ -33,13 +33,15 @@ end
 function decide.monster(e, world)
 	local max_utility = -math.huge
 	local max_utility_f = nil
+	local max_utility_power = nil
 	for p,v in pairs(e.power) do
 		local actions = act[p] or {}
-		for _,f in ipairs(actions) do
+		for n,f in ipairs(actions) do
 			local v = f(enum.actmode.utility, world, e, world.state.player_pos)
 			if v > max_utility then
 				max_utility = v
 				max_utility_f = f
+				max_utility_power = p
 			end
 		end
 	end
