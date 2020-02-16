@@ -1,7 +1,3 @@
-local enum = require("core.enum")
-local grid = require("core.grid")
-local health = require("core.system.health")
-local move = require("core.system.move")
 local mundane = require("core.act.mundane")
 
 local vampiric = { melee = {} }
