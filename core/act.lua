@@ -6,6 +6,7 @@ local act_usetool = require("core.act.usetool")
 local act_warp = require("core.act.warp")
 local act_jump = require("core.act.jump")
 local act_vampiric = require("core.act.vampiric")
+local act_smash = require("core.act.smash")
 
 local act = {
 	MAX_MUNDANE_MOVE = act_mundane.MAX_MOVE,
@@ -40,6 +41,10 @@ function act.init()
 	}
 	act[enum.power.vampiric] = {
 		melee = enum.selectf(enum.actmode, act_vampiric.melee)
+	}
+	act[enum.power.smash] = {
+		pursue = enum.selectf(enum.actmode, act_smash.pursue),
+		wander = enum.selectf(enum.actmode, act_smash.wander)
 	}
 
 	for k,v in pairs(act) do
