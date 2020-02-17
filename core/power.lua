@@ -19,6 +19,7 @@ table.insert(power.define, {
 	{kind = enum.power.bodysnatch},
 	{kind = enum.power.hot},
 	{kind = enum.power.cold},
+	{kind = enum.power.steal}
 })
 
 table.insert(power.define, {
@@ -28,13 +29,7 @@ table.insert(power.define, {
 	{kind = enum.power.clone, min = 3, max = 4, versions = 1},
 	{kind = enum.power.summon, min = 3, max = 4, versions = 1},
 	{kind = enum.power.jump},
-})
-
-table.insert(power.define, {
 	{kind = enum.power.tool},
-	{kind = enum.power.kick, min = 1, max = 4, versions = 2},
-	{kind = enum.power.punch, min = 1, max = 10, versions = 3},
-	{kind = enum.power.steal},
 })
 
 function power.make_list(define_list)
