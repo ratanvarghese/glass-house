@@ -81,7 +81,7 @@ property "act: 'possible' and 'utility' do not write to state" {
 	end
 }
 
-property "act: if 'possible' mode returns false, 'utility' mode returns < 1" {
+property "act: if 'possible' mode returns false, 'utility' mode returns <= 0" {
 	numtests = 750, --Testing many functions, so need many runs to catch errors
 	generators = {
 		int(1, enum.power.MAX-1),
@@ -95,7 +95,7 @@ property "act: if 'possible' mode returns false, 'utility' mode returns < 1" {
 		local w, src, targ_pos = mock.mini_world(seed, pos)
 		local possibility = f(enum.actmode.possible, w, src, targ_pos)
 		local utility = f(enum.actmode.utility, w, src, targ_pos)
-		return possibility or (utility < 1)
+		return possibility or (utility <= 0)
 	end,
 	when_fail = when_fail_general
 }
