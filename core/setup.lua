@@ -4,6 +4,7 @@ local base = require("core.base")
 local enum = require("core.enum")
 local grid = require("core.grid")
 local bestiary = require("core.bestiary")
+local summon = require("core.summon")
 local light = require("core.system.light")
 local decide = require("core.system.decide")
 local health = require("core.system.health")
@@ -41,15 +42,10 @@ function setup.gen_denizens(terrain, player_pos, player)
 	local res = {[player_pos] = player}
 	player.pos = player_pos
 	player.destination = player_pos
+	local mock_world = {state={terrain=terrain, denizens=res}}
 	for k in pairs(bestiary.set) do
 		if k ~= enum.monster.player then
-			local pos
-			repeat
-				local x = math.random(1, grid.MAX_X)
-				local y = math.random(1, grid.MAX_Y)
-				pos = grid.get_pos(x, y)
-			until (move.walkable(terrain, res, pos))
-			res[pos] = bestiary.make(k, pos)
+			summon.summon(mock_world, k)
 		end
 	end
 	return res
