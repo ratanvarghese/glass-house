@@ -14,26 +14,28 @@ local function set_adjacent_smashable(w, src, pos, targ_pos)
 	w._setup_walk_paths(w, src.pos, targ_pos)
 end
 
-local function possible_utility_if_impossible(f)
+local function possible_utility_if_impossible(t)
 	return function(check_utility, seed, x, y)
-		local m = check_utility and enum.actmode.utility or enum.actmode.possible
 		local pos = grid.get_pos(x, y)
-		local res = f(m, mock.mini_world(seed, pos, true))
 		if check_utility then
-			return res == 0
+			return t.utility(mock.mini_world(seed, pos, true)) == 0
 		else
-			return not res
+			return not t.possible(mock.mini_world(seed, pos, true))
 		end
 	end
 end
 
-local function possible_utility_if_possible(f, seek_target)
+local function possible_utility_if_possible(t, seek_target)
 	return function(check_utility, seed, x, y)
-		local m = check_utility and enum.actmode.utility or enum.actmode.possible
 		local pos = grid.get_pos(x, y)
 		local w, src, targ_pos = mock.mini_world(seed, pos)
 		set_adjacent_smashable(w, src, pos, targ_pos)
-		local res = act[enum.power.smash].wander(m, w, src, targ_pos)
+		local res
+		if check_utility then
+			res = t.utility(w, src, targ_pos)
+		else
+			res = t.possible(w, src, targ_pos)
+		end
 		if seek_target then
 			local line = grid.line(pos, targ_pos)
 			if line[2] then
@@ -55,22 +57,22 @@ local function possible_utility_if_possible(f, seek_target)
 	end
 end
 
-local function attempt_if_impossible(f)
+local function attempt_if_impossible(t)
 	return function(seed, x, y)
 		local pos = grid.get_pos(x, y)
 		local w, src, targ_pos = mock.mini_world(seed, pos, true)
 		local w_copy = base.copy(w)
-		local res = f(enum.actmode.attempt, w, src, targ_pos)
+		local res = t.attempt(w, src, targ_pos)
 		return not res and base.equals(w.state, w_copy.state)
 	end
 end
 
-local function attempt_if_possible(f, seek_target)
+local function attempt_if_possible(t, seek_target)
 	return function(seed, x, y)
 		local pos = grid.get_pos(x, y)
 		local w, src, targ_pos = mock.mini_world(seed, pos)
 		set_adjacent_smashable(w, src, pos, targ_pos)
-		local res = f(enum.actmode.attempt, w, src, targ_pos)
+		local res = t.attempt(w, src, targ_pos)
 		for _,v in grid.destinations(pos) do
 			if w.state.terrain[v].new_kind == enum.tile.floor then
 				if seek_target then
@@ -89,20 +91,27 @@ end
 
 property "act[enum.power.smash].wander: ignore target" {
 	generators = {
-		int(1, enum.actmode.MAX-1),
+		int(1, 3),
 		any(),
 		any(),
 		int(),
 		int(grid.MIN_POS, grid.MAX_POS)
 	},
 	check = function(m, targ_1, targ_2, seed, pos)
-		local f = act[enum.power.smash].wander
+		local f
+		if m == 1 then
+			f = act[enum.power.smash].wander.possible
+		elseif m == 2 then
+			f = act[enum.power.smash].wander.utility
+		else
+			f = act[enum.power.smash].wander.attempt
+		end
 		local w_1, src_1 = mock.mini_world(seed, pos)
 		local w_2, src_2 = mock.mini_world(seed, pos)
 		math.randomseed(seed)
-		local res_1 = f(m, w_1, src_1, targ_1)
+		local res_1 = f(w_1, src_1, targ_1)
 		math.randomseed(seed)
-		local res_2 = f(m, w_2, src_2, targ_2)
+		local res_2 = f(w_2, src_2, targ_2)
 		return res_1 == res_2 and base.equals(w_1.state, w_2.state)
 	end
 }

@@ -10,7 +10,7 @@ property "decide.player: movement commands" {
 		local d = grid.direction_list[direction_i]
 		local mon = {pos = pos}
 		local res_f, targ_i = decide.player(mon, {state={denizens={}}}, d, 1)
-		return res_f == act[enum.power.mundane].pursue and targ_i == grid.travel(mon.pos, 1, d)
+		return res_f == act[enum.power.mundane].pursue.attempt and targ_i == grid.travel(mon.pos, 1, d)
 	end
 }
 
@@ -23,7 +23,7 @@ property "decide.player: attack commands" {
 		local targ = {pos=predicted_targ_pos}
 		local state = {denizens={[predicted_targ_pos]=targ}}
 		local res_f, targ_i = decide.player(mon, {state=state}, d, 1)
-		return res_f == act[enum.power.mundane].melee and targ_i == predicted_targ_pos
+		return res_f == act[enum.power.mundane].melee.attempt and targ_i == predicted_targ_pos
 	end
 }
 
@@ -52,16 +52,21 @@ property "decide.monster: pick function with maximum utility" {
 		local mon = {power = {[power_kind] = power.DEFAULT}}
 		local world = {state={player_pos = pos}}
 		local min_f = function() return math.min(a, b) - 1 end
+		local min_attempt = function() end
 		local max_f = function() return math.max(a, b) + 1 end
+		local max_attempt = function() end
+
+		local min_t = {utility=min_f, attempt=min_attempt}
+		local max_t={utility=max_f, attempt=max_attempt}
 		act[power_kind] = {
-			min = min_f,
-			max = max_f,
-			min_f,
-			max_f
+			min = min_t,
+			max = max_t,
+			min_t,
+			max_t
 		}
 		local res_f, res_targ = decide.monster(mon, world)
 		act[power_kind] = nil
-		return res_f == max_f and res_targ == world.state.player_pos
+		return res_f == max_attempt and res_targ == world.state.player_pos
 	end
 }
 
@@ -100,12 +105,17 @@ property "decide.get_ftarget: identical results to decide.monster or decide.play
 			decide = decidemode
 		}
 		local min_f = function() return math.min(x, y) - 1 end
+		local min_attempt = function() end
 		local max_f = function() return math.max(y, x) + 1 end
+		local max_attempt = function() end
+
+		local min_t = {utility=min_f, attempt=min_attempt}
+		local max_t={utility=max_f, attempt=max_attempt}
 		act[power_kind] = {
-			min = min_f,
-			max = max_f,
-			min_f,
-			max_f
+			min = min_t,
+			max = max_t,
+			min_t,
+			max_t
 		}
 		local expect_f, expect_targ
 		if decidemode == enum.decidemode.player then

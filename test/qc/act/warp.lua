@@ -14,33 +14,33 @@ local function set_warp_unwalkable(w, src, pos, targ_pos, warp_factor)
 	w._setup_walk_paths(w, src.pos, targ_pos)
 end
 
-local function attempt_if_impossible(f)
+local function attempt_if_impossible(t)
 	return function(seed, pos, warp_factor)
 		local w, src, targ_pos = mock.mini_world(seed, pos)
 		src.power = {[enum.power.warp] = warp_factor}
 		set_warp_unwalkable(w, src, pos, targ_pos, warp_factor)
-		local success = f(enum.actmode.attempt, w, src, targ_pos)
+		local success = t.attempt(w, src, targ_pos)
 		return not success and grid.distance(src.pos, src.destination) == 0 and src.pos == pos
 	end
 end
 
-local function attempt_if_possible(f)
+local function attempt_if_possible(t)
 	return function(seed, x, y, warp_factor)
 		local pos = grid.get_pos(x, y)
 		local w, src, targ_pos = mock.mini_world(seed, pos, true)
 		src.power = {[enum.power.warp] = warp_factor}
-		local res = f(enum.actmode.attempt, w, src, targ_pos)
+		local res = t.attempt(w, src, targ_pos)
 		local distance = grid.distance(src.pos, src.destination)
 		return res and distance == warp_factor and src.pos == pos
 	end
 end
 
-local function simple_possible(f)
+local function simple_possible(t)
 	return function(seed, pos, warp_factor)
 		local dlist = act.make_warp_dlist(warp_factor)
 		local w, src, targ_pos = mock.mini_world(seed, pos)
 		src.power = {[enum.power.warp] = warp_factor}
-		local res = f(enum.actmode.possible, w, src, targ_pos)
+		local res = t.possible(w, src, targ_pos)
 		for _,v in grid.destinations(pos, dlist) do
 			if w.walk_paths[targ_pos][v] then
 				return res
@@ -71,20 +71,27 @@ end
 
 property "act[enum.power.warp].wander: ignore target" {
 	generators = {
-		int(1, enum.actmode.MAX-1),
+		int(1, 3),
 		any(),
 		any(),
 		int(),
 		int(grid.MIN_POS, grid.MAX_POS)
 	},
 	check = function(m, targ_1, targ_2, seed, pos)
-		local f = act[enum.power.warp].wander
+		local f
+		if m == 1 then
+			f = act[enum.power.warp].wander.possible
+		elseif m == 2 then
+			f = act[enum.power.warp].wander.utility
+		else
+			f = act[enum.power.warp].wander.attempt
+		end
 		local w_1, src_1 = mock.mini_world(seed, pos)
 		local w_2, src_2 = mock.mini_world(seed, pos)
 		math.randomseed(seed)
-		local res_1 = f(m, w_1, src_1, targ_1)
+		local res_1 = f(w_1, src_1, targ_1)
 		math.randomseed(seed)
-		local res_2 = f(m, w_2, src_2, targ_2)
+		local res_2 = f(w_2, src_2, targ_2)
 		return res_1 == res_2 and base.equals(w_1.state, w_2.state)
 	end
 }
@@ -131,15 +138,13 @@ property "act.make_warp_dlist: distinct values" {
 property "act[enum.power.warp].wander: correct possible/utility if obviously possible" {
 	generators = { bool(), int(), int(2, grid.MAX_X-1), int(2, grid.MAX_Y-1), int(2, 10) },
 	check = function(check_utility, seed, x, y, warp_factor)
-		local m = check_utility and enum.actmode.utility or enum.actmode.possible
 		local pos = grid.get_pos(x, y)
 		local w, src = mock.mini_world(seed, pos, true)
 		src.power = {[enum.power.warp] = warp_factor}
-		local res = act[enum.power.warp].wander(m, w, src)
 		if check_utility then
-			return res > act.MAX_MUNDANE_MOVE
+			return act[enum.power.warp].wander.utility(w, src) > act.MAX_MUNDANE_MOVE
 		else
-			return res
+			return act[enum.power.warp].wander.possible(w, src)
 		end
 	end
 }
@@ -150,7 +155,7 @@ property "act[enum.power.warp].wander: attempt if obviously possible" {
 		local pos = grid.get_pos(x, y)
 		local w, src = mock.mini_world(seed, pos, true)
 		src.power = {[enum.power.warp] = warp_factor}
-		local success = act[enum.power.warp].wander(enum.actmode.attempt, w, src)
+		local success = act[enum.power.warp].wander.attempt(w, src)
 		local distance = grid.distance(src.destination, src.pos)
 		return success and distance == warp_factor and src.pos == pos
 	end
@@ -171,7 +176,7 @@ property "act[enum.power.warp].pursue: utility" {
 	check = function(seed, pos, warp_factor)
 		local w, src, targ_pos = mock.mini_world(seed, pos, true)
 		src.power = {[enum.power.warp] = warp_factor}
-		local res = act[enum.power.warp].pursue(enum.actmode.utility, w, src, targ_pos)
+		local res = act[enum.power.warp].pursue.utility(w, src, targ_pos)
 		if w.state.light[targ_pos] then
 			return res > act.MAX_MUNDANE_MOVE
 		else
@@ -200,7 +205,7 @@ property "act[enum.power.warp].flee: utility" {
 	check = function(seed, pos, warp_factor)
 		local w, src, targ_pos = mock.mini_world(seed, pos, true)
 		src.power = {[enum.power.warp] = warp_factor}
-		local res = act[enum.power.warp].flee(enum.actmode.utility, w, src, targ_pos)
+		local res = act[enum.power.warp].flee.utility(w, src, targ_pos)
 		return res > act.MAX_MUNDANE_MOVE
 	end
 }
@@ -220,7 +225,7 @@ property "act[enum.power.warp].ranged: possible, bounds check" {
 	check = function(seed, pos, warp_factor_multiplier)
 		local warp_factor = math.max(grid.MAX_X, grid.MAX_Y) * warp_factor_multiplier
 		local w, src, targ = ranged_setup(seed, pos, warp_factor, true)
-		return not act[enum.power.warp].ranged(enum.actmode.possible, w, src, targ.pos)
+		return not act[enum.power.warp].ranged.possible(w, src, targ.pos)
 	end
 }
 
@@ -228,10 +233,10 @@ property "act[enum.power.warp].ranged: possible, only if pursue possible" {
 	generators = { int(), int(grid.MIN_POS, grid.MAX_POS), int(2, 10) },
 	check = function(seed, pos, warp_factor)
 		local w, src, targ = ranged_setup(seed, pos, warp_factor, true)
-		if act[enum.power.warp].pursue(enum.actmode.possible, w, src, targ.pos) then
+		if act[enum.power.warp].pursue.possible(w, src, targ.pos) then
 			return true
 		else
-			return not act[enum.power.warp].ranged(enum.actmode.possible, w, src, targ.pos)
+			return not act[enum.power.warp].ranged.possible(w, src, targ.pos)
 		end
 	end
 }
@@ -243,7 +248,7 @@ property "act[enum.power.warp].ranged: possible, only if correct distance" {
 		if (grid.distance(src.pos, targ.pos) < warp_factor) then
 			return true
 		else
-			return not act[enum.power.warp].ranged(enum.actmode.possible, w, src, targ.pos)
+			return not act[enum.power.warp].ranged.possible(w, src, targ.pos)
 		end
 	end
 }
@@ -257,7 +262,7 @@ property "act[enum.power.warp].ranged: possible, only if straight line to target
 		if (src_x == targ_x) or (src_y == targ_y) then
 			return true
 		else
-			return not act[enum.power.warp].ranged(enum.actmode.possible, w, src, targ.pos)
+			return not act[enum.power.warp].ranged.possible(w, src, targ.pos)
 		end
 	end
 }
@@ -270,7 +275,7 @@ property "act[enum.power.warp].ranged: possible, only if target is alive" {
 		if health.is_alive(targ.health) then
 			return true
 		else
-			return not act[enum.power.warp].ranged(enum.actmode.possible, w, src, targ.pos)
+			return not act[enum.power.warp].ranged.possible(w, src, targ.pos)
 		end
 	end
 }
@@ -306,7 +311,7 @@ property "act[enum.power.warp].ranged: obviously possible" {
 		end
 		local targ_pos = grid.get_pos(targ_x, targ_y)
 		w.state.denizens[targ_pos] = {pos = targ_pos, health=health.clip({now=2, max=2})}
-		return act[enum.power.warp].ranged(enum.actmode.possible, w, src, targ_pos)
+		return act[enum.power.warp].ranged.possible(w, src, targ_pos)
 	end
 }
 
@@ -315,9 +320,9 @@ property "act[enum.power.warp].ranged: utility" {
 	generators = { int(), int(grid.MIN_POS, grid.MAX_POS), int(2, 10), bool() },
 	check = function(seed, pos, warp_factor, force_line)
 		local w, src, targ = ranged_setup(seed, pos, warp_factor, force_line)
-		local res = act[enum.power.warp].ranged(enum.actmode.utility, w, src, targ.pos)
-		local possible = act[enum.power.warp].ranged(enum.actmode.possible, w, src, targ.pos)
-		local pursue_u = act[enum.power.warp].pursue(enum.actmode.utility, w, src, targ.pos)
+		local res = act[enum.power.warp].ranged.utility(w, src, targ.pos)
+		local possible = act[enum.power.warp].ranged.possible(w, src, targ.pos)
+		local pursue_u = act[enum.power.warp].pursue.utility(w, src, targ.pos)
 		if possible and pursue_u > 0 then
 			return res > pursue_u
 		else
@@ -330,8 +335,8 @@ property "act[enum.power.warp].ranged: attempt, boolean result" {
 	generators = { int(), int(grid.MIN_POS, grid.MAX_POS), int(2, 10), bool() },
 	check = function(seed, pos, warp_factor, force_line)
 		local w, src, targ = ranged_setup(seed, pos, warp_factor, force_line)
-		local possible = act[enum.power.warp].ranged(enum.actmode.possible, w, src, targ.pos)
-		local res = act[enum.power.warp].ranged(enum.actmode.attempt, w, src, targ.pos)
+		local possible = act[enum.power.warp].ranged.possible(w, src, targ.pos)
+		local res = act[enum.power.warp].ranged.attempt(w, src, targ.pos)
 		return res == possible
 	end
 }
@@ -341,7 +346,7 @@ property "act[enum.power.warp].ranged: attempt, health result" {
 	check = function(seed, pos, warp_factor, force_line)
 		local w, src, targ = ranged_setup(seed, pos, warp_factor, force_line)
 		local old_health = targ.health.now
-		if act[enum.power.warp].ranged(enum.actmode.attempt, w, src, targ.pos) then
+		if act[enum.power.warp].ranged.attempt(w, src, targ.pos) then
 			return targ.health.now == (old_health - 2)
 		else
 			return targ.health.now == old_health
@@ -353,7 +358,7 @@ property "act[enum.power.warp].ranged: attempt, destination result" {
 	generators = { int(), int(grid.MIN_POS, grid.MAX_POS), int(2, 10), bool() },
 	check = function(seed, pos, warp_factor, force_line)
 		local w, src, targ = ranged_setup(seed, pos, warp_factor, force_line)
-		if act[enum.power.warp].ranged(enum.actmode.attempt, w, src, targ.pos) then
+		if act[enum.power.warp].ranged.attempt(w, src, targ.pos) then
 			local line = grid.line(src.pos, src.destination)
 			for _,p in pairs(line) do
 				if p == targ.pos then

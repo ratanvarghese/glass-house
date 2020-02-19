@@ -17,34 +17,34 @@ local act = {
 
 function act.init()
 	act[enum.power.mundane] = {
-		wander = enum.selectf(enum.actmode, act_mundane.wander),
-		pursue = enum.selectf(enum.actmode, act_mundane.pursue),
-		flee = enum.selectf(enum.actmode, act_mundane.flee),
-		melee = enum.selectf(enum.actmode, act_mundane.melee)
+		wander = act_mundane.wander,
+		pursue = act_mundane.pursue,
+		flee = act_mundane.flee,
+		melee = act_mundane.melee
 	}
 	act[enum.power.tool] = {
-		pickup = enum.selectf(enum.actmode, act_usetool.pickup),
-		drop = enum.selectf(enum.actmode, act_usetool.drop),
-		equip = enum.selectf(enum.actmode, act_usetool.equip)
+		pickup = act_usetool.pickup,
+		drop = act_usetool.drop,
+		equip = act_usetool.equip
 	}
 	act[enum.power.warp] = {
-		wander = enum.selectf(enum.actmode, act_warp.wander),
-		pursue = enum.selectf(enum.actmode, act_warp.pursue),
-		flee = enum.selectf(enum.actmode, act_warp.flee),
-		ranged = enum.selectf(enum.actmode, act_warp.ranged)
+		wander = act_warp.wander,
+		pursue = act_warp.pursue,
+		flee = act_warp.flee,
+		ranged = act_warp.ranged
 	}
 	act[enum.power.jump] = {
-		wander = enum.selectf(enum.actmode, act_jump.wander),
-		pursue = enum.selectf(enum.actmode, act_jump.pursue),
-		flee = enum.selectf(enum.actmode, act_jump.flee),
-		ranged = enum.selectf(enum.actmode, act_jump.ranged)
+		wander = act_jump.wander,
+		pursue = act_jump.pursue,
+		flee = act_jump.flee,
+		ranged = act_jump.ranged
 	}
 	act[enum.power.vampiric] = {
-		melee = enum.selectf(enum.actmode, act_vampiric.melee)
+		melee = act_vampiric.melee
 	}
 	act[enum.power.smash] = {
-		pursue = enum.selectf(enum.actmode, act_smash.pursue),
-		wander = enum.selectf(enum.actmode, act_smash.wander)
+		pursue = act_smash.pursue,
+		wander = act_smash.wander
 	}
 
 	for k,v in pairs(act) do

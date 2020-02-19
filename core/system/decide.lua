@@ -12,9 +12,9 @@ function decide.player(e, world, cmd, n)
 		local targ_i = grid.travel(e.pos, 1, cmd)
 		local f
 		if world.state.denizens[targ_i] then
-			f = act[enum.power.mundane].melee
+			f = act[enum.power.mundane].melee.attempt
 		else
-			f = act[enum.power.mundane].pursue
+			f = act[enum.power.mundane].pursue.attempt
 		end
 		return f, targ_i
 	elseif cmd == enum.cmd.quit then
@@ -22,9 +22,9 @@ function decide.player(e, world, cmd, n)
 	elseif cmd == enum.cmd.exit then
 		decide.exit(world, false)
 	elseif cmd == enum.cmd.equip then
-		return act[enum.power.tool].equip, (n or 1)
+		return act[enum.power.tool].equip.attempt, (n or 1)
 	elseif cmd == enum.cmd.drop then
-		return act[enum.power.tool].drop, (n or 1)
+		return act[enum.power.tool].drop.attempt, (n or 1)
 	else
 		error("Sorry, that command is not implemented")
 	end
@@ -36,11 +36,11 @@ function decide.monster(e, world)
 	local max_utility_power = nil
 	for p,v in pairs(e.power) do
 		local actions = act[p] or {}
-		for n,f in ipairs(actions) do
-			local v = f(enum.actmode.utility, world, e, world.state.player_pos)
+		for _,t in pairs(actions) do
+			local v = t.utility(world, e, world.state.player_pos)
 			if v > max_utility then
 				max_utility = v
-				max_utility_f = f
+				max_utility_f = t.attempt
 				max_utility_power = p
 			end
 		end
@@ -71,12 +71,12 @@ end
 function decide.process(system, e, dt)
 	if e == system.entities[system.target_ent_i] and clock.has_credit(e.clock) then
 		local f, target = decide.get_ftarget(system.world, e)
-		f(enum.actmode.attempt, system.world, e, target)
+		f(system.world, e, target)
 		clock.spend_credit(e.clock)
 
 		if e.decide == enum.decidemode.player and e.pos ~= e.destination then
-			local f = act[enum.power.tool].pickup
-			f(enum.actmode.attempt, system.world, e, 1)
+			local f = act[enum.power.tool].pickup.attempt
+			f(system.world, e, 1)
 		end
 	end
 end

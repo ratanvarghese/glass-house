@@ -14,8 +14,8 @@ local function setup(seed, pos, tool_list, tool_i)
 end
 
 local function attempt_check(w, source, tool_list, tool_i, name)
-	local f = act[enum.power.tool][name]
-	local res = f(enum.actmode.attempt, w, source, tool_i)
+	local t = act[enum.power.tool][name]
+	local res = t.attempt(w, source, tool_i)
 	local targ_t = source.usetool[name]
 	if base.is_empty(tool_list) then
 		return not res and (not targ_t or base.is_empty(targ_t))
@@ -24,7 +24,7 @@ local function attempt_check(w, source, tool_list, tool_i, name)
 	end
 end
 
-local function basic_possible(f, use_tile_inventory)
+local function basic_possible(tbl, use_tile_inventory)
 	return function(seed, pos, tool_list, tool_i)
 		local w, source, t, tool_list, tool_i = setup(seed, pos, tool_list, tool_i)
 		if use_tile_inventory then
@@ -33,7 +33,7 @@ local function basic_possible(f, use_tile_inventory)
 			source.inventory = tool_list
 		end
 		w.state.terrain[source.pos] = t
-		return f(enum.actmode.possible, w, source, tool_i) or base.is_empty(tool_list)
+		return tbl.possible(w, source, tool_i) or base.is_empty(tool_list)
 	end
 end
 
