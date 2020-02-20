@@ -15,13 +15,13 @@ local function melee_setup(seed, pos)
 	return w, src, targ
 end
 
-property "act[enum.power.vampiric].melee: possible" {
-	generators = { int(), int(grid.MIN_POS, grid.MAX_POS) },
-	check = function(seed, pos)
-		local w, src, targ = melee_setup(seed, pos)
-		local m_res = act[enum.power.mundane].melee.possible(w, src, targ.pos)
-		local v_res = act[enum.power.vampiric].melee.possible(w, src, targ.pos)
-		return v_res == m_res
+property "act[enum.power.vampiric].melee: possible same as mundane" {
+	generators = {},
+	numtests = 1,
+	check = function()
+		local f1 = act[enum.power.mundane].melee.possible
+		local f2 = act[enum.power.vampiric].melee.possible
+		return f1 == f2
 	end
 }
 

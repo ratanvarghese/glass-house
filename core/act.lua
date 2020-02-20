@@ -7,6 +7,8 @@ local act_warp = require("core.act.warp")
 local act_jump = require("core.act.jump")
 local act_vampiric = require("core.act.vampiric")
 local act_smash = require("core.act.smash")
+local act_rnsummon = require("core.act.rnsummon")
+local act_clone = require("core.act.clone")
 
 local act = {
 	MAX_MUNDANE_MOVE = act_mundane.MAX_MOVE,
@@ -45,6 +47,12 @@ function act.init()
 	act[enum.power.smash] = {
 		pursue = act_smash.pursue,
 		wander = act_smash.wander
+	}
+	act[enum.power.summon] = {
+		ranged = act_rnsummon.ranged
+	}
+	act[enum.power.clone] = {
+		ranged = act_clone.ranged
 	}
 
 	for k,v in pairs(act) do
