@@ -64,7 +64,6 @@ function ui.init()
 		end
 		COLOR = true
 	end
-	ui.shutdown = curses.endwin
 	ui.init_called = true
 end
 
@@ -98,6 +97,18 @@ function ui.make_system()
 	system.filter = tiny.requireAll("pos")
 	system.update = ui.update
 	return system
+end
+
+
+function ui.shutdown(dead)
+	curses.clear()
+	if dead then
+		curses.mvaddstr(10, 10, "You are dead.")
+	end
+	curses.mvaddstr(12, 10, "Press any key to exit.")
+	curses.refresh()
+	curses.getch()
+	curses.endwin()
 end
 
 return ui

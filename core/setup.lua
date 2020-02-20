@@ -67,7 +67,7 @@ function setup.clear_entities_except(w, except_set)
 end
 
 function setup.exit_f(w, kill_save)
-	setup.ui.shutdown()
+	setup.ui.shutdown(kill_save)
 	if kill_save then
 		setup.save.remove()
 	else

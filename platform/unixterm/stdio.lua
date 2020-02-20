@@ -13,7 +13,10 @@ function ui.init()
 	ui.ready = true
 end
 
-function ui.shutdown()
+function ui.shutdown(dead)
+	if dead then
+		print("You died.")
+	end
 	print("Bye!")
 end
 
