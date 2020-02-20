@@ -15,10 +15,10 @@ property "act[enum.power.clone].ranged: possible and utility same as rnsummon" {
 }
 
 property "act[enum.power.clone].ranged.attempt: call rnsummon with right arguments" {
-	generators = { tbl(), tbl(), int(), int(), any() },
-	check = function(w, src, targ_pos, kind, ret)
+	generators = { tbl(), tbl(), int(), int(), int(), any() },
+	check = function(w, src, targ_pos, kind, power, ret)
 		src.kind = kind
-
+		src.power = {[enum.power.clone] = power}
 		local oldsummon = act[enum.power.summon].ranged.attempt
 		local attempt_args = {}
 		act[enum.power.summon].ranged.attempt = function(...)
@@ -27,6 +27,6 @@ property "act[enum.power.clone].ranged.attempt: call rnsummon with right argumen
 		end
 		local res = act[enum.power.clone].ranged.attempt(w, src, targ_pos)
 		act[enum.power.summon].ranged.attempt = oldsummon
-		return res == ret and base.equals(attempt_args, {{w, src, targ_pos, kind}})
+		return res == ret and base.equals(attempt_args, {{w, src, targ_pos, kind, power}})
 	end
 }

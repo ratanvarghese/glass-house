@@ -1,3 +1,4 @@
+local base = require("core.base")
 local grid = require("core.grid")
 local enum = require("core.enum")
 local act = require("core.act")
@@ -36,9 +37,10 @@ property "act[enum.power.summon].ranged.utility: scale with health" {
 }
 
 property "act[enum.power.summon].ranged.attempt: call summon.summon" {
-	generators = { int(), int(grid.MIN_POS+1, grid.MAX_POS-1) },
-	check = function(seed, pos)
+	generators = { int(), int(grid.MIN_POS+1, grid.MAX_POS-1), int(1, 4), int(1, 4) },
+	check = function(seed, pos, summon_i, power)
 		local w, src, targ_pos = mock.mini_world(seed, pos)
+		src.power = {[enum.power.summon] = power}
 		local oldsummon = summon.summon
 		local summon_args = {}
 		summon.summon = function(...)
@@ -48,19 +50,22 @@ property "act[enum.power.summon].ranged.attempt: call summon.summon" {
 		local res = act[enum.power.summon].ranged.attempt(w, src, targ_pos)
 		summon.summon = oldsummon
 		if res then
-			if #(summon_args) ~= 1 then
+			if #(summon_args) > 4 or #(summon_args) < 1 then
 				return false
-			elseif summon_args[1][1] ~= w then
+			end
+
+			local summon_i = base.clip(summon_i, 1, #(summon_args))
+			if summon_args[summon_i][1] ~= w then
 				return false
-			elseif summon_args[1][2] < enum.monster.MAX_STATIC then
+			elseif summon_args[summon_i][2] < enum.monster.MAX_STATIC then
 				return false
-			elseif summon_args[1][2] > enum.monster.MAX then
+			elseif summon_args[summon_i][2] > enum.monster.MAX then
 				return false
-			elseif summon_args[1][3] ~= src.pos then
+			elseif summon_args[summon_i][3] ~= src.pos then
 				return false
-			elseif not summon_args[1][4] then
+			elseif not summon_args[summon_i][4] then
 				return false
-			elseif summon_args[1][5] ~= 0.5 then
+			elseif summon_args[summon_i][5] ~= 0.5 then
 				return false
 			else
 				return src.health.now < src.health.max
@@ -72,9 +77,10 @@ property "act[enum.power.summon].ranged.attempt: call summon.summon" {
 }
 
 property "act[enum.power.summon].ranged.attempt: respect extra kind argument" {
-	generators = { int(), int(grid.MIN_POS+1, grid.MAX_POS-1), int() },
-	check = function(seed, pos, kind)
+	generators = { int(), int(grid.MIN_POS+1, grid.MAX_POS-1), int(), int(1, 4) },
+	check = function(seed, pos, kind, power)
 		local w, src, targ_pos = mock.mini_world(seed, pos)
+		src.power = {[enum.power.summon] = power}
 		local oldsummon = summon.summon
 		local summon_args = {}
 		summon.summon = function(...)

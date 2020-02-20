@@ -3,6 +3,8 @@ local enum = require("core.enum")
 local grid = require("core.grid")
 local act = require("core.act")
 
+local bestiary = require("core.bestiary")
+
 local mock = require("test.mock")
 
 local serpent = require("lib.serpent")
@@ -96,7 +98,10 @@ property "act: if 'possible' mode returns false, so does 'attempt' mode" {
 		if not t then return true end
 		local w, src, targ_pos = mock.mini_world(seed, pos)
 		local possibility = t.possible(w, src, targ_pos)
+		local old_make = bestiary.make
+		bestiary.make = function() end
 		local attempt = t.attempt(w, src, targ_pos)
+		bestiary.make = old_make
 		return possibility or (not attempt)
 	end,
 	when_fail = when_fail_general

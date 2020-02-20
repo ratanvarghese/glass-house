@@ -29,13 +29,15 @@ function summon.summon(world, kind, pos, add, h_ratio)
 	local n_options = #(options)
 	if n_options > 0 then
 		local m = bestiary.make(kind, options[math.random(1, n_options)])
-		m.health.now = math.floor(m.health.max * h_ratio)
-		world.state.denizens[m.pos] = m
-		if add then
-			world.addEntity(world, m)
-			clock.spend_credit(m.clock)
+		if m then
+			m.health.now = math.floor(m.health.max * h_ratio)
+			world.state.denizens[m.pos] = m
+			if add then
+				world.addEntity(world, m)
+				clock.spend_credit(m.clock)
+			end
 		end
-		return true
+		return m
 	else
 		return false
 	end
