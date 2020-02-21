@@ -17,8 +17,8 @@ table.insert(power.define, {
 	{kind = enum.power.sticky},
 	{kind = enum.power.displace},
 	{kind = enum.power.bodysnatch},
-	{kind = enum.power.hot},
-	{kind = enum.power.cold},
+	{kind = enum.power.hot, min = 3, max = 5, versions = 1},
+	{kind = enum.power.cold, min = 3, max = 5, versions = 1},
 	{kind = enum.power.steal}
 })
 

@@ -19,7 +19,7 @@ function rnsummon.ranged.utility(world, source, target_pos)
 end
 
 function rnsummon.ranged.attempt(world, source, target_pos, kind, n)
-	local n = math.random(1, (source.power[enum.power.summon] or n) or 1)
+	local n = (source.power[enum.power.summon] or n) or 1
 	local kind = kind or math.random(enum.monster.MAX_STATIC+1, enum.monster.MAX-1)
 	if rnsummon.ranged.possible(world, source, target_pos) then
 		local h_ratio = 0.5
