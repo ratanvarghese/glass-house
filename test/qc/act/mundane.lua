@@ -50,10 +50,15 @@ local function simple_possible(t)
 	end
 end
 
-local function melee_setup(seed, pos)
+local function melee_setup(seed, pos, keep_close, dx, dy)
 	local w, src, targ_pos = mock.mini_world(seed, pos)
 	local targ_now = math.random(1, 1000)
 	local targ_max = math.random(1, 1000)
+	if keep_close then
+		local s_x, s_y = grid.get_xy(src.pos)
+		targ_pos = grid.get_pos(s_x + dx, s_y + dy)
+	end
+
 	local targ = {pos = targ_pos, health=health.clip({now=targ_now, max=targ_max})}
 	w.state.denizens[targ_pos] = targ
 	return w, src, targ
@@ -163,11 +168,34 @@ property "act[enum.power.mundane].flee: attempt if obviously impossible" {
 	check = attempt_if_impossible(act[enum.power.mundane].flee)
 }
 
-property "act[enum.power.mundane].melee: possible" {
+property "act[enum.power.mundane].melee: likely impossible" {
 	generators = { int(), int(grid.MIN_POS, grid.MAX_POS) },
 	check = function(seed, pos)
 		local w, src, targ = melee_setup(seed, pos)
 		local alive = health.is_alive(targ.health)
+		local adjacent = grid.distance(src.pos, targ.pos) == 1
+		local res = act[enum.power.mundane].melee.possible(w, src, targ.pos)
+		if alive and adjacent then
+			return res
+		else
+			return not res
+		end
+	end
+}
+
+property "act[enum.power.mundane].melee: likely possible" {
+	generators = {
+		int(),
+		int(2, grid.MAX_X-1),
+		int(2, grid.MAX_Y-1),
+		int(-1, 1),
+		int(-1, 1)
+	},
+	check = function(seed, x, y, dx, dy)
+		local pos = grid.get_pos(x, y)
+		local w, src, targ = melee_setup(seed, pos, true, dx, dy)
+		local alive = health.is_alive(targ.health)
+
 		local adjacent = grid.distance(src.pos, targ.pos) == 1
 		local res = act[enum.power.mundane].melee.possible(w, src, targ.pos)
 		if alive and adjacent then

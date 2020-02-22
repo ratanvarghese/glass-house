@@ -82,3 +82,72 @@ property "move.prepare, move.process: move denizen properly" {
 		end
 	end
 }
+
+local function sticky_setup(seed, x, y, distance, targ_along_x)
+	local pos = grid.get_pos(x, y)
+	local w, src = mock.mini_world(seed, pos, true)
+	local spos_x, spos_y = grid.get_xy(src.pos)
+	local targ_pos
+	if targ_along_x then
+		targ_pos = grid.get_pos(spos_x+distance, spos_y)
+	else
+		targ_pos = grid.get_pos(spos_x, spos_y+distance)
+	end
+	local targ = {pos=targ_pos}
+	w.state.denizens[targ_pos] = targ
+	return w, src, targ	
+end
+
+property "move.stick, move.is_stuck: expected result for is_stuck" {
+	generators = {
+		int(),
+		int(3, grid.MAX_X-2),
+		int(3, grid.MAX_Y-2),
+		int(-2,2),
+		bool()
+	},
+	check = function(seed, x, y, distance, targ_along_x)
+		if distance == 0 then
+			distance = 1
+		end
+		local w, src, targ = sticky_setup(seed, x, y, distance, targ_along_x)
+		move.stick(src, targ)
+		local res = move.is_stuck(w.state.denizens, targ)		
+		if distance == 1 or distance == -1 then
+			return res
+		else
+			return not res
+		end
+	end
+}
+
+property "move.stick, move.is_stuck, move.prepare, move.process: prevent move" {
+	generators = {
+		int(),
+		int(3, grid.MAX_X-2),
+		int(3, grid.MAX_Y-2),
+		int(-2,2),
+		bool(),
+		int(grid.MIN_POS, grid.MAX_POS)
+	},
+	check = function(seed, x, y, distance, targ_along_x, move_targ_pos)
+		if distance == 0 then
+			distance = 1
+		end
+		local w, src, targ = sticky_setup(seed, x, y, distance, targ_along_x)
+		local old_targ_pos = targ.pos
+		move.stick(src, targ)
+		move.prepare(w, targ, move_targ_pos)
+		local stuck = move.is_stuck(w.state.denizens, targ)
+
+		local regen_args = {}
+		move.regen_f = function(...) table.insert(regen_args, {...}) end
+		move.process({world=w}, targ)
+		move.regen_f = old_regen
+		if stuck then
+			return #regen_args == 0 and targ.pos == old_targ_pos
+		else
+			return #regen_args > 0 or targ.pos == move_targ_pos
+		end
+	end
+}

@@ -35,10 +35,35 @@ function move.reset_paths(system)
 	end)
 end
 
+function move.stick(source, targ)
+	targ.relations = targ.relations or {}
+	targ.relations[enum.relations.stuck_to] = source
+end
+
+function move.is_stuck(denizens, stuck_dz)
+	local relations = stuck_dz.relations or {}
+	local sticky_dz = relations[enum.relations.stuck_to]
+	if not sticky_dz then
+		return false
+	elseif denizens[sticky_dz.pos] ~= sticky_dz then
+		return false
+	elseif grid.distance(stuck_dz.pos, sticky_dz.pos) > 1 then
+		return false
+	else
+		return true
+	end
+end
+
 function move.process(system, d, dt)
 	local world = system.world
 
 	if world.state.denizens[d.pos] == nil then return end
+
+	if move.is_stuck(world.state.denizens, d) then
+		return
+	elseif d.relations then
+		d.relations[enum.relations.stuck_to] = nil
+	end
 
 	world.state.denizens[d.pos] = nil
 	world.state.denizens[d.destination] = d
