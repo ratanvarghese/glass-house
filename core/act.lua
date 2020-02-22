@@ -11,6 +11,7 @@ local act_rnsummon = require("core.act.rnsummon")
 local act_clone = require("core.act.clone")
 local act_hotcold = require("core.act.hotcold")
 local act_sticky = require("core.act.sticky")
+local act_displace = require("core.act.displace")
 
 local act = {
 	MAX_MUNDANE_MOVE = act_mundane.MAX_MOVE,
@@ -64,6 +65,9 @@ function act.init()
 	}
 	act[enum.power.sticky] = {
 		melee = act_sticky.melee
+	}
+	act[enum.power.displace] = {
+		melee = act_displace.melee
 	}
 
 	for k,v in pairs(act) do

@@ -77,13 +77,26 @@ property "move.prepare, move.process: move denizen properly" {
 		move.regen_f = old_regen
 		if decidemode == enum.decidemode.player and terrain_kind == enum.tile.stair then
 			return base.equals(regen_args, {{w, old_num + 1}})
+		elseif decidemode == enum.decidemode.player and w.state.player_pos ~= src.pos then
+			return false
 		else
-			return #regen_args == 0 and src.pos == targ_pos
+			if #regen_args ~= 0 then
+				return false
+			elseif src.pos ~= targ_pos then
+				return false
+			elseif src.destination ~= targ_pos then
+				return false
+			elseif w.state.denizens[src.pos] ~= src then
+				return false
+			else
+				return true
+			end
 		end
 	end
 }
 
-local function sticky_setup(seed, x, y, distance, targ_along_x)
+
+local function nearby_setup(seed, x, y, distance, targ_along_x)
 	local pos = grid.get_pos(x, y)
 	local w, src = mock.mini_world(seed, pos, true)
 	local spos_x, spos_y = grid.get_xy(src.pos)
@@ -98,6 +111,53 @@ local function sticky_setup(seed, x, y, distance, targ_along_x)
 	return w, src, targ	
 end
 
+property "move.prepare, move.process: displace" {
+	generators = {
+		int(),
+		int(3, grid.MAX_X-2),
+		int(3, grid.MAX_Y-2),
+		int(-2,2),
+		bool(),
+		int(1, enum.decidemode.MAX-1),
+		int(1, enum.tile.MAX-1)
+	},
+	check = function(seed, x, y, distance, targ_along_x, targ_decidemode, terrain_kind)
+		if distance == 0 then
+			distance = 1
+		end
+		local w, src, targ = nearby_setup(seed, x, y, distance, targ_along_x)
+		local old_src_pos = src.pos
+		targ.decidemode = targ_decidemode
+		w.state.terrain[src.pos] = {kind = terrain_kind, pos=src.pos}
+
+		local old_num = w.state.num
+		local old_regen = move.regen_f
+		local regen_args = {}
+		
+		move.regen_f = function(...) table.insert(regen_args, {...}) end
+		move.prepare(w, src, targ.pos)
+		
+		move.process({world=w}, src)
+		
+		move.regen_f = old_regen
+		if decidemode == enum.decidemode.player and terrain_kind == enum.tile.stair then
+			return base.equals(regen_args, {{w, old_num + 1}})
+		else
+			if #regen_args ~= 0 then
+				return false
+			elseif targ.pos ~= old_src_pos then
+				return false
+			elseif targ.destination ~= old_src_pos then
+				return false
+			elseif w.state.denizens[targ.pos] ~= targ then
+				return false
+			else
+				return true
+			end
+		end
+	end
+}
+
 property "move.stick, move.is_stuck: expected result for is_stuck" {
 	generators = {
 		int(),
@@ -110,7 +170,7 @@ property "move.stick, move.is_stuck: expected result for is_stuck" {
 		if distance == 0 then
 			distance = 1
 		end
-		local w, src, targ = sticky_setup(seed, x, y, distance, targ_along_x)
+		local w, src, targ = nearby_setup(seed, x, y, distance, targ_along_x)
 		move.stick(src, targ)
 		local res = move.is_stuck(w.state.denizens, targ)		
 		if distance == 1 or distance == -1 then
@@ -134,7 +194,7 @@ property "move.stick, move.is_stuck, move.prepare, move.process: prevent move" {
 		if distance == 0 then
 			distance = 1
 		end
-		local w, src, targ = sticky_setup(seed, x, y, distance, targ_along_x)
+		local w, src, targ = nearby_setup(seed, x, y, distance, targ_along_x)
 		local old_targ_pos = targ.pos
 		move.stick(src, targ)
 		move.prepare(w, targ, move_targ_pos)

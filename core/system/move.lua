@@ -54,27 +54,44 @@ function move.is_stuck(denizens, stuck_dz)
 	end
 end
 
+local function player_check(world, d)
+	if d.decide == enum.decidemode.player then
+		world.state.player_pos = d.pos
+		if world.state.terrain[d.pos].kind == enum.tile.stair then
+			move.regen_f(world, world.state.num+1)
+			return true
+		end
+	end
+	return false
+end
+
 function move.process(system, d, dt)
 	local world = system.world
+	local denizens = world.state.denizens
 
-	if world.state.denizens[d.pos] == nil then return end
+	if denizens[d.pos] == nil then return end
 
-	if move.is_stuck(world.state.denizens, d) then
+	if move.is_stuck(denizens, d) then
 		return
 	elseif d.relations then
 		d.relations[enum.relations.stuck_to] = nil
 	end
 
-	world.state.denizens[d.pos] = nil
-	world.state.denizens[d.destination] = d
+	local old_pos = d.pos
+	local other_d = denizens[d.destination]
+	denizens[d.pos], denizens[d.destination] = other_d, d
 	d.pos = d.destination
-	if d.decide == enum.decidemode.player then
-		world.state.player_pos = d.pos
-		if world.state.terrain[d.pos].kind == enum.tile.stair then
-			move.regen_f(world, world.state.num+1)
+	if other_d then
+		other_d.pos = old_pos
+		other_d.destination = old_pos
+		if player_check(world, other_d) then
 			return
 		end
 	end
+	if player_check(world, d) then
+		return
+	end
+	
 	world.addEntity(world, d)
 end
 
