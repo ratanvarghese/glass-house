@@ -13,23 +13,22 @@ table.insert(power.define, {
 	{kind = enum.power.darkness, min = 1, max = 2, versions = 1},
 	{kind = enum.power.vampiric},
 	{kind = enum.power.heal, min = 2, max = 5, versions = 2},
-	{kind = enum.power.slow, min = 2, max = 5, versions = 1},
-	{kind = enum.power.sticky},
-	{kind = enum.power.displace},
-	{kind = enum.power.bodysnatch},
 	{kind = enum.power.hot, min = 3, max = 5, versions = 1},
 	{kind = enum.power.cold, min = 3, max = 5, versions = 1},
 	{kind = enum.power.steal}
 })
 
 table.insert(power.define, {
-	{kind = enum.power.warp, min = 2, max = 10, versions = 3},
+	{kind = enum.power.warp, min = 2, max = 10, versions = 2},
 	{kind = enum.power.smash},
-	{kind = enum.power.peaceful},
 	{kind = enum.power.clone, min = 3, max = 4, versions = 1},
 	{kind = enum.power.summon, min = 3, max = 4, versions = 1},
 	{kind = enum.power.jump},
 	{kind = enum.power.tool},
+	{kind = enum.power.displace},
+	{kind = enum.power.bodysnatch},
+	{kind = enum.power.slow, min = 2, max = 5, versions = 1},
+	{kind = enum.power.sticky},
 })
 
 function power.make_list(define_list)

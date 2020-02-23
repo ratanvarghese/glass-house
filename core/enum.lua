@@ -38,7 +38,6 @@ enum.default_inverted.power = {
 	"tool",
 	"vampiric",
 	"heal",
-	"peaceful",
 	"clone",
 	"darkness",
 	"summon",
