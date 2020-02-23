@@ -13,6 +13,8 @@ local tool = require("core.system.tool")
 local morph = require("core.system.morph")
 local gen = require("core.gen")
 
+local act = require("core.act")
+
 local setup = {}
 
 function setup.make_system_list(ui)
@@ -96,10 +98,14 @@ function setup.world(ui, save, seed, raw_exit_f)
 	health.init(setup.exit_f)
 	move.init(setup.regen)
 
+
 	local saved_data = save.load()
+	
 	local state
 	if saved_data then
 		enum.init(saved_data.enum_inverted)
+		act.init()
+
 		bestiary.set = saved_data.bestiary_set
 		state = saved_data.state
 	else
