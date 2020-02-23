@@ -12,7 +12,7 @@ table.insert(power.define, {
 	{kind = enum.power.light, min = 2, max = 5, versions = 2},
 	{kind = enum.power.darkness, min = 1, max = 2, versions = 1},
 	{kind = enum.power.vampiric},
-	{kind = enum.power.heal},
+	{kind = enum.power.heal, min = 2, max = 5, versions = 2},
 	{kind = enum.power.slow, min = 2, max = 5, versions = 1},
 	{kind = enum.power.sticky},
 	{kind = enum.power.displace},
