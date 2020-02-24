@@ -14,6 +14,7 @@ local act_sticky = require("core.act.sticky")
 local act_displace = require("core.act.displace")
 local act_heal = require("core.act.heal")
 local act_slow = require("core.act.slow")
+local act_steal = require("core.act.steal")
 
 local act = {
 	MAX_MUNDANE_MOVE = act_mundane.MAX_MOVE,
@@ -76,6 +77,9 @@ function act.init()
 	}
 	act[enum.power.slow] = {
 		area = act_slow.area
+	}
+	act[enum.power.steal] = {
+		melee = act_steal.melee
 	}
 
 	for k,v in pairs(act) do

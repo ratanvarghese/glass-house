@@ -1,0 +1,29 @@
+local mundane = require("core.act.mundane")
+
+local steal = { melee = {} }
+
+function steal.melee.possible(world, source, targ_pos)
+	local targ = mundane.melee.possible(world, source, targ_pos)
+	if targ then
+		return targ.inventory
+	else
+		return false
+	end
+end
+
+function steal.melee.utility(world, source, targ_pos)
+	local inv = steal.melee.possible(world, source, targ_pos) or {}
+	return #(inv)*5
+end
+
+function steal.melee.attempt(world, source, targ_pos)
+	local inv = steal.melee.possible(world, source, targ_pos)
+	if inv and #(inv) > 0 then
+		table.insert(source.inventory, table.remove(inv))
+		return true
+	else
+		return false
+	end
+end
+
+return steal

@@ -34,12 +34,6 @@ local function make_species(i, power)
 	t.clock = clock.make(math.random(1, clock.scale.MAX))
 	t.health = {max = i*5}
 	t.decide = enum.decidemode.monster
-	if t.power[enum.power.kick] then
-		t.power[enum.power.kick_strength] = math.random(1, 3)
-	end
-	if t.power[enum.power.punch] then
-		t.power[enum.power.punch_strength] = math.random(1, 2)
-	end
 	if t.power[enum.power.cold] then
 		t.display = t.display or {}
 		t.display[enum.display.cold] = true
@@ -49,7 +43,7 @@ local function make_species(i, power)
 		t.display[enum.display.hot] = true
 		t.power[enum.power.light] = 1
 	end
-	if t.power[enum.power.tool] then
+	if t.power[enum.power.tool] or t.power[enum.power.steal] then
 		t.inventory = {}
 	end
 	return t
