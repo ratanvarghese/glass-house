@@ -82,7 +82,7 @@ property "act[enum.power.slow].area.attempt: do not slow self" {
 		src.power = {[enum.power.slow] = s_factor}
 		local old_cred = src.clock.credit
 		act[enum.power.slow].area.attempt(w, src, targ.pos)
-		return src.clock.credit == old_cred
+		return src.clock.credit >= old_cred
 	end
 }
 
@@ -97,7 +97,7 @@ property "act[enum.power.slow].area.attempt: slow target inverse to distance" {
 		int(-1, 1),
 		int(2, 5)
 	},
-	check = function(seed, x, y, src_speed, src_speed, dx, dy, s_factor)
+	check = function(seed, x, y, src_speed, targ_speed, dx, dy, s_factor)
 		local w, src, targ = possible_setup(seed, x, y, src_speed, targ_speed, dx, dy)
 		local old_cred_1 = targ.clock.credit
 		src.power = {[enum.power.slow] = s_factor}
