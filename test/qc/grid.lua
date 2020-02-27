@@ -580,3 +580,56 @@ property "grid.destinations: custom direction table" {
 		end
 	end
 }
+
+property "grid.surround" {
+	generators = {
+		int(1, grid.MAX_X),
+		int(1, grid.MAX_Y),
+		int(0, 5),
+		tbl()
+	},
+	check = function(c_x, c_y, radius, t)
+		local c_pos = grid.get_pos(c_x, c_y)
+		for pos,x,y,v in grid.surround(c_pos, radius, t) do
+			if math.abs(c_x-x) > radius then
+				return false
+			elseif math.abs(c_y-y) > radius then
+				print(2)
+				return false
+			elseif pos ~= grid.get_pos(x, y) then
+				print(3)
+				return false
+			elseif v ~= t[pos] then
+				return false
+			end
+		end
+		return true
+	end
+}
+
+property "grid.line_direction" {
+	generators = {
+		int(1, grid.MAX_X),
+		int(1, grid.MAX_X),
+		int(1, grid.MAX_Y),
+		int(1, grid.MAX_Y)
+	},
+	check = function(x1, x2, y1, y2)
+		local p1 = grid.get_pos(x1, y1)
+		local p2 = grid.get_pos(x2, y2)
+		local res = grid.line_direction(p1, p2)
+		local x_line = (x1 == x2)
+		local y_line = (y1 == y2)
+		if (x_line and y_line) or not (x_line or y_line) then
+			return not res
+		else
+			return grid.directions[res]
+		end
+	end,
+	when_fail = function(x1, x2, y)
+		local p1 = grid.get_pos(x1, y)
+		local p2 = grid.get_pos(x2, y)
+		local res = grid.line_direction(p1, p2)
+		print(res, grid.directions[res])
+	end
+}

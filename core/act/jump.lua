@@ -22,6 +22,13 @@ local jump = {
 	}
 }
 
+jump.export = {
+	wander = jump.wander,
+	pursue = jump.pursue,
+	flee = jump.flee,
+	ranged = jump.ranged
+}
+
 local function jump_options(world, source)
 	return move.options(world, source.pos, jump.dlist)
 end

@@ -31,30 +31,11 @@ local function attempt(world, source, targ_pos, p_enum, alt_p_enum)
 	if (source.pos == targ_pos) or (not source.power) or (not source.power[p_enum]) then
 		return false
 	end
-	local s_x, s_y = grid.get_xy(source.pos)
-	local t_x, t_y = grid.get_xy(targ_pos)
-	local dx, dy = 0, 0
-	if s_x == t_x then
-		if s_y < t_y then
-			dy = 1
-		elseif s_y > t_y then
-			dy = -1
-		end
-	elseif s_y == t_y then
-		if s_x < t_x then
-			dx = 1
-		elseif s_x > t_x then
-			dx = -1
-		end
-	end
-	local cur_x, cur_y, cur_pos = s_x, s_y, source.pos
-	local hit_target = false
-	for i=1,source.power[p_enum] do
-		cur_x = cur_x + dx
-		cur_y = cur_y + dy
-		cur_pos = grid.get_pos(cur_x, cur_y)
+	local direction = grid.line_direction(source.pos, targ_pos)
+	local dest = grid.travel(source.pos, source.power[p_enum], direction)
+	for i,cur_pos in ipairs(grid.line(source.pos, dest)) do
 		local dz = world.state.denizens[cur_pos]
-		if dz then
+		if dz and i > 1 then
 			local dmg = (source.power[p_enum]-i+1)
 			if dz.power then
 				if dz.power[p_enum] then

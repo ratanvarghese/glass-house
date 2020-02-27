@@ -52,10 +52,6 @@ enum.default_inverted.power = {
 	"mundane",
 	"MAX"
 }
-enum.default_inverted.countdown = {
-	"slow",
-	"MAX"
-}
 enum.default_inverted.relations = {
 	"stuck_to",
 	"MAX"

@@ -7,10 +7,7 @@ local toolkit = require("core.toolkit")
 local light = {}
 
 function light.set_area(arr, radius, pos, v)
-	local x, y = grid.get_xy(pos)
-	local pos1 = grid.get_pos(grid.clip(x-radius, y-radius))
-	local pos2 = grid.get_pos(grid.clip(x+radius, y+radius))
-	for i in grid.points(nil, pos1, pos2) do
+	for i in grid.surround(pos, radius) do
 		arr[i] = v
 	end
 end

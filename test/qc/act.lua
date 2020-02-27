@@ -9,6 +9,8 @@ local mock = require("test.mock")
 
 local serpent = require("lib.serpent")
 
+act.enumerate()
+
 local function get_f(power, act_i)
 	local flist = act[power]
 	if not flist or #flist < 0 then return nil end

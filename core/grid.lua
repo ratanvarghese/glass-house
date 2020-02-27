@@ -155,6 +155,31 @@ function grid.destinations(start, directions_table)
 	return grid.destinations_iter, {x=x, y=y, directions_table=directions_table}, nil
 end
 
+function grid.surround(center, radius, t)
+	local c_x, c_y = grid.get_xy(center)
+	local p_start = grid.get_pos(grid.clip(c_x-radius, c_y-radius))
+	local p_end = grid.get_pos(grid.clip(c_x+radius, c_y+radius))
+	return grid.points(t, p_start, p_end)
+end
+
+function grid.line_direction(source_pos, targ_pos)
+	local s_x, s_y = grid.get_xy(source_pos)
+	local t_x, t_y = grid.get_xy(targ_pos)
+	if s_x == t_x then
+		if s_y < t_y then
+			return enum.cmd.south
+		elseif s_y > t_y then
+			return enum.cmd.north
+		end
+	elseif s_y == t_y then
+		if s_x < t_x then
+			return enum.cmd.east
+		elseif s_x > t_x then
+			return enum.cmd.west
+		end
+	end
+end
+
 function grid.init(max_x, max_y)
 	assert(type(max_x) == "number", "No max_x")
 	assert(type(max_y) == "number", "No max_y")

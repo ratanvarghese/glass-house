@@ -18,9 +18,7 @@ function heal.area.attempt(world, source, targ_pos)
 		return false
 	end
 	local s_x, s_y = grid.get_xy(source.pos)
-	local p_start = grid.get_pos(grid.clip(s_x-h_factor, s_y-h_factor))
-	local p_end = grid.get_pos(grid.clip(s_x+h_factor, s_y+h_factor))
-	for pos, x, y, dz in grid.points(world.state.denizens, p_start, p_end) do
+	for pos, x, y, dz in grid.surround(source.pos, h_factor, world.state.denizens) do
 		if dz then
 			local hx = h_factor - math.max(math.abs(s_x - x),math.abs(s_y - y))
 			dz.health.now = dz.health.now + hx

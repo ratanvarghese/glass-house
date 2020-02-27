@@ -12,6 +12,13 @@ local warp = {
 	ranged = {}
 }
 
+warp.export = {
+	wander = warp.wander,
+	pursue = warp.pursue,
+	flee = warp.flee,
+	ranged = warp.ranged
+}
+
 function warp.make_dlist(warp_factor)
 	return {
 		{x = 0, y = -warp_factor},
@@ -39,38 +46,20 @@ local function ranged_calc(world, source, target_pos)
 	if not target or not health.is_alive(target.health) then
 		return false
 	end
-	local src_x, src_y = grid.get_xy(source.pos)
-	local targ_x, targ_y = grid.get_xy(target_pos)
-	local diff_x = src_x - targ_x
-	local diff_y = src_y - targ_y
-	local across_x = (src_y == targ_y) and math.abs(diff_x) < warp_factor
-	local across_y = (src_x == targ_x) and math.abs(diff_y) < warp_factor
-	if not (across_x or across_y) then
+
+	local direction = grid.line_direction(source.pos, target_pos)
+	if not direction then
+		return false
+	end
+	local dest = grid.travel(source.pos, warp_factor, direction)
+	if grid.distance(source.pos, target_pos) > grid.distance(source.pos, dest) then
 		return false
 	end
 
-	local dest_x, dest_y
-	if diff_x > 0 then
-		dest_x = src_x - warp_factor
-		dest_y = src_y
-	elseif diff_x < 0 then
-		dest_x = src_x + warp_factor
-		dest_y = src_y
-	elseif diff_y > 0 then
-		dest_x = src_x
-		dest_y = src_y - warp_factor
-	elseif diff_y < 0 then
-		dest_x = src_x
-		dest_y = src_y + warp_factor
-	else
-		return false
-	end
-
+	local dest_x, dest_y = grid.get_xy(dest)
 	if dest_x < 1 or dest_x > grid.MAX_X or dest_y < 1 or dest_y > grid.MAX_Y then
 		return false
 	end
-
-	local dest = grid.get_pos(dest_x, dest_y)
 	return move.walkable(world.state.terrain, world.state.denizens, dest), dest, target
 end
 

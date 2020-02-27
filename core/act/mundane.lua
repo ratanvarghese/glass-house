@@ -12,6 +12,13 @@ local mundane = {
 	MAX_MELEE = 5
 }
 
+mundane.export = {
+	wander = mundane.wander,
+	pursue = mundane.pursue,
+	flee = mundane.flee,
+	melee = mundane.melee
+}
+
 function mundane.wander.possible(world, source, dummy_i)
 	return #(move.options(world, source.pos)) > 0
 end

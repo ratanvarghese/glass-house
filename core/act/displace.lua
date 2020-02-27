@@ -13,7 +13,6 @@ function displace.melee.attempt(world, source, targ_pos)
 	local target = displace.melee.possible(world, source, targ_pos)
 	if target then
 		target.health.now = target.health.now - 1
-		local old_srcpos = source.pos
 		move.prepare(world, source, targ_pos)
 		return true
 	else

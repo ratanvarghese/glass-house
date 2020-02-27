@@ -4,11 +4,7 @@ local steal = { melee = {} }
 
 function steal.melee.possible(world, source, targ_pos)
 	local targ = mundane.melee.possible(world, source, targ_pos)
-	if targ then
-		return targ.inventory
-	else
-		return false
-	end
+	return targ and targ.inventory or false
 end
 
 function steal.melee.utility(world, source, targ_pos)
