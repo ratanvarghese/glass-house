@@ -112,15 +112,15 @@ property "summon.summon: respect add" {
 }
 
 
-property "summon.summon: respect h_ratio" {
+property "summon.summon: respect max_h" {
 	generators = {
 		int(),
 		int(grid.MIN_POS, grid.MAX_POS),
 		int(),
-		float(),
+		int(2, 100),
 		int(2, 100)
 	},
-	check = function(seed, player_pos, kind, h_ratio, h_initial)
+	check = function(seed, player_pos, kind, max_h, h_initial)
 		local w, src, targ_pos = mock.mini_world(seed, player_pos)
 		local addArgs = {}
 		w.addEntity = function(...) table.insert(addArgs, {...}) end
@@ -133,16 +133,10 @@ property "summon.summon: respect h_ratio" {
 				clock=clock.make(clock.scale.MAX)
 			}
 		end
-		summon.summon(w, kind, targ_pos, true, h_ratio)
+		summon.summon(w, kind, targ_pos, true, max_h)
 		bestiary.make = old_make
 		local m = addArgs[1][2]
-		if h_ratio == 1 then
-			return m.health.now == m.health.max
-		elseif h_ratio > 1 then
-			return m.health.now > m.health.max
-		else
-			return m.health.now < m.health.max
-		end
+		return m.health.now <= math.min(h_initial, h_initial)
 	end
 }
 

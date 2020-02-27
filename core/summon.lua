@@ -21,8 +21,7 @@ local function rn_options(world)
 	return options
 end
 
-function summon.summon(world, kind, pos, add, h_ratio)
-	local h_ratio = h_ratio or 1
+function summon.summon(world, kind, pos, add, max_h)
 	local tries = 0
 	local options
 	if pos then
@@ -35,7 +34,9 @@ function summon.summon(world, kind, pos, add, h_ratio)
 	if n_options > 0 then
 		local m = bestiary.make(kind, options[math.random(1, n_options)])
 		if m then
-			m.health.now = math.floor(m.health.max * h_ratio)
+			if max_h then
+				m.health.now = math.min(m.health.now, max_h)
+			end
 			world.state.denizens[m.pos] = m
 			if add then
 				world.addEntity(world, m)
