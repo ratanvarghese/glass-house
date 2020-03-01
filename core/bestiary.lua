@@ -1,3 +1,7 @@
+--- Create monsters and manage monster species.
+-- The actual procedural generation of monster species is handled by `core.power`.
+-- @module core.bestiary
+
 local base = require("core.base")
 local enum = require("core.enum")
 local clock = require("core.clock")
@@ -5,6 +9,10 @@ local toolkit = require("core.toolkit")
 local power = require("core.power")
 
 local bestiary = {}
+
+--- Table of species.
+-- Keys are from `enum.monster`. Values are species tables.
+-- This table is populated by `bestiary.make_set`.
 bestiary.set = {}
 
 bestiary.set[enum.monster.player] = {
@@ -49,6 +57,9 @@ local function make_species(i, power)
 	return t
 end
 
+--- Procedurally generate species.
+-- Run at the start of a new game.
+-- @see core.power.make_all
 function bestiary.make_set()
 	for k=enum.monster.MAX_STATIC,enum.monster.MAX do
 		bestiary.set[k] = nil
@@ -64,6 +75,9 @@ function bestiary.make_set()
 	end
 end
 
+--- Create an individual monster
+-- @tparam enum.monster kind
+-- @tparam grid.pos pos
 function bestiary.make(kind, pos)
 	local species = bestiary.set[kind]
 	local res = base.copy(species)

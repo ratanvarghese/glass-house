@@ -1,3 +1,6 @@
+--- System for deciding on an action
+-- @module core.system.decide
+
 local tiny = require("lib.tiny")
 
 local enum = require("core.enum")
@@ -7,6 +10,13 @@ local clock = require("core.clock")
 
 local decide = {}
 
+--- Select action function from player commands
+-- @tparam table e player entity
+-- @tparam tiny.world world see [tiny-ecs](http://bakpakin.github.io/tiny-ecs/doc/)
+-- @tparam enum.cmd cmd
+-- @tparam int n inventory index
+-- @treturn func action function
+-- @return inventory number (int) or target position (`grid.pos`)
 function decide.player(e, world, cmd, n)
 	if grid.directions[cmd] then
 		local targ_i = grid.travel(e.pos, 1, cmd)
@@ -30,6 +40,11 @@ function decide.player(e, world, cmd, n)
 	end
 end
 
+--- Select action function for monster using utility-based AI
+-- @tparam table e monster entity
+-- @tparam tiny.world world see [tiny-ecs](http://bakpakin.github.io/tiny-ecs/doc/)
+-- @treturn func action function
+-- @return inventory number (int) or target position (`grid.pos`)
 function decide.monster(e, world)
 	local max_utility = -math.huge
 	local max_utility_f = nil
@@ -48,6 +63,11 @@ function decide.monster(e, world)
 	return max_utility_f, world.state.player_pos
 end
 
+--- Select action function
+-- @tparam tiny.world world see [tiny-ecs](http://bakpakin.github.io/tiny-ecs/doc/)
+-- @tparam table e monster or player entity
+-- @treturn func action function
+-- @return inventory number (int) or target position (`grid.pos`)
 function decide.get_ftarget(world, e)
 	if e.decide == enum.decidemode.player then
 		return decide.player(e, world, decide.input())
@@ -57,6 +77,7 @@ function decide.get_ftarget(world, e)
 	error("Bad decide mode")
 end
 
+--- Preprocess system, see [tiny-ecs](http://bakpakin.github.io/tiny-ecs/doc/)
 function decide.pre(system)
 	if not system.target_ent_i or not system.entities[system.target_ent_i] then
 		system.target_ent_i = 1
@@ -68,6 +89,7 @@ function decide.pre(system)
 	system.changed_target = false
 end
 
+--- Process system, see [tiny-ecs](http://bakpakin.github.io/tiny-ecs/doc/)
 function decide.process(system, e, dt)
 	if e == system.entities[system.target_ent_i] and clock.has_credit(e.clock) then
 		local f, target = decide.get_ftarget(system.world, e)
@@ -81,6 +103,7 @@ function decide.process(system, e, dt)
 	end
 end
 
+--- Postprocess system, see [tiny-ecs](http://bakpakin.github.io/tiny-ecs/doc/)
 function decide.post(system)
 	if not clock.has_credit(system.entities[system.target_ent_i].clock) then
 		system.target_ent_i = system.target_ent_i + 1
@@ -88,10 +111,13 @@ function decide.post(system)
 	end
 end
 
+--- Sort system, see [tiny-ecs](http://bakpakin.github.io/tiny-ecs/doc/)
 function decide.cmp(sys, e1, e2)
 	return e1.clock.id < e2.clock.id
 end
 
+--- Make system
+-- @treturn tiny.system see [tiny-ecs](http://bakpakin.github.io/tiny-ecs/doc/)
 function decide.make_system()
 	local system = tiny.sortedProcessingSystem()
 	system.filter = tiny.requireAll("clock", "decide", "pos")
@@ -102,6 +128,10 @@ function decide.make_system()
 	return system
 end
 
+--- Initialize callbacks for `core.system.decide` module
+-- @tparam func exit_f exit callback
+-- @tparam func input_f player input callback
+-- @treturn table `core.system.decide` module
 function decide.init(exit_f, input_f)
 	decide.exit = exit_f
 	decide.input = input_f

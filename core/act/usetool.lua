@@ -1,6 +1,21 @@
+--- Actions for `enum.power.usetool`
+-- @module core.act.usetool
+
 local tool = require("core.system.tool")
 
-local usetool = {pickup = {}, drop = {}, equip = {}}
+local usetool = {
+
+	--- Pickup action for usetool power
+	-- @see act.action
+	pickup = {},
+	--- Drop action for usetool power
+	-- @see act.action
+	drop = {},
+
+	--- Equip action for usetool power
+	-- @see act.action
+	equip = {}
+}
 
 function usetool.pickup.possible(world, e, inventory_i)
 	return tool.has_inventory_i(world.state.terrain[e.pos], inventory_i)

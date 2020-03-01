@@ -1,7 +1,14 @@
+--- Actions for `enum.power.heal`
+-- @module core.act.heal
+
 local enum = require("core.enum")
 local grid = require("core.grid")
 
-local heal = { area = {} }
+local heal = {
+	--- Area action for heal power
+	-- @see act.action
+	area = {}
+}
 
 function heal.area.possible(world, source, targ_pos)
 	return source.power[enum.power.heal]

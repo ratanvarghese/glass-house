@@ -1,6 +1,13 @@
+--- Actions for `enum.power.vampiric`
+-- @module core.act.vampiric
+
 local mundane = require("core.act.mundane")
 
-local vampiric = { melee = {} }
+local vampiric = {
+	--- Melee action for vampiric power
+	-- @see act.action
+	melee = {}
+}
 
 vampiric.melee.possible = mundane.melee.possible
 

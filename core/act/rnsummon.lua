@@ -1,9 +1,14 @@
+--- Actions for `enum.power.summon`
+-- @module core.act.rnsummon
+
 local enum = require("core.enum")
 local summon = require("core.summon")
 
 local move = require("core.system.move")
 
 local rnsummon = {
+	--- Ranged action for rnsummon power
+	-- @see act.action
 	ranged = {}
 }
 

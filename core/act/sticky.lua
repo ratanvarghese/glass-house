@@ -1,8 +1,15 @@
+--- Actions for `enum.power.sticky`
+-- @module core.act.sticky
+
 local enum = require("core.enum")
 local move = require("core.system.move")
 local mundane = require("core.act.mundane")
 
-local sticky = { melee = {} }
+local sticky = {
+	--- Melee action for sticky power
+	-- @see act.action
+	melee = {}
+}
 
 sticky.melee.possible = mundane.melee.possible
 

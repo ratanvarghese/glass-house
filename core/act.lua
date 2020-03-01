@@ -1,3 +1,39 @@
+--- Central access for monster actions.
+--@module core.act
+
+--[[--
+Table representing a possible action.
+
+Actions have the following form:
+	{
+		possible = function(w, src, targ_num),
+		utility = function(w, src, targ_num),
+		attempt = function(w, src, targ_num)
+	}
+Where `w` is the `tiny.world`, `src` is the entity doing the action, and `targ_num` is
+an integer representing the target. In most cases `targ_num` is a `grid.pos`, but for
+certain abilities it may instead be an inventory index.
+
+`possible` must return a truthy value if the action is possible, and a falsy value
+otherwise. `utility` must return a value less than or equal to 0 if the action is not
+possible. Only `attempt` is allowed to alter the state of the game.
+
+@usage
+	-- Check if mudane melee action is possible for entity `e`:
+	p = act[enum.power.mundane].melee.possible(world, e, target_position)
+	if p then
+		-- something
+	end
+
+	-- Calculate utility doing the ranged hot action for entity `e`:
+	u = act[enum.power.hot].ranged.utility(world, e, target_position)
+
+	-- Attempt the warp flee action for entity `e`:
+	act[enum.power.warp].flee.attempt(world, e, target_position)
+	-- (Note that when fleeing, `e` will try to get *away* from the `target_position`)
+@typedef action
+]]
+
 local base = require("core.base")
 local enum = require("core.enum")
 
@@ -23,6 +59,8 @@ local act = {
 	jump_dlist = jump.dlist,
 }
 
+--- Initialize `core.act[enum.power.*]`
+-- @treturn table the `core.act` module
 function act.init()
 	act[enum.power.mundane] = mundane.export
 	act[enum.power.tool] = usetool
@@ -42,6 +80,8 @@ function act.init()
 	return act
 end
 
+--- Add numeric keys for individual actions of each power.
+-- Intended for testing only.
 function act.enumerate()
 	for k,v in pairs(act) do
 		if type(k) == "number" then

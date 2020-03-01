@@ -1,8 +1,15 @@
+--- Actions for `enum.power.slow`
+-- @module core.act.slow
+
 local enum = require("core.enum")
 local grid = require("core.grid")
 local clock = require("core.clock")
 
-local slow = { area = {} }
+local slow = {
+	--- Area action for slow power
+	-- @see act.action
+	area = {}
+}
 
 function slow.area.possible(world, source, targ_pos)
 	return source.power[enum.power.slow]

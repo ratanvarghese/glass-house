@@ -1,3 +1,6 @@
+--- Actions for `enum.power.mundane`
+-- @module core.act.mundane
+
 local enum = require("core.enum")
 local grid = require("core.grid")
 local health = require("core.system.health")
@@ -13,9 +16,22 @@ local mundane = {
 }
 
 mundane.export = {
+	--- Wander action for mundane power
+	-- @see act.action
 	wander = mundane.wander,
+
+	--- Pursue action for jump power
+	-- @see act.action
 	pursue = mundane.pursue,
+
+
+	--- Flee action for jump power
+	-- @see act.action
 	flee = mundane.flee,
+
+
+	--- Melee action for jump power
+	-- @see act.action
 	melee = mundane.melee
 }
 

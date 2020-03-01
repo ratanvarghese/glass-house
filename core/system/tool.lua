@@ -1,3 +1,6 @@
+--- System managing picking up, dropping and equipping tools
+-- @module core.system.tool
+
 local tiny = require("lib.tiny")
 
 local base = require("core.base")
@@ -5,21 +8,33 @@ local toolkit = require("core.toolkit")
 
 local tool = {}
 
+--- Prepare entity for upcoming pickups
+-- @tparam table e tool-using entity
+-- @tparam {int,...} tool_index_list indices of terrain's inventory
 function tool.prepare_pickup(e, tool_index_list)
 	e.usetool.pickup = e.usetool.pickup or {}
 	base.extend_arr(e.usetool.pickup, ipairs(tool_index_list))
 end
 
+--- Prepare entity for upcoming drops
+-- @tparam table e tool-using entity
+-- @tparam {int,...} tool_index_list indices of entity's inventory
 function tool.prepare_drop(e, tool_index_list)
 	e.usetool.drop = e.usetool.drop or {}
 	base.extend_arr(e.usetool.drop, ipairs(tool_index_list))
 end
 
+--- Prepare entity to upcoming equips
+-- @tparam table e tool-using entity
+-- @tparam {int,...} tool_index_list indices of entity's inventory
 function tool.prepare_equip(e, tool_index_list)
 	e.usetool.equip = e.usetool.equip or {}
 	base.extend_arr(e.usetool.equip, ipairs(tool_index_list))
 end
 
+--- Check if entity has an item at a given inventory index
+-- @tparam table e entity
+-- @tparam int inventory_i inventory index
 function tool.has_inventory_i(e, inventory_i)
 	return e.inventory and e.inventory[inventory_i] ~= nil
 end
@@ -57,6 +72,7 @@ local function process_equip(e)
 	e.usetool.equip = nil
 end
 
+--- Process system, see [tiny-ecs](http://bakpakin.github.io/tiny-ecs/doc/)
 function tool.process(system, e, dt)
 	local world = system.world
 	local t = world.state.terrain[e.pos]
@@ -73,6 +89,8 @@ function tool.process(system, e, dt)
 	end
 end
 
+--- Make system
+-- @treturn tiny.system see [tiny-ecs](http://bakpakin.github.io/tiny-ecs/doc/)
 function tool.make_system()
 	local system = tiny.processingSystem()
 	system.filter = tiny.requireAll("inventory", "usetool")

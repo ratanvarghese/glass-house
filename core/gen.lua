@@ -1,3 +1,6 @@
+--- Generate level terrain
+-- @module core.gen
+
 local base = require("core.base")
 local grid = require("core.grid")
 local enum = require("core.enum")
@@ -12,6 +15,9 @@ local function tough_or_floor(pos, v)
 	end
 end
 
+--- Generate a big empty room
+-- @treturn table keys are `grid.pos`, values are terrain entities
+-- @treturn grid.pos possible position for the player
 function gen.big_room()
 	local terrain = {}
 	for i,x,y in grid.points() do
@@ -47,7 +53,14 @@ local function boolean_terrain(pos, x, y, v)
 	end
 end
 
+--- Number of floor tiles in level made with `gen.cave`
 gen.CAVE_STEPS = math.floor((grid.MAX_X * grid.MAX_Y * 2) / 4)
+
+--- Generate a cave using drunkard's walk algorithm.
+-- See RogueBasin's [article](http://www.roguebasin.com/index.php?title=Random_Walk_Cave_Generation)
+-- about this algorithm
+-- @treturn table keys are `grid.pos`, values are terrain entities
+-- @treturn grid.pos possible position for the player
 function gen.cave()
 	local clipn = 1
 	local x = math.random(1+clipn, grid.MAX_X-clipn)

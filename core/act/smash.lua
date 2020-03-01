@@ -1,9 +1,21 @@
+--- Actions for `enum.power.smash`
+-- @module core.act.smash
+
 local grid = require("core.grid")
 local enum = require("core.enum")
 local morph = require("core.system.morph")
 local mundane = require("core.act.mundane")
 
-local smash = { wander = {}, pursue = {} }
+local smash = {
+	--- Wander action for smash power
+	-- @see act.action
+	wander = {},
+
+
+	--- Pursue action for smash power
+	-- @see act.action
+	pursue = {}
+}
 
 local function next_step(source_i, target_i)
 	local line = grid.line(source_i, target_i)

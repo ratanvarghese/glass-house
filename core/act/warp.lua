@@ -1,3 +1,6 @@
+--- Actions for `enum.power.warp`
+-- @module core.act.warp
+
 local base = require("core.base")
 local grid = require("core.grid")
 local enum = require("core.enum")
@@ -6,9 +9,17 @@ local move = require("core.system.move")
 local health = require("core.system.health")
 
 local warp = {
+	--- Wander action for warp power
+	-- @see act.action
 	wander = {},
+	--- Pursue action for warp power
+	-- @see act.action
 	pursue = {},
+	--- Flee action for warp power
+	-- @see act.action
 	flee = {},
+	--- Ranged action for warp power
+	-- @see act.action
 	ranged = {}
 }
 

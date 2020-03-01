@@ -1,3 +1,13 @@
+--- Create proxy tables.
+-- See [Programming in Lua](https://www.lua.org/pil/13.4.4.html).
+-- Most of these are only used for testing, if they are used at all.
+-- The exception is `proxy.memoize` which could be useful at runtime.
+--
+-- Most functions return a proxy table and a control table. The
+-- control table contains the source table, and information about reads
+-- and writes to the proxy.
+-- @module core.proxy
+
 local proxy = {}
 
 local function common_init(source)
@@ -15,6 +25,17 @@ local function common_result(res, control)
 	return res, control
 end
 
+--- Create a proxy table offering read/write access to the source.
+-- See [Programming in Lua](https://www.lua.org/pil/13.4.4.html).
+-- The control table has the following form:
+--	{
+--		source = source,
+--		reads = [int],
+--		writes = [int]
+--	}
+-- @tparam table source
+-- @treturn table proxy table
+-- @treturn table control table
 function proxy.read_write(source)
 	local res, control = common_init(source)
 	control.mt = {
@@ -31,6 +52,19 @@ function proxy.read_write(source)
 	return common_result(res, control)
 end
 
+
+--- Create a proxy table offering read-only access to the source.
+-- See [Programming in Lua](https://www.lua.org/pil/13.4.5.html).
+-- Attempting to write to the proxy will throw an error.
+-- The control table has the following form:
+--	{
+--		source = source,
+--		reads = [int],
+--		writes = [int] --Hopefully always zero
+--	}
+-- @tparam table source
+-- @treturn table proxy table
+-- @treturn table control table
 function proxy.read_only(source)
 	local res, control = common_init(source)
 	control.mt = {
@@ -46,6 +80,22 @@ function proxy.read_only(source)
 	return common_result(res, control)
 end
 
+
+--- Create a proxy table that sends all writes to an alternate table.
+-- Writing to the proxy will change an "alt" table. Reading from the proxy
+-- will read from the "alt" table before checking the source table.
+-- Thus, the source table can remain unchanged, with all updates happening
+-- to the alt.
+-- The control table has the following form:
+--	{
+--		source = source,
+--		reads = [int],
+--		writes = [int],
+--		alt = [table]
+--	}
+-- @tparam table source
+-- @treturn table proxy table
+-- @treturn table control table
 function proxy.write_to_alt(source)
 	local res, control = common_init(source)
 	control.alt = {}
@@ -66,7 +116,23 @@ function proxy.write_to_alt(source)
 	return common_result(res, control)
 end
 
-
+--- Create a proxy table that calls a function when reading a new key.
+-- See [Programming in Lua](https://www.lua.org/pil/17.1.html).
+-- When reading a key from the proxy table for the first time,
+-- the key is passed to the function `f`, and the result of `f` is stored in the
+-- source table. Whenever that key is accessed again, the proxy table can use
+-- the value stored in the source. Thus, `f` is only called once for each input.
+-- Attempting to write to the proxy will throw an error.
+-- The control table has the following form:
+--	{
+--		f = f
+--		source = [table],
+--		reads = [int],
+--		writes = [int] --Hopefully always zero
+--	}
+-- @tparam func f
+-- @treturn table proxy table
+-- @treturn table control table
 function proxy.memoize(f)
 	local res, control = common_init({})
 	control.f = f

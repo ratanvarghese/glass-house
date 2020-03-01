@@ -1,3 +1,5 @@
+--- Actions for `enum.power.hot` and `enum.power.cold`
+-- @module core.act.hotcold
 local enum = require("core.enum")
 local grid = require("core.grid")
 
@@ -58,12 +60,16 @@ local p_cold = enum.power.cold
 
 local hotcold = { hot = {}, cold = {} }
 
+--- Ranged action for hot power
+-- @see act.action
 hotcold.hot.ranged = {
 	possible = function(w,s,t) return possible(w, s, t, s.power[p_hot]) end,
 	utility = function(w,s,t) return utility(w, s, t, s.power[p_hot]) end,
 	attempt = function(w,s,t) return attempt(w, s, t, p_hot, p_cold) end
 }
 
+--- Ranged action for cold power
+-- @see act.action
 hotcold.cold.ranged = {
 	possible = function(w,s,t) return possible(w, s, t, s.power[p_cold]) end,
 	utility = function(w,s,t) return utility(w, s, t, s.power[p_cold]) end,

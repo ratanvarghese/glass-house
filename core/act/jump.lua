@@ -1,3 +1,6 @@
+--- Actions for `enum.power.jump`
+-- @module core.act.jump
+
 local base = require("core.base")
 local grid = require("core.grid")
 local enum = require("core.enum")
@@ -23,9 +26,22 @@ local jump = {
 }
 
 jump.export = {
+	--- Wander action for jump power
+	-- @see act.action
 	wander = jump.wander,
+
+	--- Pursue action for jump power
+	-- @see act.action
 	pursue = jump.pursue,
+
+
+	--- Flee action for jump power
+	-- @see act.action
 	flee = jump.flee,
+
+
+	--- Ranged action for jump power
+	-- @see act.action
 	ranged = jump.ranged
 }
 

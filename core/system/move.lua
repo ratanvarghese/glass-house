@@ -1,3 +1,6 @@
+--- System to manage entity movement
+-- @module core.system.move
+
 local tiny = require("lib.tiny")
 
 local enum = require("core.enum")
@@ -7,12 +10,21 @@ local proxy = require("core.proxy")
 
 local move = {}
 
+--- Check if terrain at a given position can be walked upon
+-- @tparam {[grid.pos]=table,...} terrain
+-- @tparam {[grid.pos]=table,...} denizens
+-- @tparam grid.pos pos
+-- @treturn bool  
 function move.walkable(terrain, denizens, pos)
 	local terrain_kind = terrain[pos].kind
 	local good_t = (terrain_kind == enum.tile.floor) or (terrain_kind == enum.tile.stair)
 	return good_t and not denizens[pos]
 end
 
+--- Return list of nearby points with walkable terrain
+-- @tparam tiny.world world
+-- @tparam grid.pos source_pos
+-- @tparam[opt] {[any]=grid.vector,...} directions_table (passed to `grid.destinations`)
 function move.options(world, source_pos, directions_table)
 	local options = {}
 	for _,pos in grid.destinations(source_pos, directions_table) do
@@ -23,10 +35,16 @@ function move.options(world, source_pos, directions_table)
 	return options
 end
 
+--- Prepare an entity for an upcoming move
+-- @tparam tiny.world world see [tiny-ecs](http://bakpakin.github.io/tiny-ecs/doc/)
+-- @tparam table dz monster entity
+-- @tparam grid.pos new_pos new position for entity
 function move.prepare(world, dz, new_pos)
 	dz.destination = new_pos
 end
 
+--- Reset cached walking paths table
+-- @tparam tiny.system system see [tiny-ecs](http://bakpakin.github.io/tiny-ecs/doc/)
 function move.reset_paths(system)
 	system.world.walk_paths = proxy.memoize(function(target)
 		return flood.gradient(target, function(pos)
@@ -35,11 +53,18 @@ function move.reset_paths(system)
 	end)
 end
 
+--- Stick the target entity to the source
+-- @tparam table source sticky source entity
+-- @tparam table targ stuck target entity
 function move.stick(source, targ)
 	targ.relations = targ.relations or {}
 	targ.relations[enum.relations.stuck_to] = source
 end
 
+--- Check if monster is (still) stuck
+-- @tparam {[grid.pos]=table,...} denizens
+-- @tparam table stuck_dz
+-- @treturn bool
 function move.is_stuck(denizens, stuck_dz)
 	local relations = stuck_dz.relations or {}
 	local sticky_dz = relations[enum.relations.stuck_to]
@@ -65,6 +90,7 @@ local function player_check(world, d)
 	return false
 end
 
+--- Process system, see [tiny-ecs](http://bakpakin.github.io/tiny-ecs/doc/)
 function move.process(system, d, dt)
 	local world = system.world
 	local denizens = world.state.denizens
@@ -95,6 +121,8 @@ function move.process(system, d, dt)
 	world.addEntity(world, d)
 end
 
+--- Make system
+-- @treturn tiny.system see [tiny-ecs](http://bakpakin.github.io/tiny-ecs/doc/)
 function move.make_system()
 	local system = tiny.processingSystem()
 	system.filter = tiny.requireAll("destination", "pos")
@@ -103,6 +131,10 @@ function move.make_system()
 	return system
 end
 
+
+--- Initialize callbacks for `core.system.move` module
+-- @tparam func regen_f new level callback
+-- @treturn table `core.system.move` module
 function move.init(regen_f)
 	move.regen_f = regen_f
 	return move

@@ -1,7 +1,14 @@
+--- Actions for `enum.power.displace`
+-- @module core.act.displace
+
 local mundane = require("core.act.mundane")
 local move = require("core.system.move")
 
-local displace = { melee = {} }
+local displace = {
+	--- Melee action for displace power
+	-- @see act.action
+	melee = {}
+}
 
 displace.melee.possible = mundane.melee.possible
 

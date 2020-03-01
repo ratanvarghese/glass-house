@@ -1,11 +1,47 @@
+--- Manage combinations of powers for monsters.
+-- This module assists in procedurally generating monster species by
+-- converting lists of `power.definition` into a list of `power.combination`. Each
+-- `power.combination` can then be provided to a different species.
+-- @module core.power
+
+--- Table representing power definition.
+-- A power definition is a table of the following form:
+--	{
+--		kind = [enum.power.*],
+--		min = [int],
+--		max = [int],
+--		versions = [int]
+--	}
+-- If `min`, `max`, and `versions` are provided, the number of species with this power
+-- will be equal to `versions`. Each of those species will have a distinct power factor
+-- for this power, between `min` and `max`.
+--
+-- If `min`, `max` and `versions` are not provided, only one species will have this power.
+-- The power factor will be `power.DEFAULT`, which indicates a meaningless power factor.
+-- @typedef power.definition
+
+--- Table representing power combination.
+-- A power combination has the form:
+--	{
+--		[enum.power.*] = [int],
+--		[enum.power.*] = [int],
+--		...
+--	}
+-- Each species has it's own power combination.
+-- @typedef power.combination
+
 local base = require("core.base")
 local enum = require("core.enum")
 
 local power = {}
 
+--- Maximum number of procedurally generated monster species
 power.MAX_LEN = 52 -- 2*(length of English alphabet)
+
+--- Indicates a meaningless power factor
 power.DEFAULT = -1
 
+--- A list *of* lists of `power.definition`
 power.define = {}
 
 table.insert(power.define, {
@@ -31,6 +67,10 @@ table.insert(power.define, {
 	{kind = enum.power.sticky},
 })
 
+--- Convert a list of power definitions into a list of power definitions with a factor.
+-- Power definitions in the output list will have an extra field, `.factor`.
+-- @tparam {power.definition,...} define_list
+-- @treturn {power.definition,...}
 function power.make_list(define_list)
 	local res = {}
 	for _,v in ipairs(define_list) do
@@ -52,6 +92,8 @@ function power.make_list(define_list)
 	return res
 end
 
+--- Produce a list of power combinations
+-- @treturn {power.combination,...}
 function power.make_all()
 	local categorized_list = {}
 	local num_species = power.MAX_LEN

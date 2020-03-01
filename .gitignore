@@ -3,3 +3,6 @@
 *.swp
 .lqc
 out/*
+doc/*/*
+doc/*.html
+doc/*.css

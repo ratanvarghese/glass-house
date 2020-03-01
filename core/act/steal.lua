@@ -1,6 +1,13 @@
+--- Actions for `enum.power.steal`
+-- @module core.act.steal
+
 local mundane = require("core.act.mundane")
 
-local steal = { melee = {} }
+local steal = {
+	--- Melee action for steal power
+	-- @see act.action
+	melee = {}
+}
 
 function steal.melee.possible(world, source, targ_pos)
 	local targ = mundane.melee.possible(world, source, targ_pos)

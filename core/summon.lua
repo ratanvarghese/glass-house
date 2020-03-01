@@ -1,3 +1,7 @@
+--- Handles adding new monsters to the level.
+-- The basics of creating monsters are handled by `bestiary.make`
+-- @module core.summon
+
 local grid = require("core.grid")
 local enum = require("core.enum")
 local move = require("core.system.move")
@@ -21,6 +25,12 @@ local function rn_options(world)
 	return options
 end
 
+--- Summon a monster
+-- @tparam tiny.world world see [tiny-ecs](http://bakpakin.github.io/tiny-ecs/doc/)
+-- @tparam enum.monster kind
+-- @tparam[opt] grid.pos pos summoner position, omit for a random position
+-- @tparam[opt] bool add add summoned monster to world, and spend its clock credit
+-- @tparam[opt] int max_h limit the summoned monster's health to this maximum.
 function summon.summon(world, kind, pos, add, max_h)
 	local tries = 0
 	local options
