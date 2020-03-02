@@ -66,7 +66,7 @@ common.default.monster_symbol_mt = {
 
 --- Determine symbol at given position
 -- @tparam tiny.world world see [tiny-ecs](http://bakpakin.github.io/tiny-ecs/doc/).
--- @tparam grid.pos pos
+-- @tparam core.grid.pos pos
 -- @treturn string
 function common.symbol_at(world, pos)
 	local symbols = common.symbols
@@ -86,7 +86,7 @@ end
 
 --- Determine color at given position
 -- @tparam tiny.world world see [tiny-ecs](http://bakpakin.github.io/tiny-ecs/doc/).
--- @tparam grid.pos pos
+-- @tparam core.grid.pos pos
 -- @treturn int color, represented as a key for `common.default.colors`
 -- @treturn bool invert colors
 function common.color_at(world, pos)

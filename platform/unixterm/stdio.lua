@@ -28,7 +28,7 @@ function ui.shutdown(dead)
 end
 
 --- Get user input
--- @treturn enum.cmd
+-- @treturn core.enum.cmd
 -- @treturn int numeric input, such as inventory number
 function ui.get_input()
 	io.write("> ")

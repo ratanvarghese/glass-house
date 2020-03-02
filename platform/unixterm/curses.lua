@@ -73,7 +73,7 @@ function ui.init()
 end
 
 --- Get user input
--- @treturn enum.cmd
+-- @treturn core.enum.cmd
 -- @treturn int numeric input, such as inventory number
 function ui.get_input()
 	if not ui.init_called then error("Too early to get input") end
