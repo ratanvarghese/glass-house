@@ -1,3 +1,6 @@
+--- Entry point for `platform.unixterm`
+-- @module platform.unixterm.main
+
 local argparse = require("lib.argparse")
 
 local p = argparse("glass-house", "Glass House")

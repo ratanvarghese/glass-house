@@ -1,3 +1,6 @@
+--- Stdio interface
+-- @module platform.unixterm.stdio
+
 local tiny = require("lib.tiny")
 
 local visible = require("core.visible")
@@ -6,13 +9,17 @@ local common = require("platform.unixterm.common")
 
 local ui = {}
 
+--- What is **THIS** doing??
 ui.displays = 0
 
+--- Initialize `platform.unixterm.stdio`
 function ui.init()
 	print("Welcome to GLASS HOUSE")
 	ui.ready = true
 end
 
+--- Shut down UI
+-- @tparam bool dead Is the player dead?
 function ui.shutdown(dead)
 	if dead then
 		print("You died.")
@@ -20,6 +27,9 @@ function ui.shutdown(dead)
 	print("Bye!")
 end
 
+--- Get user input
+-- @treturn enum.cmd
+-- @treturn int numeric input, such as inventory number
 function ui.get_input()
 	io.write("> ")
 	local s = io.read()
@@ -27,6 +37,9 @@ function ui.get_input()
 end
 
 local last_display = ""
+
+--- Display level
+-- @tparam tiny.system system see [tiny-ecs](http://bakpakin.github.io/tiny-ecs/doc/)
 function ui.display(system)
 	if not ui.ready then return end
 	local display_t = {}
@@ -50,6 +63,8 @@ function ui.display(system)
 	last_display = next_display
 end
 
+--- Make system
+-- @treturn tiny.system see [tiny-ecs](http://bakpakin.github.io/tiny-ecs/doc/)
 function ui.make_system()
 	local system = tiny.system()
 	system.filter = tiny.requireAll("pos")

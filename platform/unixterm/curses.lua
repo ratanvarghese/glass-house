@@ -1,3 +1,7 @@
+--- Curses interface.
+-- Implemented using LuaJIT ffi
+-- @module platform.unixterm.curses
+
 local tiny = require("lib.tiny")
 local ffi = require("ffi")
 
@@ -8,6 +12,7 @@ local common = require("platform.unixterm.common")
 local ui = {}
 local curses, COLOR, color_codes, REVERSE_OFFSET
 
+--- Initialize `platform.unixterm.curses`
 function ui.init()
 	ffi.cdef[[
 	void* initscr();
@@ -67,12 +72,16 @@ function ui.init()
 	ui.init_called = true
 end
 
+--- Get user input
+-- @treturn enum.cmd
+-- @treturn int numeric input, such as inventory number
 function ui.get_input()
 	if not ui.init_called then error("Too early to get input") end
 	local s = string.char(curses.getch())
 	return common.keys[s], tonumber(s)
 end
 
+--- Update system, see [tiny-ecs](http://bakpakin.github.io/tiny-ecs/doc/).
 function ui.update(system)
 	if not ui.init_called then return end
 	for pos,x,y in grid.points() do
@@ -92,6 +101,8 @@ function ui.update(system)
 	curses.refresh()
 end
 
+--- Make system
+-- @treturn tiny.system see [tiny-ecs](http://bakpakin.github.io/tiny-ecs/doc/)
 function ui.make_system()
 	local system = tiny.system()
 	system.filter = tiny.requireAll("pos")
@@ -100,6 +111,8 @@ function ui.make_system()
 end
 
 
+--- Shut down UI
+-- @tparam bool dead Is the player dead?
 function ui.shutdown(dead)
 	curses.clear()
 	if dead then
