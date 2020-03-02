@@ -1,6 +1,9 @@
 --- Actions for `enum.power.clone`
 -- @module core.act.clone
 
+local enum = require("core.enum")
+local rnsummon = require("core.act.rnsummon")
+
 local clone = {
 	--- Ranged action for clone power
 	-- @see act.action

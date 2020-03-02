@@ -20,17 +20,17 @@ mundane.export = {
 	-- @see act.action
 	wander = mundane.wander,
 
-	--- Pursue action for jump power
+	--- Pursue action for mundane power
 	-- @see act.action
 	pursue = mundane.pursue,
 
 
-	--- Flee action for jump power
+	--- Flee action for mundane power
 	-- @see act.action
 	flee = mundane.flee,
 
 
-	--- Melee action for jump power
+	--- Melee action for mundane power
 	-- @see act.action
 	melee = mundane.melee
 }
