@@ -6,6 +6,7 @@ backtick_references=true
 file={
 	"../core",
 	"../platform/unixterm",
+	"../data",
 	--"../tools"
 }
 all=true

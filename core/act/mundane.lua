@@ -5,6 +5,9 @@ local enum = require("core.enum")
 local grid = require("core.grid")
 local health = require("core.system.health")
 local move = require("core.system.move")
+local say = require("core.system.say")
+
+local msg = require("data.msg")
 
 local mundane = {
 	wander = {},
@@ -62,16 +65,23 @@ function mundane.pursue.utility(world, source, target_i)
 	return n_options * h_ratio * lit
 end
 
+local function move_failed(source)
+	if source.decide == enum.decidemode.player then
+		say.prepare(msg.bump)
+	end
+	return false
+end
+
 function mundane.pursue.attempt(world, source, target_i)
 	if source.pos == target_i then
 		return true
 	end
 	local min, min_i = grid.extreme_destination(source.pos, world.walk_paths[target_i])
 	if min >= math.huge then
-		return false
+		return move_failed(source)
 	end
 	if grid.distance(source.pos, target_i) == 1 and min_i ~= target_i then
-		return false
+		return move_failed(source)
 	end
 	move.prepare(world, source, min_i)
 	return true

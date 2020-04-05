@@ -14,6 +14,7 @@ local health = require("core.system.health")
 local move = require("core.system.move")
 local tool = require("core.system.tool")
 local morph = require("core.system.morph")
+local say = require("core.system.say")
 local gen = require("core.gen")
 
 local act = require("core.act")
@@ -30,7 +31,8 @@ function setup.make_system_list(ui)
 		health.make_system(),
 		move.make_system(),
 		tool.make_system(),
-		morph.make_system()
+		morph.make_system(),
+		say.make_system()
 	}
 end
 
@@ -128,7 +130,7 @@ function setup.world(ui, save, seed, raw_exit_f)
 	decide.init(setup.exit_f, ui.get_input)
 	health.init(setup.exit_f)
 	move.init(setup.regen)
-
+	say.init(ui.say)
 
 	local saved_data = save.load()
 	

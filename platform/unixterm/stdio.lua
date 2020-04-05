@@ -63,6 +63,11 @@ function ui.display(system)
 	last_display = next_display
 end
 
+function ui.say(msg, world)
+	assert(type(msg) == "string", "Non-string messages not yet supported")
+	print(msg)
+end
+
 --- Make system
 -- @treturn tiny.system see [tiny-ecs](http://bakpakin.github.io/tiny-ecs/doc/)
 function ui.make_system()

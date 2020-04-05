@@ -32,19 +32,19 @@ function visible.at(world, pos)
 	local memory = world.state.memory[pos]
 
 	if pos == world.state.player_pos then
-		return denizen.kind, enum.monster
+		return denizen.kind, enum.monster, true
 	elseif light then
 		if denizen then
-			return denizen.kind, enum.monster
+			return denizen.kind, enum.monster, true
 		elseif tool_pile and #tool_pile > 0 then
-			return tool_pile[#tool_pile].kind, enum.tool
+			return tool_pile[#tool_pile].kind, enum.tool, true
 		else
-			return tile.kind, enum.tile
+			return tile.kind, enum.tile, true
 		end
 	elseif memory and tile.kind ~= enum.tile.floor then
-		return tile.kind, enum.tile
+		return tile.kind, enum.tile, false
 	else
-		return false, false
+		return false, false, false
 	end
 end
 

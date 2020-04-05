@@ -70,7 +70,7 @@ end
 -- @return inventory number (int) or target position (`grid.pos`)
 function decide.get_ftarget(world, e)
 	if e.decide == enum.decidemode.player then
-		return decide.player(e, world, decide.input())
+		return decide.player(e, world, decide.input(world))
 	elseif e.decide == enum.decidemode.monster then
 		return decide.monster(e, world)
 	end
