@@ -12,14 +12,14 @@ say.msg_q = deque.new()
 
 --- Prepare message `s` to be displayed when `say` system updates
 -- @param s message
-function say.prepare(s)
-	deque.push_back(say.msg_q, s)
+function say.prepare(s, p_list)
+	deque.push_back(say.msg_q, {s=s,p_list=p_list})
 end
 
 --- Update system, see [tiny-ecs](http://bakpakin.github.io/tiny-ecs/doc/)
 function say.update(system, dt)
 	for _,v in deque.backwards(say.msg_q) do
-		say.ui_say_f(v, system.world)
+		say.ui_say_f(v.s, system.world, v.p_list)
 	end
 
 	say.msg_q = deque.new()

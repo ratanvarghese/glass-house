@@ -67,7 +67,7 @@ end
 
 local function move_failed(source)
 	if source.decide == enum.decidemode.player then
-		say.prepare(msg.bump)
+		say.prepare(msg.bump, {source.pos})
 	end
 	return false
 end

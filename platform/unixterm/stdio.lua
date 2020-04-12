@@ -63,9 +63,15 @@ function ui.display(system)
 	last_display = next_display
 end
 
-function ui.say(msg, world)
+function ui.say(msg, world, p_list)
 	assert(type(msg) == "string", "Non-string messages not yet supported")
-	print(msg)
+	io.write("[")
+	for _,p in ipairs(p_list) do
+		local x, y = grid.get_xy(p)
+		io.write("(", x, ",", y, "),")
+	end
+	io.write("] ")
+	io.write(msg, "\n")
 end
 
 --- Make system

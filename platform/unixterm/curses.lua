@@ -171,8 +171,8 @@ local function gen_can_write_msg(world)
 	return res
 end
 
-local function closest_writable_p(world,  msg, can_write_msg, last_x, step_x)
-	local px, py = grid.get_xy(world.state.player_pos)
+local function closest_writable_p(world,  msg, can_write_msg, p_list, last_x, step_x)
+	local px, py = grid.get_xy(p_list[1])
 	for x=px,last_x,step_x do
 		local msg_p = grid.get_pos(x, py)
 		if can_write_msg[msg_p] and can_write_msg[msg_p] >= #msg then
@@ -181,19 +181,19 @@ local function closest_writable_p(world,  msg, can_write_msg, last_x, step_x)
 	end
 end
 
-local function gen_msg_p_list(world,msg,can_write_msg)
+local function gen_msg_p_list(world,msg,can_write_msg, p_list)
 	local res = {
-		closest_writable_p(world,msg,can_write_msg,1,-1),
-		closest_writable_p(world,msg,can_write_msg,grid.MAX_X,1)
+		closest_writable_p(world,msg,can_write_msg,p_list,1,-1),
+		closest_writable_p(world,msg,can_write_msg,p_list,grid.MAX_X,1)
 	}
 	return base.extend_arr({},pairs(res))
 end
 
-function ui.say(msg, world)
+function ui.say(msg, world, p_list)
 	assert(type(msg) == "string", "Non-string messages not yet supported")
 
 	local can_write_msg = gen_can_write_msg(world)
-	local msg_p_list = gen_msg_p_list(world,msg,can_write_msg)
+	local msg_p_list = gen_msg_p_list(world,msg,can_write_msg,p_list)
 
 	if #msg_p_list > 0 then
 		messages[msg_p_list[math.random(#msg_p_list)]] = msg
