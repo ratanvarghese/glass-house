@@ -3,8 +3,10 @@
 
 local enum = require("core.enum")
 local summon = require("core.summon")
-
 local move = require("core.system.move")
+local say = require("core.system.say")
+
+local msg = require("data.msg")
 
 local rnsummon = {
 	--- Ranged action for rnsummon power
@@ -30,6 +32,7 @@ function rnsummon.ranged.attempt(world, source, target_pos, kind, n)
 		local h_ratio = 0.5
 		for i = 1,n do
 			summon.summon(world, kind, source.pos, true, h_ratio)
+			say.prepare(msg.summon, {source.pos})
 			source.health.now = math.floor(source.health.now*h_ratio)
 		end
 		return true

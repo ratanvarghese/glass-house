@@ -2,6 +2,9 @@
 -- @module core.act.steal
 
 local mundane = require("core.act.mundane")
+local say = require("core.system.say")
+
+local msg = require("data.msg")
 
 local steal = {
 	--- Melee action for steal power
@@ -23,6 +26,7 @@ function steal.melee.attempt(world, source, targ_pos)
 	local inv = steal.melee.possible(world, source, targ_pos)
 	if inv and #(inv) > 0 then
 		table.insert(source.inventory, table.remove(inv))
+		say.prepare(msg.steal, {source.pos})
 		return true
 	else
 		return false

@@ -5,6 +5,10 @@ local grid = require("core.grid")
 local enum = require("core.enum")
 local morph = require("core.system.morph")
 local mundane = require("core.act.mundane")
+local say = require("core.system.say")
+
+local msg = require("data.msg")
+
 
 local smash = {
 	--- Wander action for smash power
@@ -22,6 +26,12 @@ local function next_step(source_i, target_i)
 	return line[2]
 end
 
+local function attempt(world, step)
+	morph.prepare(world.state.terrain[step], enum.tile.floor)
+	say.prepare(msg.smash, {step})
+	return true
+end
+
 function smash.wander.possible(world, source, target_i)
 	return #(morph.smash_options(world, source.pos)) > 0
 end
@@ -33,11 +43,12 @@ end
 function smash.wander.attempt(world, source, target_i)
 	local options = morph.smash_options(world, source.pos)
 	local can_do = #(options) > 0
-	if not can_do then return false end
-	morph.prepare(world.state.terrain[options[math.random(1, #options)]], enum.tile.floor)
-	return true
+	if can_do then
+		return attempt(world, options[math.random(1, #options)])
+	else
+		return false
+	end
 end
-
 
 function smash.pursue.possible(world, source, target_i)
 	local step = next_step(source.pos, target_i)
@@ -58,8 +69,7 @@ end
 function smash.pursue.attempt(world, source, target_i)
 	local step = smash.pursue.possible(world, source, target_i)
 	if step then
-		morph.prepare(world.state.terrain[step], enum.tile.floor)
-		return true
+		return attempt(world, step)
 	else
 		return false
 	end

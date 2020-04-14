@@ -2,6 +2,9 @@
 -- @module core.act.vampiric
 
 local mundane = require("core.act.mundane")
+local say = require("core.system.say")
+
+local msg = require("data.msg")
 
 local vampiric = {
 	--- Melee action for vampiric power
@@ -20,6 +23,7 @@ function vampiric.melee.attempt(world, source, target_i)
 	if target then
 		target.health.now = target.health.now - 2
 		source.health.now = source.health.now + 1
+		say.prepare(msg.vampiric, {source.pos})
 		return true
 	else
 		return false

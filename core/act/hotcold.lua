@@ -2,8 +2,9 @@
 -- @module core.act.hotcold
 local enum = require("core.enum")
 local grid = require("core.grid")
+local say = require("core.system.say")
 
-local serpent = require("lib.serpent")
+local msg = require("data.msg")
 
 local function possible(world, source, targ_pos, p)
 	if not p then
@@ -49,6 +50,13 @@ local function attempt(world, source, targ_pos, p_enum, alt_p_enum)
 			dz.health.now = dz.health.now - dmg
 			if cur_pos == targ_pos then
 				hit_target = true
+				if dz.decide == enum.decidemode.player and dmg > 0 then
+					if p_enum == enum.power.hot then
+						say.prepare(msg.hot, {cur_pos})
+					else
+						say.prepare(msg.cold, {cur_pos})
+					end
+				end
 			end
 		end
 	end

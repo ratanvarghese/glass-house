@@ -3,6 +3,9 @@
 
 local enum = require("core.enum")
 local grid = require("core.grid")
+local say = require("core.system.say")
+
+local msg = require("data.msg")
 
 local heal = {
 	--- Area action for heal power
@@ -29,6 +32,7 @@ function heal.area.attempt(world, source, targ_pos)
 		if dz then
 			local hx = h_factor - math.max(math.abs(s_x - x),math.abs(s_y - y))
 			dz.health.now = dz.health.now + hx
+			say.prepare(msg.heal, {dz.pos})
 		end	
 	end
 	return true

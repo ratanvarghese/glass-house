@@ -7,6 +7,9 @@ local enum = require("core.enum")
 local mundane = require("core.act.mundane")
 local move = require("core.system.move")
 local health = require("core.system.health")
+local say = require("core.system.say")
+
+local msg = require("data.msg")
 
 local jump = {
 	wander = {},
@@ -180,6 +183,7 @@ function jump.ranged.attempt(world, source, target_pos)
 	end
 	move.prepare(world, source, dest)
 	target.health.now = target.health.now - 2
+	say.prepare(msg.jump_over, {target.pos})
 	return true
 end
 

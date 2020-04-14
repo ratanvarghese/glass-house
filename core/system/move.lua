@@ -7,6 +7,9 @@ local enum = require("core.enum")
 local grid = require("core.grid")
 local flood = require("core.flood")
 local proxy = require("core.proxy")
+local say = require("core.system.say")
+
+local msg = require("data.msg")
 
 local move = {}
 
@@ -98,6 +101,7 @@ function move.process(system, d, dt)
 	if denizens[d.pos] == nil then return end
 
 	if move.is_stuck(denizens, d) then
+		say.prepare(msg.stuck, {d.pos})
 		return
 	elseif d.relations then
 		d.relations[enum.relations.stuck_to] = nil
@@ -107,7 +111,8 @@ function move.process(system, d, dt)
 	local other_d = denizens[d.destination]
 	denizens[d.pos], denizens[d.destination] = other_d, d
 	d.pos = d.destination
-	if other_d then
+	if other_d and old_pos ~= d.pos then
+		say.prepare(msg.displace, {other_d.destination})
 		other_d.pos = old_pos
 		other_d.destination = old_pos
 		if player_check(world, other_d) then

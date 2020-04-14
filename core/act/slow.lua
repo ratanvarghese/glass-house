@@ -4,6 +4,9 @@
 local enum = require("core.enum")
 local grid = require("core.grid")
 local clock = require("core.clock")
+local say = require("core.system.say")
+
+local msg = require("data.msg")
 
 local slow = {
 	--- Area action for slow power
@@ -33,6 +36,7 @@ function slow.area.attempt(world, source, targ_pos)
 		if dz and pos ~= source.pos and dz.clock then
 			local slow_x = s_factor - math.max(math.abs(s_x - x),math.abs(s_y - y))
 			clock.spend_credit(dz.clock, slow_x)
+			say.prepare(msg.slowed, {dz.pos})
 			do_speed = true
 		end
 	end
