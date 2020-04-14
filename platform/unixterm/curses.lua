@@ -153,51 +153,19 @@ function ui.shutdown(dead)
 	curses.endwin()
 end
 
-local function gen_can_write_msg(world)
-	local res = {}
-	for y=1,grid.MAX_Y do
-		local max = 0
-		for x=grid.MAX_X,1,-1 do
-			local p = grid.get_pos(x, y)
-			local _, _, lit = visible.at(world, p)
-			if not lit then
-				max = max + 1
-				res[p] = max
-			else
-				max = 0
-			end
-		end
+local function get_msg_p(p, n)
+	local x, y = grid.get_xy(p)
+	if x < (grid.MAX_X - n - 1) then
+		return grid.get_pos(x + 1, y)
+	else
+		return grid.get_pos(x - n - 1, y)
 	end
-	return res
-end
-
-local function closest_writable_p(world,  msg, can_write_msg, p_list, last_x, step_x)
-	local px, py = grid.get_xy(p_list[1])
-	for x=px,last_x,step_x do
-		local msg_p = grid.get_pos(x, py)
-		if can_write_msg[msg_p] and can_write_msg[msg_p] >= #msg then
-			return msg_p
-		end
-	end
-end
-
-local function gen_msg_p_list(world,msg,can_write_msg, p_list)
-	local res = {
-		closest_writable_p(world,msg,can_write_msg,p_list,1,-1),
-		closest_writable_p(world,msg,can_write_msg,p_list,grid.MAX_X,1)
-	}
-	return base.extend_arr({},pairs(res))
 end
 
 function ui.say(msg, world, p_list)
-	assert(type(msg) == "string", "Non-string messages not yet supported")
+	assert(type(msg) == "string", "Non-string message '" .. tostring(msg).. "'' not yet supported")
 
-	local can_write_msg = gen_can_write_msg(world)
-	local msg_p_list = gen_msg_p_list(world,msg,can_write_msg,p_list)
-
-	if #msg_p_list > 0 then
-		messages[msg_p_list[math.random(#msg_p_list)]] = msg
-	end
+	messages[get_msg_p(p_list[1], #msg)] = msg
 	curses.beep()
 end
 
