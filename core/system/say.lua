@@ -4,6 +4,7 @@
 local tiny = require("lib.tiny")
 
 local deque = require("core.deque")
+local visible = require("core.visible")
 
 local say = {}
 
@@ -19,7 +20,10 @@ end
 --- Update system, see [tiny-ecs](http://bakpakin.github.io/tiny-ecs/doc/)
 function say.update(system, dt)
 	for _,v in deque.backwards(say.msg_q) do
-		say.ui_say_f(v.s, system.world, v.p_list)
+		local _, __, lit = visible.at(system.world, v.p_list[1])
+		if lit then
+			say.ui_say_f(v.s, system.world, v.p_list)
+		end
 	end
 
 	say.msg_q = deque.new()
