@@ -166,7 +166,6 @@ function ui.say(msg, world, p_list)
 	assert(type(msg) == "string", "Non-string message '" .. tostring(msg).. "'' not yet supported")
 
 	messages[get_msg_p(p_list[1], #msg)] = msg
-	curses.beep()
 end
 
 return ui
