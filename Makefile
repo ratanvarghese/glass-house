@@ -4,7 +4,7 @@ SCRIPTNAME=glass-house
 #Combining all lua files
 LJ=luajit
 COMBINE=$(LJ) tools/combine.lua
-BODYFILES=lib/*.lua platform/unixterm/*.lua core/*.lua core/*/*.lua
+BODYFILES=lib/*.lua platform/unixterm/*.lua core/*.lua core/*/*.lua data/*.lua
 
 #Output directory
 OUTDIR=out
