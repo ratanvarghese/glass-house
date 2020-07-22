@@ -13,9 +13,15 @@ MKDIR=mkdir -p
 #Assembling script
 SHEBANG='\#!/usr/bin/env luajit'
 
-all: script
+#Documentation generator
+LDOC=ldoc
+
+all: script doc
 
 script: $(OUTDIR)/$(SCRIPTNAME)
+
+doc:
+	$(LDOC) .
 
 #First one to use OUTDIR has to make it
 $(OUTDIR)/body.lua: $(BODYFILES)
@@ -28,3 +34,4 @@ $(OUTDIR)/$(SCRIPTNAME): $(OUTDIR)/body.lua
 
 clean:
 	rm -rf $(OUTDIR)/*
+	rm -rf doc

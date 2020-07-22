@@ -4,14 +4,14 @@ description="A roguelike"
 format="markdown"
 backtick_references=true
 file={
-	"../core",
-	"../platform/unixterm",
-	"../data",
-	--"../tools"
+	"./core",
+	"./platform/unixterm",
+	"./data",
+	--"./tools"
 }
 all=true
-dir="."
-readme="../README.md"
+dir="doc"
+readme="./README.md"
 style="!fixed"
 ext="html"
 

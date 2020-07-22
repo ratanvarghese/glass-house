@@ -11,8 +11,10 @@ local say = {}
 --- Message queue
 say.msg_q = deque.new()
 
---- Prepare message `s` to be displayed when `say` system updates
--- @param s message
+--- Prepare message `s` to be displayed when `say` system updates.
+-- Messages are displayed if the first element of `p_list` is a visible spot
+-- @tparam string s message
+-- @tparam {grid.pos,...} p_list Points relevant to this message.
 function say.prepare(s, p_list)
 	deque.push_back(say.msg_q, {s=s,p_list=p_list})
 end

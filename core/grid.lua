@@ -40,7 +40,7 @@ local grid = {}
 -- @typedef grid.vector
 
 
---- Convert x,y coordinates to grid.pos
+--- Convert x,y coordinates to `grid.pos`
 -- @tparam int x
 -- @tparam int y
 -- @treturn grid.pos
@@ -57,7 +57,7 @@ local function get_x(i)
 	end
 end
 
---- Convert grid.pos to x,y coordinates
+--- Convert `grid.pos` to x,y coordinates
 -- @tparam grid.pos i
 -- @treturn int x
 -- @treturn int y
@@ -224,8 +224,7 @@ function grid.distance(i1, i2)
 	return math.abs(y2 - y1) + math.abs(x2 - x1)
 end
 
---- **SHOULD THIS BE EXPOSED????**
-function grid.destinations_iter(_s, _var)
+local function destinations_iter(_s, _var)
 	local dk = next(_s.directions_table, _var)
 	if dk == nil then
 		return nil
@@ -234,7 +233,7 @@ function grid.destinations_iter(_s, _var)
 	local x = _s.x + dv.x
 	local y = _s.y + dv.y
 	if x < 1 or x > grid.MAX_X or y < 1 or y > grid.MAX_Y then
-		return grid.destinations_iter(_s, dk)
+		return destinations_iter(_s, dk)
 	else
 		return dk, grid.get_pos(grid.clip(x, y))
 	end
@@ -250,7 +249,7 @@ end
 function grid.destinations(start, directions_table)
 	local directions_table = directions_table or grid.directions
 	local x, y = grid.get_xy(start)
-	return grid.destinations_iter, {x=x, y=y, directions_table=directions_table}, nil
+	return destinations_iter, {x=x, y=y, directions_table=directions_table}, nil
 end
 
 --- Iterate over area of a square, centered around a given point.
