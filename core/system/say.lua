@@ -42,6 +42,7 @@ end
 -- @treturn table `core.system.say` module
 function say.init(ui_say_f)
 	say.ui_say_f = ui_say_f
+	say.msg_q = deque.new()
 	return say
 end
 
