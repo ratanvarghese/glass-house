@@ -1,6 +1,6 @@
 # Glass House
 
-Glass House is an unfinished roguelike. Development is still ongoing.
+Glass House is an unfinished roguelike. Development has entirely stopped, this effort has been abandoned.
 
 ## Requirements
 
